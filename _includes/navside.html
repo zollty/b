@@ -43,11 +43,11 @@
                 <div class="panel panel-info">
                   <div class="panel-heading">
                     <h4 class="panel-title">
-                      <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#{{ tag[0] }}">{{ tag[0] }}</a>
+                      <a data-toggle="collapse" data-toggle="collapse" data-parent="#accordion" href="#tag-{{ tag[0] }}">{{ tag[0] }}</a>
                       <span class="badge pull-right">{{ tag[1].size }}</span>
                     </h4>
                   </div>
-                  <div class="panel-collapse collapse">
+                  <div id="tag-{{ tag[0] }}" class="panel-collapse collapse">
                     {% for post in tag[1] %}
                       <a  href='{{ site.baseurl }}{{ post.url }}' class="list-group-item pjaxlink sidebar-a">
                         {{post.title}}
