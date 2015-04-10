@@ -6,9 +6,9 @@
       <br><br>
       <ul class="nav nav-pills nav-stacked">
         {% for category in site.categories %}
-          <li><a href="#{{ category | first }}" data-toggle="tab">{{ category[0] }}</a></li>
+          <li><a href="#tab-{{ category | first }}" data-toggle="tab">{{ category[0] }}</a></li>
         {% endfor %}
-		  <li><a href="#tags" data-toggle="tab">{{ site.locals.tags }}</a></li>
+		  <li><a href="#tab-tags" data-toggle="tab">{{ site.locals.tags }}</a></li>
           
 		  <li><a class="pjaxlink" href="{{ site.baseurl }}/pages/archive.html">{{ site.locals.archive }}</a></li>
 		  
@@ -27,7 +27,7 @@
       <div class="row">
         <div class="tab-content">
           {% for category in site.categories %} 
-            <div class="tab-pane" id="{{ category[0] }}">
+            <div class="tab-pane" id="tab-{{ category[0] }}">
               <div class="list-group">
                 <h2 class="center">{{ category[0] }}</h2>
                 {% for post in category[1] %}
@@ -36,7 +36,7 @@
               </div>
             </div>
           {% endfor %}
-          <div class="tab-pane" id="tags">
+          <div class="tab-pane" id="tab-tags">
             <div class="panel-group" id="accordion">
               <h2 class="center">{{ site.locals.tags }}</h2>
               {% for tag in site.tags %} 
