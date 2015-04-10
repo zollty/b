@@ -9,7 +9,7 @@ lsi: true # 在github中是无效的
 markdown: rdiscount
 
 # Serving
-baseurl: "b" # does not include hostname
+baseurl: b # does not include hostname
 
 # 作者信息
 author: 
