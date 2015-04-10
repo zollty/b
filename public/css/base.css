@@ -49,6 +49,9 @@ body, html {
   border-right: 1px solid #428bca;
   overflow-y: auto;
 }
+.tab-content {
+  padding-bottom: 24px;
+}
 /* 右侧内容栏 */
 .aside3 {
   height: 100%;
