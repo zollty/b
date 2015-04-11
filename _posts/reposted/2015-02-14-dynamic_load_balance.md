@@ -3,6 +3,7 @@ layout: post
 title: 使用etcd + confd + nginx做动态负载均衡
 category: 技术
 tags: CoreOS
+catalog: true
 keywords: CoreOS Docker confd etcd nginx
 ---
 

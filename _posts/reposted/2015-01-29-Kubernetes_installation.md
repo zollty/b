@@ -3,6 +3,7 @@ layout: post
 title: 在CoreOS集群上搭建Kubernetes
 category: 技术
 tags: CoreOS
+catalog: true
 keywords: CoreOS Docker Kubernetes
 ---
 

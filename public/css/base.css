@@ -45,6 +45,7 @@ blockquote p {
 }
 .aside3-title {
   background-color: #1f2c39;
+  border-left: 1px solid #fafaf6;
   text-align: center;
   color: #FFF;
 }

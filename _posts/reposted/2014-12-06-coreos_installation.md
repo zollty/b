@@ -3,6 +3,7 @@ layout: post
 title: CoreOS 安装
 category: 技术
 tags: CoreOS
+catalog: true
 keywords: CoreOS Docker
 ---
 
