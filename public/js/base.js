@@ -21,6 +21,16 @@ $(document).ready(function() {
     $(this).addClass('active').siblings().removeClass('active');
   });
   
+  if( $('#about-wr').length>0 ) {
+    $('#about-tab').addClass('active').siblings().removeClass('active');
+  }
+  if( $('#cate-wr').length>0 ) {
+    $('#cate-tab').addClass('active').siblings().removeClass('active');
+  }
+  if( $('#my-tag-wr').length>0 ) {
+    $('#tags-tab').addClass('active').siblings().removeClass('active');
+  }
+
   contentEffects();
 });
 
