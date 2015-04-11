@@ -2,6 +2,43 @@
 title: 首页
 layout: base
 ---
+<style>
+.listing-item,.listing-seperator{list-style-type:none;}
+.listing-item a{
+  padding:.2em 1em;
+}
+.post{padding:.5em 0em;}
+.post ul{padding:.5em 0em;}
+.listing-item time{color:#999999;}
+.listing-seperator{font-weight:bold;}
+.post .listing2{padding:.5em 0em;border-style:none;}
+
+.paginator {
+font: 14px Arial,Helvetica,sans-serif;
+color: #AAA;
+margin: 20px 0;
+line-height: 150%;
+display: block;
+}
+
+.paginator a,.paginator span{
+padding: 0 4px;
+margin: 2px;
+text-decoration: none;
+}
+
+.paginator .current-page {
+color: white;
+background: #ff0000;
+}
+
+.paginator a:hover{
+color: white;
+background: #83BF73;
+}
+
+</style>
+<div class="post">
 <!-- {{ paginator.total_posts }} -->
 <ul class="listing2">
 {% for post in paginator.posts %}
@@ -52,4 +89,5 @@ layout: base
     <span class="next disabled" >后页&gt;</span>
   {% endif %}
   (共{{ paginator.total_posts }}篇)
+</div>
 </div>
