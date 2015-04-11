@@ -15,16 +15,7 @@ $(document).ready(function() {
     contentEffects();
   });
   
-  $('body').on('click', '.show-commend', function(){
-    var ds_loaded = false;
-    window.disqus_shortname = $('.show-commend').attr('name');
-    $.ajax({
-      type: "GET",
-      url: "http://" + disqus_shortname + ".disqus.com/embed.js",
-      dataType: "script",
-      cache: true
-    });
-  });
+  $('body').on('click', '.show-commend', showDisqus);
   
   $('.my-lf-tab').on('click', function() {
     $(this).addClass('active').siblings().removeClass('active');
@@ -32,6 +23,17 @@ $(document).ready(function() {
   
   contentEffects();
 });
+
+function showDisqus() {
+	var ds_loaded = false;
+    window.disqus_shortname = $('.show-commend').attr('name');
+    $.ajax({
+      type: "GET",
+      url: "http://" + disqus_shortname + ".disqus.com/embed.js",
+      dataType: "script",
+      cache: true
+    });
+}
 
 /* 控制导航按钮动作 */
 function nav_click() {
