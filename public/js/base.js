@@ -21,6 +21,13 @@ $(document).ready(function() {
     $(this).addClass('active').siblings().removeClass('active');
   });
   
+  $('#my-gavatar').on('click', function() {
+    var myTab = $('.my-lf-tab');
+    myTab.each(funcrion(){
+      $(this).removeClass('active');
+    });
+  });
+  
   contentEffects();
 });
 
