@@ -48,8 +48,8 @@ active: tab-技术
 
 # 首页除了最新文章外显示分类
 cates: 
-  - Docker
-  - Java
+  - Life
+  - CoreOS
 
 # 中文本地化
 locals:
