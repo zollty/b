@@ -32,7 +32,7 @@ layout: base
 		{% if paginator.previous_page == 1 %}
 		<a href="{{ site.baseurl }}/index.html"><前页</a>
 		{% else %}
-		<a href="{{ site.baseurl }}/idx{{paginator.previous_page}}">&lt;前页</a>
+		<a href="{{ site.baseurl }}/index{{paginator.previous_page}}">&lt;前页</a>
 		{% endif %}
 	  {% else %}
 		<span class="previous disabled">&lt;前页</span>
@@ -48,12 +48,12 @@ layout: base
 		  {% if count == paginator.page %}
 		  <span class="current-page">{{count}}</span>
 		  {% else %}
-		  <a href="{{ site.baseurl }}/idx{{count}}">{{count}}</a>
+		  <a href="{{ site.baseurl }}/index{{count}}">{{count}}</a>
 		  {% endif %}
 		{% endfor %}
 
 	  {% if paginator.next_page %}
-		<a class="next" href="{{ site.baseurl }}/idx{{paginator.next_page}}">后页&gt;</a>
+		<a class="next" href="{{ site.baseurl }}/index{{paginator.next_page}}">后页&gt;</a>
 	  {% else %}
 		<span class="next disabled" >后页&gt;</span>
 	  {% endif %}
