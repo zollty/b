@@ -88,7 +88,7 @@ blockquote p {
   width: 100%;
 }
 
-/* zs-nav */
+/* Begin zs-nav */
 .zs-narrow-nav .navbar {
   min-height: 40px;
   margin-bottom: 1px;
@@ -105,3 +105,50 @@ blockquote p {
   margin-top: 3px;
   margin-bottom: 3px;
 }
+/* End zs-nav */
+
+/* Begin 归档分页-pagi */
+.pagi-list-item,.pagi-list-seperator{
+  list-style-type:none;
+}
+.pagi-list-item time{
+  color:#999999;
+}
+.pagi-list-seperator{
+  font-weight:bold;
+}
+.pagi-list-item a{
+  padding:.2em 1em;
+  color: #dd0000;
+  text-decoration: none;
+}
+
+.pagi {
+  padding:.5em 0em;
+  font-size: 16px;
+  line-height: 24px;
+}
+.pagi ul{
+  padding:.5em 0em;
+}
+
+.pagi-foot {
+  color: #AAA;
+  margin: 20px 0;
+  line-height: 150%;
+  display: block;
+}
+.pagi-foot a,.pagi-foot span{
+  padding: 0 4px;
+  margin: 2px;
+  text-decoration: none;
+}
+.pagi-foot .current-page {
+  color: white;
+  background: #ff0000;
+}
+.pagi-foot a:hover{
+  color: white;
+  background: #83BF73;
+}
+/* End 归档分页-pagi */

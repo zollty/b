@@ -1,60 +1,8 @@
 ---
-title: 首页
+title: 归档
 layout: base
 ---
-<style>
-.pagi-list-item,.pagi-list-seperator{
-  list-style-type:none;
-}
-.pagi-list-item {
-  padding-left: 10px;
-}
-.pagi-list-item time{
-  color:#999999;
-}
-.pagi-list-seperator{
-  font-weight:bold;
-}
-.pagi-list-item a{
-  padding:.2em 1em;
-  color: #dd0000;
-  text-decoration: none;
-}
 
-.pagi {
-  padding:.5em 0em;
-  font-size: 16px;
-  line-height: 24px;
-}
-.pagi ul{
-  padding:.5em 0em;
-}
-.pagi .pagi-list{
-  padding:.5em 0em;
-  border-style:none;
-}
-
-.pagi-foot {
-  font: 14px Arial,Helvetica,sans-serif;
-  color: #AAA;
-  margin: 20px 0;
-  line-height: 150%;
-  display: block;
-}
-.pagi-foot a,.pagi-foot span{
-  padding: 0 4px;
-  margin: 2px;
-  text-decoration: none;
-}
-.pagi-foot .current-page {
-  color: white;
-  background: #ff0000;
-}
-.pagi-foot a:hover{
-  color: white;
-  background: #83BF73;
-}
-</style>
 <div class="pagi">
 	<ul class="pagi-list">
 	{% for post in paginator.posts %}

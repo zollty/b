@@ -22,10 +22,11 @@ $(document).ready(function() {
   });
   
   $('#my-gavatar').on('click', function() {
-    var myTab = $('.my-lf-tab');
-    myTab.each(function(){
-      $(this).removeClass('active');
-    });
+    $('#idx-tab').addClass('active').siblings().removeClass('active');
+    //var myTab = $('.my-lf-tab');
+    //myTab.each(function(){
+    //  $(this).removeClass('active');
+    //});
   });
   
   contentEffects();
