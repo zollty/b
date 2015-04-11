@@ -136,5 +136,9 @@ function contentEffects(){
 	
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
+  if( $('#my-tag-wr').length>0 ) {
+    $('#my-tag-wr a').tagcloud();
+  }
+  
   addDuoShuo();
 }

@@ -21,14 +21,3 @@ layout: base
 	{% endif %}{% endfor %}
 {% endunless %}{% endfor %}
 </div>
-
-<script src="{{ site.baseurl }}/public/js/jquery.tagcloud.js"></script>
-<script language="javascript">
-$.fn.tagcloud.defaults = {
-    size: {start: 14, end: 24, unit: 'pt'},
-    color: {start: '#FF66CC', end: '#FF0000'}
-};
-$(function () {
-    $('#my-tag-wr a').tagcloud();
-});
-</script>

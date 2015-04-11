@@ -5,8 +5,13 @@
 <script type="text/javascript" src="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
 <script src="http://cdn.staticfile.org/jquery.pjax/1.9.2/jquery.pjax.min.js"></script>
 <script src="http://cdn.staticfile.org/prettify/r298/prettify.min.js"></script>
+<script src="{{ site.baseurl }}/public/js/jquery.tagcloud.js"></script>
 <script>
     $('a[href="#{{ site.active }}"]').tab('show');
 	var duoshuoQuery = {short_name:"{{ site.comments.duoshuo.name }}"};
+$.fn.tagcloud.defaults = {
+    size: {start: 14, end: 24, unit: 'pt'},
+    color: {start: '#FF66CC', end: '#FF0000'}
+};
 </script>
 <script src="{{ site.baseurl }}/public/js/base.js"></script>
