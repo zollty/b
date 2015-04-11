@@ -67,7 +67,7 @@ layout: base
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
 		<li class="pagi-list-item">
-		  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m.%d" }}</time>
+		  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m-%d" }}</time>
 		  <a href="{{ site.baseurl }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
 	    </li>
 	  
