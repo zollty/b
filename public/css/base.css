@@ -9,11 +9,10 @@ body, html {
   overflow: hidden;
   background-color: #1f2c39;
 }
-.row {
-  height: 100%;
+blockquote p {
+  font-size: 20px;
 }
-/* 导航栏 + 目录栏 */
-.aside {
+.row {
   height: 100%;
 }
 /* 左侧导航栏 */
@@ -35,22 +34,11 @@ body, html {
 }
 .aside1_bottom {
   width: 100%;
-  position: absolute;
   bottom: 42px;
   left: 0px;
 }
 .aside1_bottom > .table {
   margin-bottom: 0px;
-}
-/* 中部目录栏 */
-.aside2 {
-  background-color: #fafaf6;
-  height: 100%;
-  border-right: 1px solid #428bca;
-  overflow-y: auto;
-}
-.tab-content {
-  padding-bottom: 24px;
 }
 /* 右侧内容栏 */
 .aside3 {
@@ -74,19 +62,12 @@ body, html {
 #content h2, h3 {
   line-height: 2;
 }
-blockquote p {
-  font-size: 20px;
-}
 /* 其他配置 */
 .center {
   text-align: center;
 }
 .nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
   color: #2a6496;
-  background-color: #fafaf6;
-}
-
-.sa-active{
   background-color: #fafaf6;
 }
 
