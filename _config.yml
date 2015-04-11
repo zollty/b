@@ -6,6 +6,7 @@ timezone:      Asia/Shanghai
 
 # Conversion 
 lsi: true # 在github中是无效的
+highlighter: pygments
 markdown: rdiscount
 
 # Serving
