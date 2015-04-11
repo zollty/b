@@ -4,9 +4,6 @@
   height: 100%;
 }
 body, html {
-  margin: 0px;
-  height: 100%;
-  overflow: hidden;
   background-color: #1f2c39;
 }
 blockquote p {
