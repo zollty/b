@@ -5,13 +5,14 @@ layout: base
 
 {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
 {% assign tag_words = site_tags | split:',' | sort %}
-<ul class="tag-box">
-  {% for item in (0..site.tags.size) %}{% unless forloop.last %}
-  {% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
-  <li><a href="#{{ this_word | cgi_escape }}" rel="nofollow">{{ this_word }} <sup>{{ site.tags[this_word].size }}</sup></a></li>
-  {% endunless %}{% endfor %}
-</ul>
-<div id="my-tag-wr" class="my-tag-wr">
+<div id='my-tag-wr'>
+{% for item in (0..site.tags.size) %}{% unless forloop.last %}
+{% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
+  <a href="#{{ this_word | cgi_escape }}" title="{{ this_word }}" rel="{{ site.tags[this_word].size }}">{{ this_word }} <sup>{{ site.tags[this_word].size }}</sup></a>
+{% endunless %}{% endfor %}
+</div>
+
+<div class="my-tag-wr">
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
 	{% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
 	<h4 id="{{ this_word | cgi_escape }}">{{ this_word }}</h4>
@@ -20,3 +21,14 @@ layout: base
 	{% endif %}{% endfor %}
 {% endunless %}{% endfor %}
 </div>
+
+<script src="{{ site.baseurl }}/public/js/jquery.tagcloud.js"></script>
+<script language="javascript">
+$.fn.tagcloud.defaults = {
+    size: {start: 14, end: 24, unit: 'pt'},
+    color: {start: '#FF66CC', end: '#FF0000'}
+};
+$(function () {
+    $('#my-tag-wr a').tagcloud();
+});
+</script>
