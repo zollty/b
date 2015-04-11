@@ -11,7 +11,7 @@ $(document).ready(function() {
 	}
   });
   $(document).on("pjax:end", function() {
-    $('.aside3').scrollTop(0);
+    //$('.aside3').scrollTop(0);
     contentEffects();
   });
   
