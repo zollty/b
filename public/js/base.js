@@ -23,7 +23,7 @@ $(document).ready(function() {
   
   $('#my-gavatar').on('click', function() {
     var myTab = $('.my-lf-tab');
-    myTab.each(funcrion(){
+    myTab.each(function(){
       $(this).removeClass('active');
     });
   });
