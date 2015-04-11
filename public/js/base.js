@@ -21,14 +21,6 @@ $(document).ready(function() {
     $(this).addClass('active').siblings().removeClass('active');
   });
   
-  $('#my-gavatar').on('click', function() {
-    $('#idx-tab').addClass('active').siblings().removeClass('active');
-    //var myTab = $('.my-lf-tab');
-    //myTab.each(function(){
-    //  $(this).removeClass('active');
-    //});
-  });
-  
   contentEffects();
 });
 
