@@ -118,7 +118,7 @@ blockquote p {
   font-weight:bold;
 }
 .pagi-list-item a{
-  padding:.2em 1em;
+  padding:.2em .2em;
   color: #dd0000;
   text-decoration: none;
 }
@@ -155,4 +155,9 @@ blockquote p {
 .my-tag-wr {
   padding:.5em 0em;
   font-size: 16px;
+}
+.my-tag-wr  ul {
+  padding-left: 10px;
+  margin-bottom: 15px;
+  line-height: 28px;
 }
