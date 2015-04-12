@@ -12,7 +12,7 @@ layout: base
 
 <div class="my-tag-wr">
 {% for cat in site.categories %}
-  <button type="button" class="btn btn-primary show" data-toggle="collapse" id="{{ cat[0] }}" data-target="#modal-{{ cat[0] }}">{{ cat[0] }} <span class="badge">{{ cat[1].size }}</span> <span class="caret"></span></button>
+  <button type="button" class="btn btn-primary show" data-toggle="collapse" id="{{ cat[0] }}" data-target="#modal-{{ cat[0] }}">{{ cat[0] }} ({{ cat[1].size }})&nbsp; <span class="caret"></span></button>
   <ul id="modal-{{ cat[0] }}" class="in collapse" style="height: auto;">{% for post in cat[1] %}
   <li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
   {% endfor %}</ul>
