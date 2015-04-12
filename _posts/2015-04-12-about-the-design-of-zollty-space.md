@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Zollty Space的设计和搭建
+title: Zollty Space的建设
 category: 程序员风采
 tags: Blog
 keywords: blog zollty
