@@ -156,8 +156,12 @@ blockquote p {
   padding:.5em 0em;
   font-size: 16px;
 }
+.my-tag-wr h4 {
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
 .my-tag-wr  ul {
   padding-left: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   line-height: 28px;
 }
