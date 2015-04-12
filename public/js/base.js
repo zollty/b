@@ -140,5 +140,9 @@ function contentEffects(){
     $('#my-tag-wr a').tagcloud();
   }
   
+  if( $('#cate-wr').length>0 ) {
+    $('#cate-wr a').tagcloud();
+  }
+  
   addDuoShuo();
 }
