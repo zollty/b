@@ -16,8 +16,8 @@ layout: base
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
 	{% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
 	<h4 id="{{ this_word | cgi_escape }}">{{ this_word }}</h4>
-	{% for post in site.tags[this_word] %}{% if post.title != null %}
-	<ul><li class="pagi-list-item">{{ post.date | date: "%Y-%m-%d" }} &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li></ul>
-	{% endif %}{% endfor %}
+	<ul>{% for post in site.tags[this_word] %}{% if post.title != null %}
+	<li class="pagi-list-item">{{ post.date | date: "%Y-%m-%d" }} &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
+	{% endif %}{% endfor %}</ul>
 {% endunless %}{% endfor %}
 </div>
