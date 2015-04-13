@@ -1,3 +1,16 @@
+$.blockUI.defaults.message = '<img src="http://static.oschina.net/uploads/space/2014/0430/115223_oFLD_1163935_thumb.gif" />';
+$.blockUI.defaults.css = {
+        padding:        0,
+        margin:         0,
+        width:          '32px',
+        top:            '30%',
+        left:           '45%',
+        textAlign:      'center',
+        color:          '#000',
+        border:         '0',
+        backgroundColor:'#fff',
+        cursor:         'wait'
+    };
 $(document).ready(function() {
 
   /* 控制左侧 aside 的动作 */
@@ -9,10 +22,12 @@ $(document).ready(function() {
 	if($("#base-wrapper").width() < 992 && $('#nav_btn i').hasClass('fa-angle-right')) {
 	  nav_click();
 	}
+	$.blockUI();
   });
   $(document).on("pjax:end", function() {
     $('.aside3').scrollTop(0);
     contentEffects();
+	$.unblockUI();
   });
   
   $('body').on('click', '.show-commend', showDisqus);
