@@ -7,7 +7,7 @@
   margin-right: 1em;">
 			  <i class="fa fa-th-list"></i>
 			  {% for category in page.categories %} 
-			  <a class="article-category-link pjaxlink" style="padding: .5em; margin: 0 .3em;" href="{{ site.baseurl }}/pages/categories.html#{{ category }}">{{ category }}</a>
+			  <a class="article-category-link pjaxlink" style="padding: .5em; margin: 0 .3em;" href="{{ site.baseurl }}/categories#{{ category }}">{{ category }}</a>
 			  {% endfor %}
 			</div>
 			
@@ -17,7 +17,7 @@
   margin-top: .3em;">
 			  <i class="fa fa-tags"></i>
 			  {% for tag in page.tags %} 
-			  <a class="pjaxlink" href="{{ site.baseurl }}/pages/tags.html#{{ tag }}" style="padding: .5em; margin: 0 .3em; background: #e6e6e6;">{{ tag }}</a>
+			  <a class="pjaxlink" href="{{ site.baseurl }}/tags#{{ tag }}" style="padding: .5em; margin: 0 .3em; background: #e6e6e6;">{{ tag }}</a>
 			  {% endfor %}
 			</div>
 		</div>
