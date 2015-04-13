@@ -16,7 +16,10 @@ baseurl: /b # does not include hostname
 title: "Zollty's Blog"
 description: "Zollty's Blog"
 url: http://blog.zollty.com/b
-rss_url: 
+
+# 相对于baseurl
+atom_path: /atom.xml
+rss_path: /rss.xml
 
 # gavatar头像及Favicon
 gavatar: http://ires.qiniudn.com/my/img/avatar-80-80.jpg
