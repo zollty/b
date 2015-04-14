@@ -11,7 +11,6 @@ layout: base
   <a href="#{{ this_word | cgi_escape }}" title="{{ this_word }}" rel="{{ site.tags[this_word].size }}">{{ this_word }} <sup>{{ site.tags[this_word].size }}</sup></a>
 {% endunless %}{% endfor %}
 </div>
-<!-- Hello {{ 'now' | date: "%Y-%m-%d %H:%M:%S" }} -->
 <div class="my-tag-wr">
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
 	{% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
