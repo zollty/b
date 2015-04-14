@@ -5,7 +5,7 @@ layout: base
 
 <div id="cate-wr">
 {% for cat in site.categories %}
-  <!-- Hello {{ 'now' | date: "%Y %h" }} -->
+  <!-- Hello {{ 'now' | date: "%Y-%m-%d %H:%M:%S" }} -->
   <!-- {{ cat[0] | url_escape }}?????? -->
   <a href="#{{ cat[0] | md5 }}" title="{{ cat[0] }}" rel="{{ cat[1].size }}">{{ cat[0] }} <sup>{{ cat[1].size }}</sup></a>
 {% endfor %}
