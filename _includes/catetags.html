@@ -17,7 +17,7 @@
   margin-top: .3em;">
 			  <i class="fa fa-tags"></i>
 			  {% for tag in page.tags %} 
-			  <a class="pjaxlink" href="{{ site.baseurl }}/tags#{{ tag | cgi_escape | remove: "%" }}" style="padding: .5em; margin: 0 .3em; background: #e6e6e6;">{{ tag }}</a>
+			  <a class="pjaxlink" href="{{ site.baseurl }}/tags#{{ tag | cgi_escape }}" style="padding: .5em; margin: 0 .3em; background: #e6e6e6;">{{ tag }}</a>
 			  {% endfor %}
 			</div>
 		</div>
