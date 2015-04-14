@@ -26,8 +26,8 @@ $(document).ready(function() {
   });
   $(document).on("pjax:end", function() {
     $('.aside3').scrollTop(0);
-    contentEffects();
 	$.unblockUI();
+    contentEffects();
   });
   
   $('body').on('click', '.show-commend', showDisqus);
