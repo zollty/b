@@ -1,4 +1,4 @@
-$.blockUI.defaults.message = '<img src="http://static.oschina.net/uploads/space/2014/0430/115223_oFLD_1163935_thumb.gif" />';
+$.blockUI.defaults.message = '<img src="http://ires.qiniudn.com/my/img/loading-32_32.gif" />';
 $.blockUI.defaults.css = {
         padding:        0,
         margin:         0,
