@@ -30,7 +30,7 @@ keywords: zollty blog
 
 **只关注内容**（主要包括文本、图片、声音、视频），其实样式也是内容的一部分，不过大多数情况下，只要内容不丢失，样式都是可以重新设计的。
 
-    所以要求如下：
+所以要求如下：
 	
 1. 可以根据纯内容生成HTML静态页面，而且易于更新重新生成HTML。
 2. 易于编辑，样式调整方便，所见即所得。
@@ -163,15 +163,21 @@ http://ires.qiniudn.com/course/travesky/learn-spring
 
 ### 4.3 现行方案
 博客私有图片和资料：
+
 http://ires.qiniudn.com/my/img/
+
 http://ires.qiniudn.com/my/misc/
+
 公用JS等程序库文件：
 http://ires.qiniudn.com/lib/js/
+
 
 其他专题，例如：
 
 http://ires.qiniudn.com/course/
+
 http://ires.qiniudn.com/temp/
+
 http://ires.qiniudn.com/misc/
 
 
