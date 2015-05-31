@@ -54,6 +54,8 @@ h3 {
 .clickable {
   cursor: pointer;
 }
+
+/*
 ::-webkit-scrollbar {
   height: 8px;
   width: 8px;
@@ -81,7 +83,6 @@ h3 {
 ::-webkit-scrollbar-thumb:active {
   background: rgba(0, 0, 0, 0.8);
 }
-/*
 html,
 body,
 h1,
