@@ -174,11 +174,9 @@ http://ires.qiniudn.com/lib/js/
 
 其他专题，例如：
 
-http://ires.qiniudn.com/course/
-
-http://ires.qiniudn.com/temp/
-
-http://ires.qiniudn.com/misc/
+	http://ires.qiniudn.com/course/
+	http://ires.qiniudn.com/temp/
+	http://ires.qiniudn.com/misc/
 
 
 
