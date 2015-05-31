@@ -624,7 +624,7 @@ form {
 }
 .list-note .blk-main .blk-minor .blk-note-content {
   height: 100%;
-  border-right: 1px solid #e6e6e6;
+  /* border-right: 1px solid #e6e6e6; */
   position: absolute;
   left: 277px;
   right: 0px;
@@ -1299,7 +1299,7 @@ div {
 }
 .single-note .blk-mid .blk-main .blk-note {
   padding: 0px;
-  border-right: 1px solid #e6e6e6;
+  /* border-right: 1px solid #e6e6e6; */
   /* overflow: auto; */
 }
 .single-note .blk-mid .blk-main .blk-note .blk-bd .note-title {
