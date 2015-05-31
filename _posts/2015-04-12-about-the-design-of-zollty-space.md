@@ -29,7 +29,9 @@ keywords: zollty blog
 ## 二、技术要求
 
 **只关注内容**（主要包括文本、图片、声音、视频），其实样式也是内容的一部分，不过大多数情况下，只要内容不丢失，样式都是可以重新设计的。
+
     所以要求如下：
+	
 1. 可以根据纯内容生成HTML静态页面，而且易于更新重新生成HTML。
 2. 易于编辑，样式调整方便，所见即所得。
 3. 各种文本内容、图片、声音、视频等易于管理。
@@ -45,7 +47,7 @@ keywords: zollty blog
 
 ### 3.1 定义和规划
 
-	Zollty Space是多个项目的集合，主要用于展示和存放我的各种文章和资料，现阶段主要包括如下几部分：
+Zollty Space是多个项目的集合，主要用于展示和存放我的各种文章和资料，现阶段主要包括如下几部分：
 
 1. 博文(Blog)-项目地址： http://blog.zollty.com/b
 2. 说说(Tweets)-项目地址： http://blog.zollty.com/n
@@ -95,9 +97,12 @@ archive后面通常接（/年/月/文章英文名.html）例如：
 
 ### 4.1 参考
 GITHUB：
+
 https://assets-cdn.github.com/assets/github-099e0ecc2851c8aca89ef6dafa191df3b0f2a2c8ad34e134c5473ca1ba0a59b2.css
 https://assets-cdn.github.com/assets/spinners/octocat-spinner-128-338974454bb5c32803e82f601beb051d373744b024fe8742a76009700fd7e033.gif
+
 京东：
+
 http://misc.360buyimg.com/wz/wlwhjyxkz.jpg
 http://misc.360buyimg.com/jdf/1.0.0/unit/wl/1.0.0/wl.js
 http://misc.360buyimg.com/lib/js/2013/DD_belatedPNG.js
@@ -105,7 +110,9 @@ http://misc.360buyimg.com/lib/js/e/jquery-1.2.6.pack.js
 http://misc.360buyimg.com/product/js/2013/home.js
 http://img11.360buyimg.com/da/jfs/xxxd.png
 http://img13.360buyimg.com/da/20120221/112_40_WvArIl.png
+
 其他：
+
 http://s1.bdstatic.com/r/www/cache/static/home/img/sugbg_d24a0811.gif
 http://t10.baidu.com/it/
 
@@ -140,6 +147,7 @@ http://js.t.sinajs.cn/t6/home/js/pl/top/topInit.js
 ### 4.2 我的规划
 采用【CDN】：http://assets.zollty.com 域名
 例如：
+
 http://assets.zollty.com/my/
 http://assets.zollty.com/lib/
 http://assets.zollty.com/course/
@@ -161,6 +169,7 @@ http://ires.qiniudn.com/my/misc/
 http://ires.qiniudn.com/lib/js/
 
 其他专题，例如：
+
 http://ires.qiniudn.com/course/
 http://ires.qiniudn.com/temp/
 http://ires.qiniudn.com/misc/
