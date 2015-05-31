@@ -72,7 +72,7 @@ Zollty Space是多个项目的集合，主要用于展示和存放我的各种�
 
 archive后面通常接（/年/月/文章英文名.html）例如：
 
-   [http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html](http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html)
+`http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html`
 
 我想说的是，这个文章的链接，我会尽量保证它是永久有效的（n年之后仍然可以访问）。
 
@@ -177,9 +177,9 @@ GITHUB：
 
 其他专题，例如：
 
-	http://ires.qiniudn.com/course/
-	http://ires.qiniudn.com/temp/
-	http://ires.qiniudn.com/misc/
+http://ires.qiniudn.com/course/
+http://ires.qiniudn.com/temp/
+http://ires.qiniudn.com/misc/
 
 
 
