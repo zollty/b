@@ -1362,9 +1362,9 @@ div {
   vertical-align: top;
 }
 .single-note .blk-mid .blk-main .blk-note .blk-bd .note-content {
-  margin-left: 32px;
+  /* margin-left: 32px;
   margin-right: 32px;
-  margin-top: 9px;
+  margin-top: 9px; */
   min-height: 400px;
   line-height: 29px;
   text-align: justify;
