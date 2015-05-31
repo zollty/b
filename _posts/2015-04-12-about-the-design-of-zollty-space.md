@@ -98,78 +98,78 @@ archive后面通常接（/年/月/文章英文名.html）例如：
 ### 4.1 参考
 GITHUB：
 
-https://assets-cdn.github.com/assets/github-099e0ecc2851c8aca89ef6dafa191df3b0f2a2c8ad34e134c5473ca1ba0a59b2.css
-https://assets-cdn.github.com/assets/spinners/octocat-spinner-128-338974454bb5c32803e82f601beb051d373744b024fe8742a76009700fd7e033.gif
+	https://assets-cdn.github.com/assets/github-099e0ecc2851c8aca89ef6dafa191df3b0f2a2c8ad34e134c5473ca1ba0a59b2.css
+	https://assets-cdn.github.com/assets/spinners/octocat-spinner-128-338974454bb5c32803e82f601beb051d373744b024fe8742a76009700fd7e033.gif
 
 京东：
 
-http://misc.360buyimg.com/wz/wlwhjyxkz.jpg
-http://misc.360buyimg.com/jdf/1.0.0/unit/wl/1.0.0/wl.js
-http://misc.360buyimg.com/lib/js/2013/DD_belatedPNG.js
-http://misc.360buyimg.com/lib/js/e/jquery-1.2.6.pack.js
-http://misc.360buyimg.com/product/js/2013/home.js
-http://img11.360buyimg.com/da/jfs/xxxd.png
-http://img13.360buyimg.com/da/20120221/112_40_WvArIl.png
+	http://misc.360buyimg.com/wz/wlwhjyxkz.jpg
+	http://misc.360buyimg.com/jdf/1.0.0/unit/wl/1.0.0/wl.js
+	http://misc.360buyimg.com/lib/js/2013/DD_belatedPNG.js
+	http://misc.360buyimg.com/lib/js/e/jquery-1.2.6.pack.js
+	http://misc.360buyimg.com/product/js/2013/home.js
+	http://img11.360buyimg.com/da/jfs/xxxd.png
+	http://img13.360buyimg.com/da/20120221/112_40_WvArIl.png
 
 其他：
 
-http://s1.bdstatic.com/r/www/cache/static/home/img/sugbg_d24a0811.gif
-http://t10.baidu.com/it/
+	http://s1.bdstatic.com/r/www/cache/static/home/img/sugbg_d24a0811.gif
+	http://t10.baidu.com/it/
 
-http://img01.taobaocdn.com
-http://g.tbcdn.cn/tpi/topbar/1.1.42/global-min.css
-http://g.tbcdn.cn/trip/trip-home/0.4.10
-http://gtms03.alicdn.com/tps/i3/TB0.png
+	http://img01.taobaocdn.com
+	http://g.tbcdn.cn/tpi/topbar/1.1.42/global-min.css
+	http://g.tbcdn.cn/trip/trip-home/0.4.10
+	http://gtms03.alicdn.com/tps/i3/TB0.png
 
-http://g.tbcdn.cn
-http://g.alicdn.com
-http://img.alicdn.com
+	http://g.tbcdn.cn
+	http://g.alicdn.com
+	http://img.alicdn.com
 
-http://qzonestyle.gtimg.cn/qzone/v8/index/touch-icon-ipad-retina.png
-http://cn.qzonestyle.gtimg.cn/aoi/skin/35.css?max_age=19830212&d=20141030172230
-http://cn.qzonestyle.gtimg.cn/aoi/img/logo/favicon.ico?max_age=31536000
-http://i.gtimg.cn/open/app_icon/00/02/75/50/27550_16.png
-https://a.alipayobjects.com/homeindex/1.0.1/homeindex.css
-https://i.alipayobjects.com/common/favicon/favicon.ico
-https://i.alipayobjects.com/i/ecmng/swf/201502/02.05flash.swf
-https://a.alipayobjects.com/ar/??alipay.smartracker-1.1.js
-https://a.alipayobjects.com/??seajs/seajs/2.2.3/sea.js
+	http://qzonestyle.gtimg.cn/qzone/v8/index/touch-icon-ipad-retina.png
+	http://cn.qzonestyle.gtimg.cn/aoi/skin/35.css?max_age=19830212&d=20141030172230
+	http://cn.qzonestyle.gtimg.cn/aoi/img/logo/favicon.ico?max_age=31536000
+	http://i.gtimg.cn/open/app_icon/00/02/75/50/27550_16.png
+	https://a.alipayobjects.com/homeindex/1.0.1/homeindex.css
+	https://i.alipayobjects.com/common/favicon/favicon.ico
+	https://i.alipayobjects.com/i/ecmng/swf/201502/02.05flash.swf
+	https://a.alipayobjects.com/ar/??alipay.smartracker-1.1.js
+	https://a.alipayobjects.com/??seajs/seajs/2.2.3/sea.js
 
-http://s.doubanio.com/f/shire/5d546bd6e07d202f3cc0083a2e77880fb77f57a9/css/douban.css
-http://s.doubanio.com/f/shire/e49e2/pics/new_menu.gif
-http://s.doubanio.com/misc/mixed_static/66cf6da32f8bc656.css
+	http://s.doubanio.com/f/shire/5d546bd6e07d202f3cc0083a2e77880fb77f57a9/css/douban.css
+	http://s.doubanio.com/f/shire/e49e2/pics/new_menu.gif
+	http://s.doubanio.com/misc/mixed_static/66cf6da32f8bc656.css
 
-http://t.douban.com/img/files/file-1426478788.png
+	http://t.douban.com/img/files/file-1426478788.png
 
-http://img.t.sinajs.cn/t6/style/css/module/base/frame.css
-http://js.t.sinajs.cn/t6/home/js/pl/top/topInit.js
+	http://img.t.sinajs.cn/t6/style/css/module/base/frame.css
+	http://js.t.sinajs.cn/t6/home/js/pl/top/topInit.js
 
 ### 4.2 我的规划
 采用【CDN】：http://assets.zollty.com 域名
 例如：
 
-http://assets.zollty.com/my/
-http://assets.zollty.com/lib/
-http://assets.zollty.com/course/
-http://assets.zollty.com/temp/
-http://assets.zollty.com/misc/
+	http://assets.zollty.com/my/
+	http://assets.zollty.com/lib/
+	http://assets.zollty.com/course/
+	http://assets.zollty.com/temp/
+	http://assets.zollty.com/misc/
 
 目前还无法映射成除了github之外的其他域名，所以，重要的静态资源也统一在 github 上面托管。
 当然了，也可以跳转到 七牛云存储
 比如 
-http://assets.zollty.com/course/travesky/learn-spring
+	`http://assets.zollty.com/course/travesky/learn-spring`
 跳转到
-http://ires.qiniudn.com/course/travesky/learn-spring
+	`http://ires.qiniudn.com/course/travesky/learn-spring`
 
 ### 4.3 现行方案
 博客私有图片和资料：
 
-http://ires.qiniudn.com/my/img/
-
-http://ires.qiniudn.com/my/misc/
+	http://ires.qiniudn.com/my/img/
+	http://ires.qiniudn.com/my/misc/
 
 公用JS等程序库文件：
-http://ires.qiniudn.com/lib/js/
+
+	http://ires.qiniudn.com/lib/js/
 
 
 其他专题，例如：
