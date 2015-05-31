@@ -8,10 +8,10 @@ keywords: zollty blog
 
 ### 一、个人网络空间的意义
 
-1. 对外宣传某些思想的窗口。（最本质的意义）
-2. 展示自我的能力。（在人际圈或者面试的时候）
-3. 存放一些固定的、较永久的资料，对外提供浏览或下载。
-4. 存放一些临时的小资料（大资料需要用网盘去分享）。
+* 对外宣传某些思想的窗口。（最本质的意义）
+* 展示自我的能力。（在人际圈或者面试的时候）
+* 存放一些固定的、较永久的资料，对外提供浏览或下载。
+* 存放一些临时的小资料（大资料需要用网盘去分享）。
 
 因此，个人网络空间的规划如下：
 
@@ -21,9 +21,9 @@ keywords: zollty blog
 
 站点规划如下：
 
-1. 主站点为：[blog.zollty.com](http://blog.zollty.com)
-2. 中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
-3. 短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
+* 主站点为：[blog.zollty.com](http://blog.zollty.com)
+* 中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
+* 短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
 
 
 ## 二、技术要求
