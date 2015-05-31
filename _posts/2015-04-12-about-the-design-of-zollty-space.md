@@ -158,7 +158,9 @@ GITHUB：
 当然了，也可以跳转到 七牛云存储
 比如 
 	`http://assets.zollty.com/course/travesky/learn-spring`
+
 跳转到
+
 	`http://ires.qiniudn.com/course/travesky/learn-spring`
 
 ### 4.3 现行方案
