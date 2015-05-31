@@ -1,6 +1,6 @@
 # Outputting
 permalink: /archive/:year/:month/:title.html
-paginate: 5
+paginate: 10
 paginate_path: '/index:num'
 timezone:      Asia/Shanghai
 
