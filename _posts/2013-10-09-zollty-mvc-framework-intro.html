@@ -206,7 +206,7 @@ Framework</FONT></SPAN><SPAN
 
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN 
 ><SPAN 
-><b>1. </b>Web层：它是一个通用纯Servlet请求控制转发器（RESTful URL 路由，代码简洁、效率非常高），基于原生RESTful设计，且支持各种定制化URL方案。扩展功能：支持拦截器配置，支持ModelDriven（视图层VO自动封装），支持多视图模板（Jsp View、JSON View、HTML View等，甚至可以扩展自定义的View，例如我写了个ResourceView读取jar包中META-INF目录下的resources）。</SPAN></SPAN></P>
+><b>1. </b>Web层：它是一个通用纯Servlet请求控制转发器（RESTful URL 路由，代码简洁、效率非常高），基于原生RESTful设计，且支持各种定制化URL方案。扩展功能：支持拦截器配置，支持ModelDriven（视图层VO自动封装），支持多视图模板（Jsp View、JSON View等 See <a href="#cdemo">DEMO</a>）。</SPAN></SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN 
 ><SPAN 
 ><b>2. </b>Bean：它是一个轻量级IOC/DI框架，可以独立应用于Standard 
@@ -710,7 +710,7 @@ face="Times New Roman">UserController</FONT></SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
 lang=EN-US><FONT face="Times New Roman"><FONT 
 color=#0000ff>@Controller</FONT></FONT></SPAN></P>
-<P style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
+<P id="cdemo" style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
 lang=EN-US><FONT face="Times New Roman">public class 
 UserController{</FONT></SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
@@ -796,7 +796,7 @@ face="Times New Roman">HTML</FONT></SPAN><SPAN
 style="FONT-SIZE: 12pt" lang=EN-US><FONT 
 face="Times New Roman">XML</FONT></SPAN></FONT><SPAN 
 ><FONT 
-color=#0000ff>、模板、静态文件等等</FONT>）。这样做会非常方便，编程更为灵活。</SPAN></P>
+color=#0000ff>、模板、静态文件等等，甚至可以扩展自定义的View，例如我写了个ResourceView，读取jar包中META-INF目录下的html页面</FONT>）。这样做会非常方便，编程更为灵活。</SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
 lang=EN-US><FONT face="Times New Roman">&nbsp;</FONT></SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN 
