@@ -157,11 +157,12 @@ GITHUB：
 目前还无法映射成除了github之外的其他域名，所以，重要的静态资源也统一在 github 上面托管。
 当然了，也可以跳转到 七牛云存储
 比如 
-	`http://assets.zollty.com/course/travesky/learn-spring`
+
+`http://assets.zollty.com/course/travesky/learn-spring`
 
 跳转到
 
-	`http://ires.qiniudn.com/course/travesky/learn-spring`
+`http://ires.qiniudn.com/course/travesky/learn-spring`
 
 ### 4.3 现行方案
 博客私有图片和资料：
