@@ -1,0 +1,1267 @@
+﻿---
+layout: post-html
+title: ZolltyMVC Framework Introduction
+category: JavaEE技术
+tags: ZolltyMVC
+keywords: ZolltyMVC 框架 Java
+---
+
+<DIV>
+<P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+align=center><B style="mso-bidi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 16pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN></B><B 
+style="mso-bidi-font-weight: normal"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 16pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架简介</SPAN></B><B 
+style="mso-bidi-font-weight: normal"><SPAN style="FONT-SIZE: 16pt" 
+lang=EN-US><o:p></o:p></SPAN></B></P>
+
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">版本信息：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<TABLE 
+style="BORDER-BOTTOM: medium none; BORDER-LEFT: medium none; BORDER-COLLAPSE: collapse; BORDER-TOP: medium none; BORDER-RIGHT: medium none; mso-padding-alt: 0cm 5.4pt 0cm 5.4pt; mso-table-layout-alt: fixed; mso-border-alt: solid windowtext .5pt; mso-border-insideh: .5pt solid windowtext; mso-border-insidev: .5pt solid windowtext" 
+class=MsoNormalTable border=1 cellSpacing=0 cellPadding=0>
+  <TBODY>
+  <TR style="mso-yfti-irow: 0; mso-yfti-firstrow: yes">
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: windowtext 1pt solid; PADDING-BOTTOM: 0cm; PADDING-LEFT: 5.4pt; WIDTH: 47.9pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #92d050; BORDER-TOP: windowtext 1pt solid; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt" 
+    vAlign=top width=64>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><B style="mso-bidi-font-weight: normal"><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">版本号</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></B></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; PADDING-LEFT: 5.4pt; WIDTH: 59.8pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #92d050; BORDER-TOP: windowtext 1pt solid; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt" 
+    vAlign=top width=80>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><B style="mso-bidi-font-weight: normal"><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">日期</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></B></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; PADDING-LEFT: 5.4pt; WIDTH: 32.4pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #92d050; BORDER-TOP: windowtext 1pt solid; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt" 
+    vAlign=top width=43>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><B style="mso-bidi-font-weight: normal"><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">操作</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></B></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; PADDING-LEFT: 5.4pt; WIDTH: 269.25pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #92d050; BORDER-TOP: windowtext 1pt solid; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt" 
+    vAlign=top width=359>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><B style="mso-bidi-font-weight: normal"><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">内容</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></B></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; PADDING-LEFT: 5.4pt; WIDTH: 55pt; PADDING-RIGHT: 5.4pt; BACKGROUND: #92d050; BORDER-TOP: windowtext 1pt solid; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt" 
+    vAlign=top width=73>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><B style="mso-bidi-font-weight: normal"><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">操作人</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></B></P></TD></TR>
+  <TR style="mso-yfti-irow: 1">
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: windowtext 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 47.9pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=64>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><FONT size=2><FONT 
+      face="Times New Roman">V1.0<o:p></o:p></FONT></FONT></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 59.8pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=80>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><FONT size=2><FONT 
+      face="Times New Roman">2013-10-09<o:p></o:p></FONT></FONT></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 32.4pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=43>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">新建</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 269.25pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=359>
+      <P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">新建版本</SPAN><SPAN 
+      lang=EN-US><FONT 
+      face="Times New Roman">1.0<o:p></o:p></FONT></SPAN></FONT></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 55pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=73>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">邹天涌</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></P></TD></TR>
+  <TR style="mso-yfti-irow: 2">
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: windowtext 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 47.9pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=64>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><FONT size=2><FONT 
+      face="Times New Roman">V1.2<o:p></o:p></FONT></FONT></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 59.8pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=80>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><FONT size=2><FONT 
+      face="Times New Roman">2013-11-19<o:p></o:p></FONT></FONT></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 32.4pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=43>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">新建</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 269.25pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=359>
+      <P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">新建版本</SPAN><SPAN 
+      lang=EN-US><FONT 
+      face="Times New Roman">1.2<o:p></o:p></FONT></SPAN></FONT></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 55pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=73>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><FONT size=2><SPAN 
+      style="FONT-FAMILY: 宋体; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">邹天涌</SPAN><SPAN 
+      lang=EN-US><o:p></o:p></SPAN></FONT></P></TD></TR>
+  <TR style="mso-yfti-irow: 3">
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: windowtext 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 47.9pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=64>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 59.8pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=80>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 32.4pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=43>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 269.25pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=359>
+      <P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN lang=EN-US><o:p><FONT 
+      size=2 face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 55pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=73>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD></TR>
+  <TR style="mso-yfti-irow: 4; mso-yfti-lastrow: yes">
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: windowtext 1pt solid; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 47.9pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=64>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 59.8pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=80>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 32.4pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=43>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 269.25pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=359>
+      <P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN lang=EN-US><o:p><FONT 
+      size=2 face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD>
+    <TD 
+    style="BORDER-BOTTOM: windowtext 1pt solid; BORDER-LEFT: #ffffff; PADDING-BOTTOM: 0cm; BACKGROUND-COLOR: transparent; PADDING-LEFT: 5.4pt; WIDTH: 55pt; PADDING-RIGHT: 5.4pt; BORDER-TOP: #ffffff; BORDER-RIGHT: windowtext 1pt solid; PADDING-TOP: 0cm; mso-border-alt: solid windowtext .5pt; mso-border-left-alt: solid windowtext .5pt; mso-border-top-alt: solid windowtext .5pt" 
+    vAlign=top width=73>
+      <P style="TEXT-ALIGN: center; MARGIN: 0cm 0cm 0pt" class=MsoNormal 
+      align=center><SPAN lang=EN-US><o:p><FONT size=2 
+      face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P></TD></TR></TBODY></TABLE>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架是一款轻量级的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Java</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">应用编程框架（</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT face="Times New Roman">Java Application 
+Framework</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）。</SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">1.它是一个通用纯Servlet请求控制转发器。它代码简洁、效率非常高。基于原生RESTful设计，支持各种定制化URL方案。扩展功能支持拦截器配置，支持ModelDriven，支持多视图模板等。</SPAN></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">2.它是一个轻量级IOC框架，可以独立应用于Standard 
+Java，强大的支持各种形式加载Bean，强大的可扩展性。</SPAN></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">3.对于中小型项目，它完全可以替代SpringMVC、Spring+Struts。</SPAN></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">4.小巧，无外部依赖。只有一个jar包，200多kb，随便一个Spring的jar都比它大。 
+</SPAN></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT face=""><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">ZolltyMVC融合了常用的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US>IOC/DI</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US>MVC</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">（注解、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US>XML</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">配置、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US>RESTful API</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、模型驱动、视图模板等）功能。目的就是</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">帮助大家开发高效、灵活、高质量</SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的应用，并减轻开发工作量！</SPAN></FONT></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+face=""></FONT></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+face="">但它不是Spring的继承者，它是一个有个性、有思考的简易实用型框架。</FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">一、功能简介</SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">1</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">（</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">DI</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）依赖注入</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">IOC/DI不容易理解，引用书上的一个例子，感受一下IOC/DI的好处：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman"><IMG 
+src="http://ires.qiniudn.com/my/img/spring-ioc-explain.png">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">是</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架的基础构件。其底层的实现原理，就是通过</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Java</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的反射机制，在这里不详细讲解。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">需要说明的是，</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">远远没有</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的那么复杂（但是日常应用应该是足够了），而且还独创一些很酷、很实用的用法。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">关于其用法，我举个例子：（传统SSH写法）</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">JSP</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，然后写一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Action</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Service</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">类，后面再写一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">DAO<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">即通常所说的三层结构，将</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">DAO</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">注入给</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Service</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，再把</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Service注入</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">给</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Action</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">这个功能比较流行的写法是</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SSH</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">（</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Struts+Spring+Hibernate</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">），或者</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC+JdbcTemplate</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">传统写法：</SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">1、一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">JSP</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，比如用户注册，代码略。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">2、一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Action/Controller</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">类。比如</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">UserAction：<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">public class 
+UserAction{<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </SPAN>private IUserService 
+userService;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </SPAN>public IUserService 
+getUserService(){<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>return this.userService;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><SPAN style="mso-spacerun: yes"><FONT 
+face="Times New Roman">&nbsp;&nbsp;&nbsp; </FONT></SPAN></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">……</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">同理，还有</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">UserServiceImpl</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">类，里面集成了</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">UserDAO</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">……然后</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">UserDAO</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">里面又集成了数据源……代码略。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">用普通</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Struts+Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的话，就要进行一些</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">配置，使用</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的话，可以</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">配置，也可以使用注解配置。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">使用</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">也很容易做到这一点，和</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">类似，但是比</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">干脆直接。（</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">为了兼容老版本，有许多冗余的东西（所谓条条大路通罗马，</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">中有多种方式可以通罗马，而</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">只提供最好的、最简洁高效的那一、两种方式）。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">在</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">中，推荐使用注解模式：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>public class 
+UserAction{<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>@Inject<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; </SPAN>private IUserService 
+userService;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><SPAN style="mso-spacerun: yes"><FONT 
+face="Times New Roman">&nbsp;&nbsp;&nbsp; </FONT></SPAN></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">……</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></FONT></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>}<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">看到没，多么简洁，连</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">set/get</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">方法都可以省了（因为我通过</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Java</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">反射，直接将属性值和对象绑定）。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">当然，在</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">中，也支持</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">配置，例如：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>&lt;bean id="user" 
+class="com.test.User" &gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="name" 
+&gt;zollty&lt;/property&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="age" value="26" 
+/&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/bean&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>&lt;bean id="user" 
+class="com.test.UserDemo" &gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="user" 
+ref="user"/&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/bean&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">以上的这些，都是初级用法，</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">还支持一些高级用法，比如给方法注入类的实例：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>@Inject<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>public void 
+setUser(User user) {<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="TEXT-INDENT: 36pt; MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>this.user = user;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>}<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">还比如支持复合对象：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">&lt;bean id="user2" class="com.test.User 
+&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="name" value="zollty" 
+/&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="age" value="26" /&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN><FONT 
+color=#0000ff>&lt;property name="students" 
+&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;list&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;value&gt;jack&lt;/value&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;value&gt;lily&lt;/value&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;/list&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;/property&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">&lt;/bean&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">还比如支持从方法中获取一个对象实例：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>&lt;bean 
+id="dataSource" class="org.test.JndiCreator#getDataSource" 
+&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;property name="jndiName" 
+value="jdbc/web"/&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/bean&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">参考</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的设计，顶层是定义了一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">BeanFactory</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">来容纳这些</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">bean</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">实例的。</SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"></SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">借用</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">BeanFactory</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">设计图来让大家看看：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman"><IMG 
+src="http://ires.qiniudn.com/my/img/spring-bean-factory-design.png">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman"></FONT></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">这一套东西是框架的基础。从最基础的简陋模型，到参考</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的设计，再到我重写两遍，保证了这套东西的高效、高扩展性。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">而且，从我的设计上，体现了几个基础性的东西：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">该</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架可以：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></FONT></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">1</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，完全基于</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">配置，或者完全基于注解配置，或者基于</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">和注解的混合配置；</SPAN></FONT><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">2</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，可以用于</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Web</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">环境的项目，也可以用于纯</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">JavaSE</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的非</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Web</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">项目。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">3</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，高屋建瓴，顶层只实现了一些基础性的、共有性的东西，<FONT 
+color=#0000ff>外层可以扩展，实际上</FONT></SPAN><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Web</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">层也是</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">IOC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的一个扩展（</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">WebApplicationContext</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></FONT></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman"></FONT></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">2</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）控制器</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Action/Controller<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">控制器是</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">MVC</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>框架的核心</FONT>，它连接了</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">WEB</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的前端和后端。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的控制器，是基于原生</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Servlet</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">进行设计的。有类似于</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的地方，但是<FONT 
+color=#0000ff>效率比</FONT></SPAN><SPAN style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+color=#0000ff face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>要高很多</FONT>！</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">其实，最初我并没有想写一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">MVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架，我只是想<FONT 
+color=#0000ff>基于</FONT></SPAN><FONT color=#0000ff><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">Servlet</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">写一个“请求转发控制器”，借鉴了</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">OSChina</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">创始人红薯的写法和</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">RESTful</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>的设计模式</FONT>，以及</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">Struts</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Spring</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的具体实现方式，摸索出了<FONT 
+color=#0000ff>一条极为便捷易用的道路</FONT>。</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">下面是一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">UserController<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>@Controller<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">public class 
+UserController{<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN><FONT 
+color=#0000ff>@RequestMapping("/admin/logout")<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN>public View logout(<FONT 
+color=#0000ff>HttpServletRequest request</FONT>){<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; </SPAN>try 
+{<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>request.getSession().invalidate();<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; </SPAN>}catch (Exception e) 
+{}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; 
+</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; </SPAN>return new <FONT 
+color=#0000ff>RedirectView</FONT>("/admin?info=bye");<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN>}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN><FONT 
+color=#0000ff>@RequestMapping("POST:/admin/login")<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN>public View login<FONT 
+color=#0000ff>(@HttpParam("userName")String 
+userName</FONT>,<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp;</SPAN>@HttpParam("password")String 
+password){<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; </SPAN>// </FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">……省略</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN><SPAN style="mso-spacerun: yes">&nbsp; </SPAN>return new <FONT 
+color=#0000ff>JspView</FONT>("/admin/main.jsp");<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp; </SPAN>}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">}<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">看上面的代码，登录的时候，访问的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">URL</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">为</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">http://www.zollty.com/<FONT 
+color=#0000ff>admin/login</FONT></FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架会按照这个</SPAN><FONT 
+color=#0000ff><SPAN style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">URL</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">定位到</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">login()</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>这个方法</FONT>，然后把参数自动赋值进去。然后</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">login</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">方法执行完会<FONT 
+color=#0000ff>返回到一个视图</FONT>（</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">View</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，<FONT 
+color=#0000ff>视图可以是</FONT></SPAN><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">JSP</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">HTML</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">XML</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>、模板、静态文件等等</FONT>）。这样做会非常方便，编程更为灵活。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">支持返回的类型包括（但不限于）如下类型：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">JspView<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">HtmlView<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">TextView<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">JsonView<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">传入的参数，也可以是一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">POJO</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">对象类型，比如写一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">VO</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，</SPAN><FONT 
+color=#0000ff><SPAN style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">可以把页面参数自动封装成</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">VO</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>对象传进来</FONT>……这一切其实通过</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">Java</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">反射很容易实现。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">对于</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">URL</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">的支持，</SPAN><FONT 
+color=#0000ff><SPAN style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">支持原生</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">RESTful</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，当然，你也可以不遵循</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">RESTful</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">风格，我个人觉得</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">OSChina</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">那种</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">URL</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">风格更简洁、优雅，比如：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">http://www.oschina.net/code<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">http://www.oschina.net/blog<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">http://www.oschina.net/code/tag/jquery<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">http://www.oschina.net/code/list?lang=java<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">其实你如果不想用任何框架，你可以<FONT 
+color=#0000ff>像</FONT></SPAN><FONT color=#0000ff><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">OSChina</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">那样，自己写一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Servlet</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>转发控制器</FONT>。不过，</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">就是在简单的</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Servlet</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">转发控制器的基础上发展起来的，所以简洁、高效。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman"></FONT></SPAN></FONT>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><FONT color=#0000ff><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">可以和其他框架混合使用。不过，建议你使用</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">代替</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Struts</FONT></SPAN></FONT><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'"><FONT 
+color=#0000ff>等（前提是，你不需要用它们的那些高级功能）</FONT>。</SPAN><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">二、</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">入门教程</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">1</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）新建一个动态</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">web</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">项目，引入</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">zollty-mvc-1.0.7.jar</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">包。</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">2</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">）新建一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">HelloController.java</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">（假设包为</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">com.zolltymvc.demo</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">），内容如下：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">import 
+org.zollty.framework.mvc.View;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">import 
+org.zollty.framework.mvc.annotation.Controller;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">import 
+org.zollty.framework.mvc.annotation.RequestMapping;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">import 
+org.zollty.framework.mvc.view.JspView;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>@Controller<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff>public class 
+HelloController {<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>@RequestMapping("/hello")<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>public 
+View index(HttpServletRequest request) {<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>request.setAttribute("msg","hello, welcome to zollty mvc demo 
+project!");<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>return new JspView("/hello.jsp");<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>}<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>}<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">然后，在</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">/WEB-INF/pages</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">目录下，新建一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">hello.jsp</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，内容大概如下</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">&lt;%@ pagelanguage="java" 
+pageEncoding="UTF-8"%&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">&lt;html&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;head&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;metahttp-equiv="Content-Type" 
+content="text/html;charset=UTF-8"&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;/head&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;body&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;p&gt;${msg}&lt;/p&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;/body&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">&lt;/html&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">再弄一下配置，在</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">classpath</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">目录下，新建一个</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">zollty-mvc.xml</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，内容如下：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">&lt;?xmlversion="1.0" 
+encoding="UTF-8"?&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">&lt;beans 
+xmlns="http://www.zollty.org/mvc/schema/beans"&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>&lt;!-- 
+</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">包的扫描路径</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">--&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;component-scan base-package="com.zolltymvc.demo" 
+/&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>&lt;!-- 
+</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">视图路径</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT face="Times New Roman"> 
+--&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>&lt;mvc 
+view-path="/WEB-INF/pages" view-encoding="UTF-8" 
+/&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>&lt;!-- 
+</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">指定日志实现类</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT face="Times New Roman"> 
+--&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>&lt;logger 
+class="ConsoleLogger" level="DEBUG" /&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">&lt;/beans&gt;<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">这几个配置很简单吧，然后在找到</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">web.xml</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，让</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">web</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">容器启动时加载</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">框架，配置如下：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;listener&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;listener-class&gt;org.zollty.framework.mvc.ContextLoaderListener&lt;/listener-class&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/listener&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;servlet&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;servlet-name&gt;zolltyMVC&lt;/servlet-name&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;servlet-class&gt;org.zollty.framework.mvc.DispatcherServlet&lt;/servlet-class&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/servlet&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;servlet-mapping&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;servlet-name&gt;zolltyMVC&lt;/servlet-name&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT color=#0000ff><SPAN 
+style="mso-spacerun: yes">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN>&lt;url-pattern&gt;/app/*&lt;/url-pattern&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><FONT 
+color=#0000ff>&lt;/servlet-mapping&gt;<o:p></o:p></FONT></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman"><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">OK</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，这样项目发布到服务器上，访问</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT face="Times New Roman"> 
+http://www.zollty.com/app/hello </FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">即可看到我们的输出内容了！</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman">&nbsp;</FONT></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">附</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Demo</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">下载，自己动手试试吧！丢掉</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">和</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">Struts</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">，拥抱</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><FONT 
+face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">吧！</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p><FONT face="Times New Roman"></FONT></o:p></SPAN>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><o:p>&nbsp;</o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT face="Times New Roman">ZolltyMVC</FONT></SPAN><SPAN 
+style="FONT-FAMILY: 宋体; FONT-SIZE: 12pt; mso-ascii-font-family: 'Times New Roman'; mso-hansi-font-family: 'Times New Roman'">项目会逐渐开源，地址如下，敬请关注：</SPAN><SPAN 
+style="FONT-SIZE: 12pt" lang=EN-US><o:p></o:p></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">http://code.google.com/p/zollty-mvc/<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal><SPAN style="FONT-SIZE: 12pt" 
+lang=EN-US><FONT 
+face="Times New Roman">https://github.com/zollty-org/zollty-mvc<o:p></o:p></FONT></SPAN></P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal>&nbsp;</P>
+<P style="MARGIN: 0cm 0cm 0pt" class=MsoNormal>&nbsp;</P>
+<DIV>
+<TABLE style="LINE-HEIGHT: 26px; BACKGROUND-COLOR: #fff; COLOR: #1e342b">
+  <TBODY>
+  <TR>
+    <TD>Author: Zollty Tsou </TD></TR>
+  <TR>
+    <TD>Orginal Article. Licensed under the <A style="COLOR: #172821" 
+      href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/">CC BY-NC-SA 
+      3.0 CN</A></TD></TR>
+  <TR>
+    <TD><SPAN style="COLOR: #1e342b">Email: </SPAN><A style="COLOR: #0088cc" 
+      href="mailto:zolltytsou@gmail.com">zolltytsou@gmail.com</A>&nbsp;(blog: <A 
+      style="COLOR: #172821" 
+      href="http://blog.csdn.net/zollty">www.cnblogs.com/zollty</A>) 
+  </TD></TR></TBODY></TABLE></DIV>
+<DIV>&nbsp;</DIV></DIV>
