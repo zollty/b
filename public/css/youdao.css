@@ -2143,3 +2143,6 @@ div {
 #wrap.mobile-wrap .bottom-pr.hide {
   display: none;
 }
+.compactp p {
+  margin: 0;
+}
