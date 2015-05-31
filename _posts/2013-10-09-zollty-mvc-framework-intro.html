@@ -674,8 +674,7 @@ face="Times New Roman">SpringMVC</FONT></SPAN><SPAN
 >的地方，但是<FONT 
 color=#0000ff>效率比</FONT></SPAN><SPAN style="FONT-SIZE: 12pt" lang=EN-US><FONT 
 color=#0000ff face="Times New Roman">SpringMVC</FONT></SPAN><SPAN 
-><FONT 
-color=#0000ff>要高很多</FONT>！（比如，因为SpringMVC要支持多文件上传，其逻辑就比ZolltyMVC的HTTP请求处理逻辑要复杂许多了。我对比了一下两者的算法复杂度，SpringMVC的算法复杂度至少是ZolltyMVC的n*10^2倍。而且还有一点，SpringMVC采用的是AntPathMatcher，是ANT的URL路径匹配算法，ZolltyMVC采用的是自己写的一个简洁的递归算法，实测它的匹配效率是ANT的几十倍，参见org.zollty.util.match.ZolltyPathMatcher.java及其单元测试用例）</SPAN><SPAN style="FONT-SIZE: 12pt" 
+><FONT color=#0000ff>要高很多</FONT>！（比如，因为SpringMVC要支持多文件上传，其逻辑就比ZolltyMVC的HTTP请求处理逻辑要复杂许多了。我对比了一下两者的算法复杂度，SpringMVC的算法复杂度至少是ZolltyMVC的n*10^2倍。而且还有一点，<FONT color=#0000ff>SpringMVC采用的是AntPathMatcher</FONT>，是ANT的URL路径匹配算法，ZolltyMVC采用的是自己写的一个简洁的递归算法，实测它的匹配效率是ANT的几十倍，参见<FONT color=#0000ff>org.zollty.util.match.ZolltyPathMatcher</FONT>.java, 及其单元测试用例。）</SPAN><SPAN style="FONT-SIZE: 12pt" 
 lang=EN-US></SPAN></P>
 <P style="MARGIN: 0cm 0cm 0pt"><SPAN style="FONT-SIZE: 12pt" 
 lang=EN-US><FONT face="Times New Roman">&nbsp;</FONT></SPAN></P>
