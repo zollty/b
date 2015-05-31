@@ -12,6 +12,7 @@
 .gray {
   color: #999999;
 }
+/*
 html,
 body {
   height: 100%;
@@ -45,6 +46,8 @@ h2 {
 h3 {
   font-size: 14px;
 }
+
+*/
 .hide {
   display: none;
 }
@@ -78,6 +81,7 @@ h3 {
 ::-webkit-scrollbar-thumb:active {
   background: rgba(0, 0, 0, 0.8);
 }
+/*
 html,
 body,
 h1,
@@ -97,6 +101,7 @@ form {
   line-height: 1;
   list-style: none;
 }
+*/
 /* ------- main ------- */
 #wrap {
   height: 100%;
