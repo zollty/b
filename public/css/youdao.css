@@ -188,7 +188,7 @@ form {
 /* ======= top ======= */
 .blk-top {
   border-bottom: 5px solid #5789DC;
-  background-color: #fff;
+  /* background-color: #fff; */
   width: 100%;
 }
 .blk-top .top-main {
@@ -610,7 +610,7 @@ form {
 .list-note .blk-main {
   max-width: 960px;
   margin: 0 auto;
-  background-color: #fff;
+  /* background-color: #fff; */
 }
 .list-note .blk-main .blk-minor {
   height: 100%;
@@ -1295,7 +1295,7 @@ div {
   min-height: 100%;
   /* max-width: 917px; */
   margin: 0 auto;
-  background-color: #fff;
+  /* background-color: #fff; */
 }
 .single-note .blk-mid .blk-main .blk-note {
   padding: 0px;
@@ -1560,7 +1560,7 @@ div {
   /* max-width: 917px; */
   margin: 0 auto;
   position: relative;
-  background-color: #fff;
+  /* background-color: #fff; */
 }
 .single-note .blk-main .blk-note {
   padding: 0px;
