@@ -13,18 +13,19 @@ keywords: zollty blog
 3. 存放一些固定的、较永久的资料，对外提供浏览或下载。
 4. 存放一些临时的小资料（大资料需要用网盘去分享）。
 
-<br>
+---
 因此，个人网络空间的规划如下：
 
 1. 要对外宣传和展示，就要引入大的流量和人气。*可以借助CSDN、CNBLOG、OSChina吸引流量到个人网站来（在个人博客上发一篇文章时，同时转载到CSDN/CNBLOG/OSC上）。*
 2. 个人博客上，文章不宜多，但是质量要好。包括文章的内容和外在，都要比较贴心和令人赏心悦目。
 3. 对于一些短文说说，看能不能整理一下，定期放到一个突出的位置，供大家浏览和评论。
 
+---
 站点规划如下：
 
-* 主站点为：[blog.zollty.com](http://blog.zollty.com)
-* 中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
-* 短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
+> * 主站点为：[blog.zollty.com](http://blog.zollty.com)
+> * 中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
+> * 短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
 
 
 ## 二、技术要求
