@@ -28,7 +28,27 @@ Markdown 是一种方便记忆、书写的纯文本标记语言，用户可以�
 > * 撰写发布学术论文（LaTeX 公式支持）
 
 
-> 请保留此份 Cmd Markdown 的欢迎稿兼使用说明，如需撰写新稿件，点击顶部工具栏右侧的 <i class="icon-file"></i> **新文稿** 或者使用快捷键 `Ctrl+Alt+N`
+> 请保留此份 Cmd Markdown 的欢迎稿兼使用说明，如需撰写新稿件，点击顶部工具栏右侧的 `<i class="icon-file"></i>` **新文稿** 或者使用快捷键 `Ctrl+Alt+N`
 
+
+### 高亮一段代码
+
+```python
+@requires_authorization
+class SomeClass:
+    pass
+
+if __name__ == '__main__':
+    # A comment
+    print 'hello world'
+```
+
+### 绘制表格
+
+| 项目        | 价格   |  数量  |
+| --------   | -----:  | :----:  |
+| 计算机     | $1600 |   5     |
+| 手机        |   $12   |   12   |
+| 管线        |    $1    |  234  |
 
 
