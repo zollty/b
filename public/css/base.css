@@ -8,12 +8,17 @@ body {
 blockquote p {
   font-size: 20px;
 }
+
+h2, .h2 {
+font-size: 28px;
+}
+
 h4, .h4 {
   font-size: 22px;
 }
 h4, .h4, h5, .h5, h6, .h6 {
   margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 /* 页面配置 */
 .container {
@@ -68,9 +73,11 @@ h4, .h4, h5, .h5, h6, .h6 {
   font-size: 18px;
   line-height: 1.8;
 }
+/*
 #content h2, h3 {
   line-height: 2;
 }
+*/
 /* 其他配置 */
 .center {
   text-align: center;
