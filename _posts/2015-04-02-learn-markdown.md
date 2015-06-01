@@ -6,6 +6,7 @@ tags: Linux Life
 keywords: Learn Markdown
 ---
 
+<script type="text/javascript" src="{{ site.baseurl }}/public/js/tablecloth.js"></script>
 
 # 标题 Learn Markdown 标题
 ## 标题 Learn Markdown 标题
