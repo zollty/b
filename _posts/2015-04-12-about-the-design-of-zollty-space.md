@@ -24,8 +24,10 @@ keywords: zollty blog
 站点规划如下：
 
 > 主站点为：[blog.zollty.com](http://blog.zollty.com)
-中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
-短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
+
+> 中长篇博文网站地址{**/b**}：[blog.zollty.com/b](http://blog.zollty.com/b)
+
+> 短文说说、随笔地址{**/n**}：[blog.zollty.com/n](http://blog.zollty.com/n)
 
 
 ## 二、技术要求
