@@ -80,7 +80,12 @@ h4, .h4, h5, .h5 {
   color: #FFF;
 }
 .aside3-content {
-  margin-left: 5px;
+}
+#content {
+  margin-left: -14px;
+  margin-right: -14px;
+  font-size: 18px;
+  line-height: 1.8;
 }
 #inner-cont {
   margin-left: 5px;
