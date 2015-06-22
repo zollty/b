@@ -1,0 +1,20 @@
+<div style="position:fixed;right:20px;top:50px;">
+  <button id="nav_btn" class="btn btn-lg" style="height:45px;width:45px;"><i class="fa fa-angle-left"></i></button>
+</div>
+<script type="text/javascript" src="http://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="http://cdn.staticfile.org/jquery.pjax/1.9.2/jquery.pjax.min.js"></script>
+<script src="{{ site.baseurl }}/public/js/jquery.tagcloud.min.js"></script>
+<script src="{{ site.baseurl }}/public/js/jquery.blockUI.min.js"></script>
+
+<script type="text/javascript" src="{{ site.baseurl }}/public/js/ueditor.parse.js"></script>
+
+<script>
+$('a[href="#{{ site.active }}"]').tab('show');
+var duoshuoQuery = {short_name:"{{ site.comments.duoshuo.name }}"};
+$.fn.tagcloud.defaults = {
+    size: {start: 14, end: 18, unit: 'pt'},
+    color: {start: '#FF66CC', end: '#FF0000'}
+};
+</script>
+<script src="{{ site.baseurl }}/public/js/base-ue.min.js"></script>
