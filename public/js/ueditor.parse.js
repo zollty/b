@@ -884,6 +884,7 @@ UE.parse.register('background', function (utils) {
         styles = ci.getAttribute('data-background');
         if (styles){
             ci.parentNode.removeChild(ci);
+			break;
         }
     }
 
