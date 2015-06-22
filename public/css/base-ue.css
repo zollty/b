@@ -71,22 +71,21 @@ h4, .h4, h5, .h5 {
 .aside3 {
   height: 100%;
   overflow-y: auto;
-  background-color: #C7EDCC;
+  background-color: #fafaf6;
 }
 .aside3-title {
   background-color: #1f2c39;
-  border-left: 1px solid #C7EDCC;
+  border-left: 1px solid #fafaf6;
   text-align: center;
   color: #FFF;
 }
 .aside3-content {
-  padding-left: 30px;
-  padding-right: 30px;
+  margin-left: 5px;
 }
-#content {
+#inner-cont {
+  margin-left: 5px;
   font-size: 18px;
   line-height: 1.8;
-  margin-left: -13px;
 }
 /*
 #content h2, h3 {
