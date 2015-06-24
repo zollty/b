@@ -337,41 +337,49 @@
 UE.parse.register('insertcode',function(utils){
     var pres = this.root.getElementsByTagName('pre');
     if(pres.length){
-        if(typeof XRegExp == "undefined"){
-            var jsurl,cssurl;
-            if(this.rootPath !== undefined){
-                jsurl = utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.js';
-                cssurl = utils.removeLastbs(this.rootPath) + '/third-party/SyntaxHighlighter/shCoreDefault.css';
-            }else{
-                jsurl = this.highlightJsUrl;
-                cssurl = this.highlightCssUrl;
+        if(typeof SyntaxHighlighter == "undefined"){
+            var cssurlArr = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/styles/shCore.min.css'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/styles/shCoreDefault.min.css'];
+            for(var i=0; i<cssurlArr.length; i++) {
+                utils.loadFile(document,{
+                    id : "syntaxhighlighter_css"+i,
+                    tag : "link",
+                    rel : "stylesheet",
+                    type : "text/css",
+                    href : cssurlArr[i]
+                });
+            }
+            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushXml.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJava.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPhp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCpp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
+            ];
+            for(var i=0; i<cssurlArr.length; i++) {
+                utils.loadFile(document,{
+                    id : "syntaxhighlighter_js"+i,
+                    src : cssurlArr[i],
+                    tag : "script",
+                    type : "text/javascript",
+                    defer : "defer"
+                });
             }
             utils.loadFile(document,{
-                id : "syntaxhighlighter_css",
-                tag : "link",
-                rel : "stylesheet",
-                type : "text/css",
-                href : cssurl
-            });
-            utils.loadFile(document,{
                 id : "syntaxhighlighter_js",
-                src : jsurl,
+                src : 'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js',
                 tag : "script",
                 type : "text/javascript",
                 defer : "defer"
             },function(){
-                utils.each(pres,function(pi){
-                    if(pi && /brush/i.test(pi.className)){
-                        SyntaxHighlighter.highlight(pi);
-                    }
-                });
+                SyntaxHighlighter.all();
             });
         }else{
-            utils.each(pres,function(pi){
-                if(pi && /brush/i.test(pi.className)){
-                    SyntaxHighlighter.highlight(pi);
-                }
-            });
+           SyntaxHighlighter.all();
         }
     }
 

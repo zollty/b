@@ -11,6 +11,8 @@ markdown: rdiscount
 
 # Serving
 baseurl: /b # does not include hostname
+assets_url: http://ires.qiniudn.com/my/
+cdn_lib_url: http://ires.qiniudn.com/lib/
 
 # 站点信息
 title: "Zollty's Blog"
