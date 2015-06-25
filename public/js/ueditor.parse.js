@@ -362,12 +362,7 @@ UE.parse.register('insertcode',function(utils){
                     aa(i+1);
                 });
                 } else {
-                    utils.each(pres,function(pi){
-                    if(pi && /brush/i.test(pi.className)){
-                            SyntaxHighlighter.highlight(pi);
-                        }
-                    });
-                    //SyntaxHighlighter.all();
+                    SyntaxHighlighter.all();
                     //var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
                     //$(document.getElementsByTagName("head")[0]).append(sstr);
                 }
@@ -376,11 +371,7 @@ UE.parse.register('insertcode',function(utils){
             
             
         }else{
-           utils.each(pres,function(pi){
-                if(pi && /brush/i.test(pi.className)){
-                    SyntaxHighlighter.highlight(pi);
-                }
-            });
+           SyntaxHighlighter.all();
         }
     }
 
