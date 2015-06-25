@@ -367,8 +367,7 @@ UE.parse.register('insertcode',function(utils){
                     id : "syntaxhighlighter_js"+i,
                     src : jsurlAry[i],
                     tag : "script",
-                    type : "text/javascript",
-                    defer : "defer"
+                    type : "text/javascript"
                 }, function(){
                     aa(i+1);
                 });
