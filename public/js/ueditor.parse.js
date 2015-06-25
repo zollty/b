@@ -353,7 +353,7 @@ UE.parse.register('insertcode',function(utils){
             function aa(i){
                if(i<jsurlAry.length) {
                utils.loadFile(document,{
-                    id : "syntaxhighlighter_js"+i,
+                    id : "syntaxhighlighter_js",
                     src : jsurlAry[i],
                     tag : "script",
                     type : "text/javascript",
