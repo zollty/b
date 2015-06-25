@@ -349,8 +349,8 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.js'
+            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushXml.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js'
@@ -372,10 +372,13 @@ UE.parse.register('insertcode',function(utils){
                     aa(i+1);
                 });
                 } else {
-                    SyntaxHighlighter.all();
+                    //SyntaxHighlighter.all();
                 }
             }
             aa(0);
+            var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
+            $(document.getElementsByTagName("head")[0]).append(sstr);
+            
         }else{
            SyntaxHighlighter.all();
         }
