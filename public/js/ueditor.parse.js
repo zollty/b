@@ -349,32 +349,22 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushXml.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJava.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPhp.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCpp.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js'
-            ];
+            var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.all.min.js'];
             function aa(i){
                if(i<jsurlAry.length) {
                utils.loadFile(document,{
                     id : "syntaxhighlighter_js"+i,
                     src : jsurlAry[i],
                     tag : "script",
-                    type : "text/javascript"
+                    type : "text/javascript",
+                    defer : "defer"
                 }, function(){
                     aa(i+1);
                 });
                 } else {
-                    //SyntaxHighlighter.all();
-                    var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
-                    $(document.getElementsByTagName("head")[0]).append(sstr);
+                    SyntaxHighlighter.all();
+                    //var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
+                    //$(document.getElementsByTagName("head")[0]).append(sstr);
                 }
             }
             aa(0);
