@@ -360,15 +360,20 @@ UE.parse.register('insertcode',function(utils){
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
             ];
-            for(var i=0; i<jsurlAry.length; i++) {
-                utils.loadFile(document,{
+            function aa(i){
+               if(i<jsurlAry.length) {
+               utils.loadFile(document,{
                     id : "syntaxhighlighter_js"+i,
                     src : jsurlAry[i],
                     tag : "script",
                     type : "text/javascript",
                     defer : "defer"
+                }, function(){
+                    aa(i+1);
                 });
+                }
             }
+            aa(0);
             utils.loadFile(document,{
                 id : "syntaxhighlighter_js",
                 src : 'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js',
