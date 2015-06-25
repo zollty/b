@@ -377,14 +377,12 @@ UE.parse.register('insertcode',function(utils){
                 defer : "defer"
             },function(){
                 var doc = window.document;
-                if (doc.readyState === "complete") {
-                    alert('OK...');
+                if (typeof SyntaxHighlighter != "undefined") {
+                    SyntaxHighlighter.all();
                 } else {
-                    //setTimeout(arguments.callee, 0);
-                    alert('fail...');
+                    setTimeout(arguments.callee, 0);
                     return;
                 }
-                SyntaxHighlighter.all();
             });
         }else{
            SyntaxHighlighter.all();
