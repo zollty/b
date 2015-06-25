@@ -360,10 +360,10 @@ UE.parse.register('insertcode',function(utils){
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
             ];
-            for(var i=0; i<cssurlArr.length; i++) {
+            for(var i=0; i<jsurlAry.length; i++) {
                 utils.loadFile(document,{
                     id : "syntaxhighlighter_js"+i,
-                    src : cssurlArr[i],
+                    src : jsurlAry[i],
                     tag : "script",
                     type : "text/javascript",
                     defer : "defer"
