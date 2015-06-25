@@ -376,6 +376,14 @@ UE.parse.register('insertcode',function(utils){
                 type : "text/javascript",
                 defer : "defer"
             },function(){
+                var doc = window.document;
+                if (doc.readyState === "complete") {
+                    alert('OK...');
+                } else {
+                    //setTimeout(arguments.callee, 0);
+                    alert('fail...');
+                    return;
+                }
                 SyntaxHighlighter.all();
             });
         }else{
