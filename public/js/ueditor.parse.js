@@ -349,8 +349,8 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.min.js'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.min.js'
+            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushXml.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js'
