@@ -349,7 +349,19 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.all.min.js'];
+            //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.all.min.js'];
+            var jsurlAry = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shCore.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shAutoloader.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushXml.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJScript.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCss.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushJava.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPhp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCpp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js'
+            ];
             function aa(i){
                if(i<jsurlAry.length) {
                utils.loadFile(document,{
