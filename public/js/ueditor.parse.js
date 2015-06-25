@@ -373,11 +373,12 @@ UE.parse.register('insertcode',function(utils){
                 });
                 } else {
                     //SyntaxHighlighter.all();
+                    var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
+                    $(document.getElementsByTagName("head")[0]).append(sstr);
                 }
             }
             aa(0);
-            var sstr = '<script type="text/javascript">SyntaxHighlighter.all();</script>';
-            $(document.getElementsByTagName("head")[0]).append(sstr);
+            
             
         }else{
            SyntaxHighlighter.all();
