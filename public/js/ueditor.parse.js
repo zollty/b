@@ -359,6 +359,7 @@ UE.parse.register('insertcode',function(utils){
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCpp.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushPython.min.js'
             ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushCSharp.min.js'
+            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js'
             ];
             function aa(i){
                if(i<jsurlAry.length) {
@@ -371,24 +372,11 @@ UE.parse.register('insertcode',function(utils){
                 }, function(){
                     aa(i+1);
                 });
+                } else {
+                    SyntaxHighlighter.all();
                 }
             }
             aa(0);
-            utils.loadFile(document,{
-                id : "syntaxhighlighter_js",
-                src : 'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/scripts/shBrushBash.min.js',
-                tag : "script",
-                type : "text/javascript",
-                defer : "defer"
-            },function(){
-                var doc = window.document;
-                if (typeof SyntaxHighlighter != "undefined") {
-                    SyntaxHighlighter.all();
-                } else {
-                    setTimeout(arguments.callee, 0);
-                    return;
-                }
-            });
         }else{
            SyntaxHighlighter.all();
         }
