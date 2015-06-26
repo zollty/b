@@ -79,9 +79,9 @@ function nav_click() {
       .removeClass('col-md-10 col-lg-10')
       .addClass('col-md-12 col-lg-12');
     /* 修改文字排版 */
-    $('.aside3-content')
-      .removeClass('col-md-12')
-      .addClass('col-md-12 col-lg-12 col-md-offset-1 col-lg-offset-1');
+    //$('.aside3-content')
+    //  .removeClass('col-md-12')
+    //  .addClass('col-md-12 col-lg-12 col-md-offset-1 col-lg-offset-1');
     /* 变化按钮图标 */
     $('#nav_btn i').removeClass('fa-angle-left').addClass('fa-angle-right');  
   }
