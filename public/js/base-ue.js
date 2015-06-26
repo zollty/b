@@ -146,8 +146,13 @@ function contentEffects(){
     createCatalog();
   }
   
-  $("pre").addClass("prettyprint");
-  prettyPrint();
+  if($("#ueditor_background").length > 0){
+    $("#ueditor_background").remove();
+  }
+  uParse('#content',{
+	rootPath : '/b/public/',
+	liiconpath: '/b/public/themes/ueditor-list/'
+  });
 	
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
