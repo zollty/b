@@ -14,7 +14,8 @@ layout: base
     {% endfor %}
   {% endfor %}
 {% endcapture %}
-Linux{{ mmm | strip | size }}
+{% assign sss = mmm | strip %}
+Linux{{ sss | size }}
 <hr>{{ mmm  }}{{ "Z ZZ" | size }}<hr>
 
 
