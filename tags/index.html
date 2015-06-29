@@ -6,10 +6,11 @@ layout: base
 
   {% for tagPost in site.tags %}
     {% assign tagArr = tagPost | first | split:',' | sort %}
-    {{ tagArr }}{{ tagArr.size }}<br/>
-    {% if tagArr['CoreOS'] %}
-      aaa
-    {% endif %}
+    {% for ta in tagArr %}
+      {% if ta=='CoreOS' %}
+        'CoreOS'{{ site.tags[tagPost | first].size }}
+      {% endif %}
+    {% endfor %}
   {% endfor %}
 
 {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
