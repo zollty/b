@@ -9,7 +9,7 @@ layout: base
 {% capture sts %}
 {% for i in (0..tag_words.size) %}
   {% unless forloop.last %}
-    {% if tag_words[i+1] != tag_words[i] %}
+    {% if tag_words[i+1] == tag_words[i] %}
       {{tag_words[i]}},
     {% endif %}
   {% endunless %}
