@@ -88,7 +88,7 @@ h4, .h4, h5, .h5 {
   background-color: #C7EDCC;
 }
 #inner-cont {
-  margin-left: 10px;
+  margin: 0 14px;
   font-size: 18px;
   line-height: 1.8;
 }
