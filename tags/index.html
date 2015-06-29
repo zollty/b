@@ -7,8 +7,8 @@ layout: base
   {% for tagPost in site.tags %}
     {% assign tagArr = tagPost | first | split:',' | sort %}
     {% for ta in tagArr %}
-      {% if ta=='CoreOS' %}
-        'CoreOS'{{ site.tags[tagPost | first].size }}
+      {% if ta == "CoreOS" %}
+        CoreOS{{ site.tags[tagPost | first].size }}
       {% endif %}
     {% endfor %}
   {% endfor %}
