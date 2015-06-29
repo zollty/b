@@ -14,6 +14,7 @@ layout: base
     {% endfor %}
   {% endfor %}
 {% endcapture %}
+<hr>{{ mmm  }}<hr>
 Linux{{ mmm | strip | size }}
 
 {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
