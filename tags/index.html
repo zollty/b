@@ -8,7 +8,8 @@ layout: base
     {% assign tagArr = tagPost | first | split:',' | sort %}
     {% for ta in tagArr %}
       {% if ta == "CoreOS" %}
-        CoreOS{{ site.tags[tagPost | first].size }}
+        {% capture cc %}{{ tagPost | first | strip_newlines }}{% endcapture %}
+        CoreOS{{ site.tags[cc].size }}
       {% endif %}
     {% endfor %}
   {% endfor %}
