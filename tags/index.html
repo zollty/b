@@ -14,9 +14,9 @@ layout: base
     {% endfor %}
   {% endfor %}
 {% endcapture %}
-{% assign sss = mmm | strip %}
+{% assign sss = mmm | strip | replace: ' ' %}
 Linux{{ sss | size }}
-<hr>{{ mmm  }}{{ "Z ZZ" | size }}<hr>
+<hr>{{ mmm  }}{{ "Z ZZ" | replace: ' ' | size }}<hr>
 
 
 {% capture site_tags %}{% for tag in site.tags %}{{ tag | first }}{% unless forloop.last %},{% endunless %}{% endfor %}{% endcapture %}
