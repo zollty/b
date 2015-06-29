@@ -9,7 +9,7 @@ layout: base
     {% for ta in tagArr %}
       {% if ta == "CoreOS" %}
         {% capture cc %}{{ tagPost | first | strip_newlines }}{% endcapture %}
-        CoreOS{{ site.tags[cc].size }}
+        CoreOS{% for item in (0..site.tags[cc].size) %}Z{% endfor %}
       {% endif %}
     {% endfor %}
   {% endfor %}
