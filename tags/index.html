@@ -6,9 +6,9 @@ layout: base
 
   {% for tagPost in site.tags %}
     {% assign tagArr = tagPost | first | split:',' | sort %}
-    {{ tagArr }}<br/>
+    {{ tagArr }}{{ tagArr.size }}<br/>
     {% if tagArr['CoreOS'] %}
-      {% increment this_tag_size %}
+      aaa
     {% endif %}
   {% endfor %}
 
