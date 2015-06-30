@@ -10,7 +10,9 @@ layout: base
 {% for i in (0..tag_words.size) %}
   {% unless forloop.last %}
     {% assign ki = i | plus: 1 %}
-    [{{tag_words[i]}},{{tag_words[ki]}}]
+    {% if tag_words[ki] == tag_words[i] %}
+      {{tag_words[i]}},
+    {% endif %}
   {% endunless %}
 {% endfor %}
 {% endcapture %}
