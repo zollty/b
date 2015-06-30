@@ -16,7 +16,8 @@ layout: base
   {% endunless %}
 {% endfor %}
 {% endcapture %}
-{{sts | strip | remove: ' ' | strip_newlines}}
+{% assign stg = sts | strip | remove: ' ' | strip_newlines %}
+{% assign tag_words = stg | split:',' %}
 <hr>
 <div id='my-tag-wr'>
 
