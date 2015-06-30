@@ -47,10 +47,11 @@ layout: base
 	<ul>
     
     {% for tagPost in site.tags %}
-      {% assign tagArr = tagPost | first | split:',' | sort %}
+      {% assign kkey = tagPost | first %}
+      {% assign tagArr = kkey | split:',' | sort %}
       {% if tagArr contains this_word %}
         
-        {% for post in tagPost %}{% if post.title != null %}
+        {% for post in site.tags[kkey] %}{% if post.title != null %}
 	<li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
 	    {% endif %}{% endfor %}
         
