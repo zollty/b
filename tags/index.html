@@ -28,12 +28,10 @@ layout: base
 {% capture mmm %}
   {% for tagPost in site.tags %}
     {% assign tagArr = tagPost | first | split:',' | sort %}
-    {% for ta in tagArr %}
-      {% if ta == this_word %}
-        {% capture cc %}{{ tagPost | first | strip_newlines }}{% endcapture %}
-        {% for i in (1..site.tags[cc].size) %}Z{% endfor %}
-      {% endif %}
-    {% endfor %}
+    {% if tagArr contains this_word %}
+      {% capture cc %}{{ tagPost | first | strip_newlines }}{% endcapture %}
+      {% for i in (1..site.tags[cc].size) %}Z{% endfor %}
+    {% endif %}
   {% endfor %}
 {% endcapture %}
 {% assign sss = mmm | strip | remove: ' ' | strip_newlines %}
