@@ -1,0 +1,293 @@
+---
+layout: ue
+title: C++结构和类
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "C++结构和类"
+---
+
+<p><br/></p><p><strong>序：</strong>结构和类，是<strong>面向对象程序设计</strong>语言C++的<strong>基础和核心</strong>。我特意花时间整理了一下这部分的知识点，还包括了延伸知识点和静态成员等相关内容。</p><p><br/></p><p><strong>1. 结构和类的区别</strong></p><p>一个结构如下：</p><pre class="brush:cpp;toolbar:false">struct&nbsp;Student
+{
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;name[20];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{…}
+};
+Student&nbsp;stud1,stud2;</pre><p>可以说结构只是类的一部分，struct声明的结构体类型实际上也是类类型。区别是，用struct声明的结构体类型，默认是public的，而用class定义的类，默认是private的。</p><p>&nbsp;</p><p>2. 成员函数在类之外定义</p><p>void Student::display()</p><p>{…}</p><p>&nbsp;</p><p>3. inline声明</p><p>在类内定义的简单成员函数会被系统默认声明为inline，在类外定义的函数，如果想将指定为内置函数，应当与inline作显式声明，如：</p><pre class="brush:cpp;toolbar:false">class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;inline&nbsp;void&nbsp;display();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+};
+inline&nbsp;void&nbsp;Student::display()
+{…}</pre><p>4. 对象成员的引用&nbsp;</p><pre class="brush:cpp;toolbar:false">stud1.num&nbsp;=&nbsp;10101;
+stud1.display();
+用指针：
+class&nbsp;Time
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;hour;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;minute;
+};
+Time&nbsp;t,&nbsp;*p;
+p=&amp;t;
+cout&lt;&lt;p-&gt;hour;&nbsp;//也可以用(*p).hour</pre><p>5.综合例子</p><pre class="brush:cpp;toolbar:false">int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//带默认参数的函数声明
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;set_time(Time&amp;,&nbsp;int&nbsp;hour=0,&nbsp;int&nbsp;minute=0,&nbsp;int&nbsp;sec=0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;show_time(Time&amp;);
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time&nbsp;t1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;show_time(t1);&nbsp;//使用默认参数，输出0:0:0
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time&nbsp;t2;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_time(t2,8,30,16);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;show_time(t2);&nbsp;//输出8:30:16
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>6.构造函数</p><p>用于类对象的初始化，有下面几种形式：</p><p>形式一：在内部定义并初始化（无参数形式）</p><pre class="brush:cpp;toolbar:false">class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student()&nbsp;//定义无参数的构造函数，并赋初值
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num=10101;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=&quot;Wang&nbsp;xiao&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sex=&#39;f&#39;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+};</pre><p>形式二：在内部声明，在外部定义并初始化（无参数形式）</p><pre class="brush:cpp;toolbar:false">class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student();&nbsp;//声明无参数的构造函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+};
+Student::Student()&nbsp;//定义构造函数，并初始化
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num=10101;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=&quot;Wang&nbsp;xiao&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sex=&#39;f&#39;;
+}</pre><p>注：“无参数的构造函数”的特点是：一次性的初始化，以后不能再调用构造函数重新初始化。</p><p>&nbsp;</p><p>形式三：在内部声明，在外部定义，不初始化</p><pre class="brush:cpp;toolbar:false">class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(int&nbsp;,string,&nbsp;char);&nbsp;//声明带3个参数的构造函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+};
+Student::Student(int&nbsp;n,&nbsp;string&nbsp;s,&nbsp;char&nbsp;c)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;num=n;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=s;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sex=c;
+}
+然后，在主函数中新建对象并初始化：
+Student&nbsp;stud(10101,&nbsp;&quot;Wang&nbsp;xiao&quot;,&nbsp;&#39;f&#39;);</pre><p>形式四：在外部采用“初始化表”的形式来定义，不初始化</p><p>class 同形式三;</p><p>Student::Student(int n, string s, char c):num(n), name(s), sex(c){}</p><p><br/></p><p style="white-space: normal; ">形式五：形式一和二的带参数和默认值的形式</p><p style="white-space: normal; ">类似于形式三和四，只需要在声明时写作：</p><p style="white-space: normal; ">Student(int=10102 ,string=”Wang xiao”, char=’f’);</p><p style="white-space: normal; ">即可。注：和“无参数的构造函数”相比，有参数的构造函数可以多次调用构造函数来进行多次初始化，而无参数形式只能一次性初始化。</p><p style="white-space: normal; ">&nbsp;</p><p style="white-space: normal; ">形式六：不同个数参数的构造函数（既构造函数的重载）</p><p style="white-space: normal; ">可以说是形式一到五的一般形式：</p><pre class="brush:cpp;toolbar:false">class&nbsp;classexample
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample()//构造函数1，无参数，即形式一的形式
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i=0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d=0.0;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample(int&nbsp;numi)&nbsp;//构造函数2，只有一个参数，注意：此时另一个必须指定默认值
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i=numi;&nbsp;d=0.0;&nbsp;//d指定默认值为0.0
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample(int&nbsp;numi,&nbsp;double&nbsp;numd)&nbsp;//构造函数3，满参数，类似于形式三
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i=numi;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;d=numd;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;d;
+};&nbsp;
+void&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//系统会根据参数的个数自动判断调用哪一个构造函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample&nbsp;A;&nbsp;//无参数，调用构造函数1
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample&nbsp;B(3);&nbsp;&nbsp;//一个参数，调用构造函数2
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;classexample&nbsp;C(3,&nbsp;2.2);&nbsp;&nbsp;//两个参数，调用构造函数3
+}</pre><p><br/></p><p>7.多文件类和构造函数的例子</p><p>一个三个文件student.h, student.cpp和main.cpp，内容如下：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;string&gt;
+using&nbsp;namespace&nbsp;std;
+class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(int,&nbsp;string,&nbsp;char);//定义构造函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;sex;
+};</pre><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+#include&quot;student.h&quot;
+void&nbsp;Student::display()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;&quot;num:&quot;&lt;&lt;num&lt;&lt;endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;&quot;name:&quot;&lt;&lt;name&lt;&lt;endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;&quot;sex:&quot;&lt;&lt;sex&lt;&lt;endl;
+}
+Student::Student(int&nbsp;n,&nbsp;string&nbsp;s,&nbsp;char&nbsp;c):num(n),&nbsp;name(s),&nbsp;sex(c){}</pre><pre class="brush:cpp;toolbar:false">#include&quot;student.h&quot;
+using&nbsp;namespace&nbsp;std;
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student&nbsp;stud(10102,&nbsp;&quot;Wang&nbsp;xiao&quot;,&nbsp;&#39;f&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stud.display();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>多文件编译时要把3个文件都放入同一个工程文件中（其中.h文件会自动包含进来，但是.cpp文件需手动加入），具体方法：先打开main.cpp文件然后编译它（Compile），先不忙建立连接（Build），打开student.cpp文件编译，然后再连接main.cpp文件，最后执行main.cpp就OK了。该构造函数采用了3个参数的形式。</p><p>&nbsp;</p><p><span style="font-size: 20px; "><strong>8.相关延伸</strong></span></p><p>a. 对象的复制，拷贝（复制）构造函数</p><p>例如：Box box2(box1); //利用box1克隆出一个新对象box2</p><p>实际上这个函数的形式是：</p><pre class="brush:cpp;toolbar:false">Box::Box(const&nbsp;Box&amp;&nbsp;b)&nbsp;//&nbsp;调用构造函数
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height=b.height;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width=b.width;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;length=b.length;
+}</pre><p>C++还提供了另一种复制形式：</p><p>Box box2=box1;</p><p>系统会根据实参的类型决定调用普通构造函数还是复制构造函数。例如：</p><pre class="brush:cpp;toolbar:false">void&nbsp;fun(Box&nbsp;b)
+{}
+int&nbsp;main()
+{Box&nbsp;box1(12,15,19);
+&nbsp;fun(box1);&nbsp;//调用fun()
+}</pre><p>例2：</p><pre class="brush:cpp;toolbar:false">Box&nbsp;f()
+{Box&nbsp;box1(12,15,18);&nbsp;return&nbsp;box1;}
+&nbsp;
+int&nbsp;main()
+{Box&nbsp;box2;
+&nbsp;box2=f();&nbsp;//调用f()
+}</pre><p>b. 析构函数</p><p>当对象的生命周期结束后会自动调用析构函数。析构函数的作用并不是删除对象，而是在撤销对象占用的内存之前完成一些清理工作。它还可以被用来执行“用户希望在最后一次使用对象之后所执行的任何操作”，例如输出有关信息。例如：</p><pre class="brush:cpp;toolbar:false">class&nbsp;Student
+{public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(int&nbsp;n,&nbsp;string&nbsp;nam,&nbsp;char&nbsp;s){…}&nbsp;//定义构造函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~Student()&nbsp;//定义析构函数
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{cout&lt;&lt;”Destructor&nbsp;called.”&lt;&lt;endl;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;……
+}</pre><p>c. 类对象数组</p><p>定义方式：</p><pre class="brush:cpp;toolbar:false">Student&nbsp;stud[3]={&nbsp;//定义一个一维对象数组并调用构造函数初始化
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(1001,18,87);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(1001,18,87);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(1001,18,87);
+};</pre><p>d. 对象指针</p><p>1.指向对象的指针：</p><pre class="brush:cpp;toolbar:false">Time&nbsp;*pt;
+Time&nbsp;t1;
+pt=&amp;t1;
+pt-&gt;get_time();</pre><p>2.指向数据成员的指针：</p><pre class="brush:cpp;toolbar:false">int&nbsp;*p1;
+p1=&amp;t1.hour;
+cout&lt;&lt;*p1;</pre><p>3.指向成员函数的指针：</p><pre class="brush:cpp;toolbar:false">void&nbsp;(Time::*p2)();
+p2=&amp;Time::get_time;&nbsp;//可以合并成一行：void&nbsp;(Time::*p2)()=&amp;Time::get_time;
+Time&nbsp;t1;
+(t1.*p2)();&nbsp;//记住这种调用方式！</pre><p>4.this指针</p><p>this指针的作用：如果对同一个类定义了n个对象，这有n组同样大小的空间存放n个对象中得数据成员，而不同的对象所调用的都是同一个函数代码段，当不同对象的成员函数引用数据成员时，如何能保证引用的是所指定的对象的数据成员呢，这就是this指针的作用。</p><p>例如调用t1.volume();实际上系统隐含转换成t1.volume(&amp;t1);虽然volume并没有参数，但是为了识别出t1的数据成员，会把t1当做参数传递，内部用this指针指向t1的具体参数。即把函数定义处理为：</p><pre class="brush:cpp;toolbar:false">int&nbsp;Box::volume(Box&nbsp;*this)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return((this-&gt;height)*(this-&gt;width)*(this-&gt;length))
+}</pre><p>这样调用t1.volume()时，即调用t1.volume(&amp;t1)，把&amp;t1赋值给this指针，即this是指向对象的指针。<br/></p><p>&nbsp;</p><p>e. 常对象，对象的常引用</p><p>1.常对象：</p><p>Time const t1(12,34,46); 或者 const Time t1(12,34,46);</p><p>//即在用构造函数初始化时多加一个关键字“const”。</p><p><br/></p><p>2.常数据成员：</p><p>const int hour;</p><p>这样定义后hour就是常数据成员了，它不能被赋值，如果要初始化，应该用初始化表的形式，即：</p><p>Time::Time(int h):hour(h){}</p><p>3.常成员函数</p><p>void get_time() const; //把const放在最后</p><p>4.指向对象的常指针</p><p>Time t1(10,12,15);</p><p>Time * const p1=&amp;t1; //在*与指针名之间加const，以后指针就不能改变指向了</p><p>也可以分两行写：</p><p>Time * const p1;</p><p>p1=&amp;t1;</p><p>5.指向常对象的指针</p><p>例如：</p><p>const int *p1; //指向常int类型数据的指针，可改变指向，但是指针的值不能被修改</p><p>const Time *p=&amp;t1; //注意与上面的Time * const p1=&amp;t1;的区别</p><p>指向常对象的指针最常用于函数的形参，目的是保护所指的对象不被修改，例如：</p><pre class="brush:cpp;toolbar:false">int&nbsp;main()
+{void&nbsp;fun(const&nbsp;Time&nbsp;*p);
+&nbsp;Time&nbsp;t1(10,13,56);
+&nbsp;fun(&amp;t1);&nbsp;//此时传过去的值不能被修改。
+}</pre><p>6.对象的常引用</p><p>一个变量的引用其实就是变量的别名。例：</p><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+using&nbsp;namespace&nbsp;std;
+class&nbsp;Time
+{public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time(int,&nbsp;int,&nbsp;int);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;hour;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;minute;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sec;
+};
+Time::Time(int&nbsp;h,&nbsp;int&nbsp;m,&nbsp;int&nbsp;s):hour(h),&nbsp;minute(m),&nbsp;sec(s){}
+&nbsp;
+void&nbsp;fun(Time&nbsp;&amp;t)&nbsp;//如果规定不修改实参t1的值，可以声明为const&nbsp;Time&nbsp;&amp;t，此时赋值语句t.hour=18就是非法
+{t.hour=18;}
+&nbsp;
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time&nbsp;t1(10,13,56);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fun(t1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;t1.hour&lt;&lt;endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>f. 对象的动态建立和释放</p><p>例如：</p><p>Box *pt;</p><p>pt=new Box;</p><p>在程序中就可以通过pt访问这个新建的对象了：</p><p>cout&lt;&lt;pt-&gt;height;</p><p>C++还允许在执行new时，对新建立的对象进行初始化：</p><p>Box *pt= new Box(12,15,18); //推荐形式</p><p>用delete运算符予以释放：</p><p>delete pt; //在释放内存空间之前，自动调用析构函数完成有关善后清理工作</p><p>其实，之所以称之为“动态”，是因为这样开辟的内存空间是没有名称的，如果不用new运算符，必须写作：</p><p>Box t(12,15,18);</p><p>Box *pt=&amp;t;</p><p>此时的内存空间是对象t，而用new时就没有名字。</p><p>&nbsp;</p><p><span style="font-size: 20px; "><strong>一，静态成员</strong></span></p><p>1. 静态数据成员</p><p>&nbsp; 类的对象数据成员都是各自调用各自的，不能为所有对象所共享。使用全局变量又有到处都可以修改全局变量的值的弊端（静态数据成员的值也是可以被修改的！之所以称为“静态”，是因为修改后不复原）。因此实际工作中很少使用全局变量。如果想在同类的多个对象之间实现数据共享，也不要使用全局变量，可以使用静态的数据成员。例如：</p><pre class="brush:cpp;toolbar:false">class&nbsp;Box
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;volume();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;height;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;width;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;length;
+};</pre><p>静态数据成员不只属于某个对象，所有对象都可以引用它，即使不定义对象，也为静态数据成员分配空间，它也可以被引用！（它可以通过对象名引用，也可以直接通过类名来引用），例如：</p><p>cout&lt;&lt;a.height&lt;&lt;endl; &nbsp;//通过对象a引用</p><p>cout&lt;&lt;b.height&lt;&lt;endl; &nbsp;//通过对象b引用</p><p>cout&lt;&lt;Box::height&lt;&lt;endl; &nbsp;//通过类名引用</p><p>静态数据成员可以初始化，但只能在类外。如：</p><p>int Box::height=10; &nbsp;//注意，初始化时前面要加类型，比如int</p><p>不能用参数初始化表对它进行初始化。如：</p><p>Box(int h, int w, int len):height(h){} //是错误的</p><p>如果未对静态数据成员赋初值，则编译系统会自动赋初值0。</p><p>&nbsp;</p><p>2. 静态成员函数</p><p>和静态数据成员的定义和调用类似：</p><p>static int volume();</p><p>要注意的是：静态成员函数没有this指针，由此决定了静态成员函数不能直接访问本类中的非静态数据成员（可以用传参数的形式访问），只能直接引用本类中的静态数据成员。例如：</p><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+using&nbsp;namespace&nbsp;std;
+class&nbsp;Student
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(int&nbsp;n,&nbsp;int&nbsp;a,&nbsp;float&nbsp;s):num(n),age(a),score(s){}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;total();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;float&nbsp;average();
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;num;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;age;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float&nbsp;score;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;float&nbsp;sum;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;int&nbsp;count;
+};
+void&nbsp;Student::total()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sum+=score;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count++;
+}
+float&nbsp;Student::average()&nbsp;//只访问静态数据成员
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return(sum/count);
+}
+float&nbsp;Student::sum=0;&nbsp;//初始化静态数据成员
+int&nbsp;Student::count=0;
+&nbsp;
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student&nbsp;stud[3]={
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(10001,18,70),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(1002,19,78),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Student(1003,20,82)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;};
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stud[0].total();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stud[1].total();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stud[2].total();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;&quot;The&nbsp;average&nbsp;score&nbsp;of&nbsp;the&nbsp;students&nbsp;is&nbsp;&quot;&lt;&lt;Student::average()&lt;&lt;endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>如要使静态函数static float average()访问非静态数据成员，例如访问stud[0].score，这应该用函数传参数的形式，例如：</p><p>声明：</p><p>static float average(const Student &amp;);</p><p>定义：</p><p>float Student::average(const Student &amp;stu)</p><p>{</p><p>&nbsp; &nbsp; &nbsp; &nbsp;cout&lt;&lt;stu.score&lt;&lt;endl;</p><p>&nbsp; &nbsp; &nbsp; &nbsp;return(sum/count);</p><p>}</p><p>引用：</p><p>cout&lt;&lt;Student::average(stud[2]);</p><p>&nbsp;</p><p><span style="font-size: 20px; "><strong>二、友元</strong></span></p><p>friend函数可以是普通非成员函数或者另一个类中的成员函数。</p><p>1.普通函数声明为友元函数</p><p>直接在public中加入一句声明：</p><p>friend void display(Time &amp;);</p><p>在类外定义的友元函数display()内容如下：</p><p>void display(Time &amp;t)</p><p>{cout&lt;&lt;t.hour&lt;&lt;”: ”&lt;&lt;t.minute&lt;&lt;endl;}</p><p>注意，display是一个在类外定义的且未用类Time作限定的函数，它是非成员函数，不属于任何类。用friend声明后就可以应用Time类中的私有成员。</p><p>&nbsp;</p><p>2.另一个类的成员函数声明为友元函数</p><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+using&nbsp;namespace&nbsp;std;
+class&nbsp;Date;&nbsp;&nbsp;//对Date类的提前引用声明
+class&nbsp;Time
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time(int,&nbsp;int,&nbsp;int);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;void&nbsp;display(Date&nbsp;&amp;);
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;hour;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;minute;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sec;
+};
+class&nbsp;Date
+{
+public:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date(int,&nbsp;int,&nbsp;int);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;friend&nbsp;void&nbsp;Time::display(Date&nbsp;&amp;);&nbsp;//将Time类中的成员函数声明为本类的友元函数
+private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;month;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;day;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;year;
+};
+&nbsp;
+void&nbsp;Time::display(Date&nbsp;&amp;d)
+{……}
+……
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time&nbsp;t1(…);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Date&nbsp;d1(…);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;t1.display(d1);&nbsp;//t1的成员函数调用对象d1
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>3.友元类</p><p>好比一个家庭不仅允许一个好朋友可以进入他们的家庭，还允许他全家的人都可以进入他们的卧室。声明友元类的方式：</p><p>friend 类名;</p><p>在实际工作中，除非必要，一般不把整个类声明为友元类。</p><p>&nbsp;</p><p><span style="font-size: 20px; "><strong>三、类模板</strong></span></p><p>函数模板是针对于功能相同而数据类型不同的一些函数。同理，类模板也是如此。</p><p>声明类模板：</p><p>template &lt;class 类型参数名&gt;</p><p><br/></p><p><br/></p>

@@ -1,0 +1,112 @@
+---
+layout: ue
+title: 函数指针和指针函数
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "函数指针和指针函数"
+---
+
+<p><br/></p><p>看一个例子就懂了：</p><p>下面的程序，当程序接收用户输入时，如果用户输入d，则求数组的最大值，如果输入x，则求数组的最小值，如果输入p，则求数组的平均值。前面4个函数分别实现求最大值、最小值、平均值和未知算法，然后实现了GetOperation函数。这个函数根据字符的返回值指向上面4个函数。它是以函数指针的形式返回的，从后面的main函数的GetOperation(c)(dbData, iSize)可以看出，通过这个指针可以调用函数。</p><pre class="brush:cpp;toolbar:false">#include&lt;stdio.h&gt;
+#include&nbsp;&lt;assert.h&gt;
+
+double&nbsp;GetMin(double&nbsp;*dbData,&nbsp;int&nbsp;iSize)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;求最小值
+{
+	double&nbsp;dbMin;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i;
+&nbsp;&nbsp;&nbsp;&nbsp;assert(iSize&gt;0);	//stops&nbsp;the&nbsp;program&nbsp;if&nbsp;an&nbsp;expression&nbsp;isn&#39;t&nbsp;true.
+&nbsp;&nbsp;&nbsp;&nbsp;dbMin=dbData[0];
+&nbsp;&nbsp;&nbsp;for&nbsp;(i=1;&nbsp;i&lt;iSize;&nbsp;i++)
+&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(dbMin&gt;dbData[i])
+		&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dbMin=dbData[i];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;return&nbsp;dbMin;
+}
+
+double&nbsp;GetMax(double&nbsp;*dbData,&nbsp;int&nbsp;iSize)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;求最大值
+{
+	double&nbsp;dbMax;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i;
+&nbsp;&nbsp;&nbsp;&nbsp;assert(iSize&gt;0);
+&nbsp;&nbsp;&nbsp;&nbsp;dbMax=dbData[0];
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(i=1;&nbsp;i&lt;iSize;&nbsp;i++){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(dbMax&lt;&nbsp;dbData[i])&nbsp;{
+			dbMax=dbData[i];
+		}
+	}
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;dbMax;
+}
+
+double&nbsp;GetAverage(double&nbsp;*dbData,&nbsp;int&nbsp;iSize)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;求平均值
+{
+&nbsp;&nbsp;&nbsp;&nbsp;double&nbsp;dbSum=0;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i;
+&nbsp;&nbsp;&nbsp;&nbsp;assert(iSize&gt;0);
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(i=0;&nbsp;i&lt;iSize;&nbsp;i++)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dbSum+=dbData[i];
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;dbSum/iSize;
+}
+
+double&nbsp;UnKnown(double&nbsp;*dbData,&nbsp;int&nbsp;iSize)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;未知算法
+{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}
+
+/*下面定义“函数指针”类型PF，注意*PF必须加括号，否则
+写作double&nbsp;*PF(int&nbsp;a);就属于“指针函数”了*/
+typedef&nbsp;double&nbsp;(*PF)(double&nbsp;*dbData,&nbsp;int&nbsp;iSize);&nbsp;
+
+PF&nbsp;GetOperation(char&nbsp;c)&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;根据字符得到操作类型，返回PF类型的函数指针
+{
+&nbsp;&nbsp;&nbsp;&nbsp;switch&nbsp;(c)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;&#39;d&#39;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;GetMax;	//返回类型是函数，所以要用到函数指针
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;&#39;x&#39;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;GetMin;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;&#39;p&#39;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;GetAverage;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;UnKnown;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+int&nbsp;main(void)
+{
+	double&nbsp;dbData[]={3.1415926,&nbsp;1.4142,&nbsp;-0.5,&nbsp;999,&nbsp;-313,&nbsp;365};
+	int&nbsp;iSize=sizeof(dbData)/sizeof(double);//&nbsp;iSize=48/8=6，可求出数组元素的个数
+	char&nbsp;c;
+	printf(&quot;Please&nbsp;input&nbsp;the&nbsp;Operation&nbsp;:\n&quot;);
+	c=getchar();
+	printf(&quot;result&nbsp;is&nbsp;%lf\n&quot;,&nbsp;GetOperation(c)(dbData,iSize));
+	//&nbsp;GetOperation(c)是一个函数指针，得到的是调用函数的首地址
+	return&nbsp;0;
+}</pre><p>再附一例子供大家参考：</p><pre class="brush:cpp;toolbar:false">#include&quot;stdio.h&quot;
+
+int&nbsp;inc(int&nbsp;a)
+{&nbsp;return&nbsp;++a;&nbsp;}
+
+int&nbsp;multi(int&nbsp;*a,&nbsp;int&nbsp;*b,&nbsp;int&nbsp;*c)
+{&nbsp;return&nbsp;*c=*a**b;&nbsp;}
+
+int&nbsp;(*p)(int);	//定义一个全局函数指针变量
+
+void&nbsp;show(int&nbsp;(*fun)(int&nbsp;*,&nbsp;int&nbsp;*,&nbsp;int&nbsp;*),&nbsp;int&nbsp;arg1,&nbsp;int&nbsp;*arg2)
+{
+	int&nbsp;temp;
+	p=&amp;inc;//此后,p()就代表函数inc()了
+	temp=p(arg1);
+	fun(&amp;temp,&nbsp;&amp;arg1,&nbsp;arg2);//fun代表从show()传来的第一个参数
+	printf(&quot;%d\n&quot;,&nbsp;*arg2);
+}
+
+int&nbsp;main()
+{
+	int&nbsp;a;
+	show(multi,&nbsp;10,&nbsp;&amp;a);
+	return&nbsp;0;
+}</pre><p>输入的是110&nbsp;</p><p><br/></p>

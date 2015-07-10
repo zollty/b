@@ -1,0 +1,14 @@
+---
+layout: ue
+title: PHP安装配置要点
+category: PHP网站服务器端开发
+tags: PHP
+keywords: "PHP安装配置"
+---
+
+<p>首先，分为以下几种：</p><p><strong>WIMP</strong>: Windows+IIS+MySQL+PHP</p><p><strong>WAMP</strong>: Windows+Apache+MySQL+PHP</p><p><span style="color: rgb(192, 0, 0); "><strong>LAMP</strong></span>: Linux+Apache+MySQL+PHP</p><p>APPSERV：集成环境</p><p><br/></p><p>&nbsp; &nbsp; 企业一般用Linux作为网站的服务器，所以一般都是LAMP架构；但是我们个人学习和开发，通常用Windows系统。</p><p>&nbsp; &nbsp; 推荐个人学习用APPSERV或者WAMP，不要用IIS，IIS安装和设置非常麻烦而且功能远远没有Apache专业。</p><p><br/></p><p>APPSERV安装很简单，一键安装，安装好之后无需配置就可以直接使用。下面讲解WAMP安装的一些知识要点：</p><p>1. Apache的配置文件httpd.conf，需要添加下面3句（添加在#LoadModule vhost_alias_module这些行的后面）：</p><p>LoadModule php5_module C:/php/php5.3.1/php5apache2_2.dll</p><p>PHPlniDir &quot;C:/php/php5.3.1&quot;</p><p>AddType application/x-httpd-php .php .phtml</p><p>2.PHP配置文件php.ini</p><p>php.ini-development、php.ini-production 修改成php.ini即可</p><p>extension_dir = &quot;./&quot;，设置为extension_dir = &quot;C:/php/php5.3.1/ext&quot;</p><p>手动开启组件：</p><p>;extension=php_bz2.dll</p><p>;extension=php_gd2.dll</p><p>;extension=php_mysql.dll</p><p>;extension=php_mysqli.dll</p><p>等等，只需把前面的分号去掉即可。</p><p>注意：PHP可能与不同版本的Apache搭配效果不一样，测试版本为：</p><p>Apache 2.2.14 安装版</p><p>PHP 5.3.1 VC6 x86 Thread Safe（下载地址：http://windows.php.net/download/）</p><p>Mysql 5.0.x 安装版或者解压版都可以</p><p>测试PHP能否连接到Mysql：</p><pre class="brush:php;toolbar:false">&lt;?php
+&nbsp;$ok=mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;&quot;);
+&nbsp;if($ok){
+&nbsp;&nbsp;echo&nbsp;&quot;连接成功&quot;;
+&nbsp;}
+?&gt;</pre><p><br/></p>

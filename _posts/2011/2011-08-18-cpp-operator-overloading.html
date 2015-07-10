@@ -1,0 +1,57 @@
+---
+layout: ue
+title: C++运算符重载
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "C++运算符重载"
+---
+
+<p><br/></p><p><strong>序：</strong>比如常见的&nbsp;cout&lt;&lt;c3&lt;&lt;c2</p><p>&nbsp; &nbsp; “&lt;&lt;”和“&gt;&gt;”本来是在C++中被定义为左/右位移运算符的，由于在iostream头文件中对它们进行了<strong>重载</strong>，所以使用它们能用作标准数据类型数据的输入和输出运算符。因此，在使用它们的程序中必须包含：#include &lt;iostream&gt;</p><p>&nbsp;</p><p>1. 运算符重载例子：</p><p>例1 <strong>重载函数作为Complex类的成员函数</strong></p><pre class="brush:cpp;toolbar:false">class&nbsp;Complex
+{
+public:
+	Complex&nbsp;operator&nbsp;+(Complex&nbsp;&amp;c2);	//声明重载运算符’+’的函数
+	……
+};
+Complex&nbsp;Complex::operator&nbsp;+&nbsp;(Complex&nbsp;&amp;c2)	//定义该函数
+{&nbsp;return&nbsp;Complex(real+c2.real,&nbsp;imag+c2.image);&nbsp;}
+int&nbsp;main()
+{
+	Complex&nbsp;c1(3,&nbsp;4),&nbsp;c2(5,-10),&nbsp;c3;
+	c3&nbsp;=&nbsp;c1&nbsp;+&nbsp;c2;	//调用
+	……
+}</pre><p>分析：C++编译系统将程序中的表达式c1 + c2解释为：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;c1.operator +(c2)</p><p>即以c2为实参调用对象c1的运算符重载函数operator +(Complex &amp;c2)。实际上，运算符重载函数有两个参数，由于重载函数是Coplex类中的成员函数，有一个参数是隐含的，运算符函数是用this指针隐式地访问类对象的成员，如this-&gt;real+c2.real，this代表c1，即实际上是c1.real+c2.real。</p><p>&nbsp;</p><p>运算符重载函数可以是类的成员函数，也可以是类的友元函数，也可以是普通函数（不推荐）。</p><p>&nbsp;</p><p>例2 <strong>重载函数作为Complex类的友元函数</strong></p><pre class="brush:cpp;toolbar:false">friend&nbsp;Complex&nbsp;operator&nbsp;+(Complex&nbsp;&amp;c1,&nbsp;Complex&nbsp;&amp;c2);	//声明
+
+Complex&nbsp;operator&nbsp;+(Complex&nbsp;&amp;c1,&nbsp;Complex&nbsp;&amp;c2)	//定义
+{&nbsp;return&nbsp;Complex(c1.real+c2.real,&nbsp;c1.imag+c2.image);&nbsp;}
+c3&nbsp;=&nbsp;c1+c2;	//调用</pre><p>为什么把运算符函数作为友元函数呢？理由很简单，因为运算符函数要访问Complex类对象中的成员。如果作为成员函数，就必须要求运算表达式第一个参数（即运算符左侧的操作数）是一个类对象，而且与运算符函数的类型相同，在例1中，表达式c1+c2中的第一个参数c1是Complex类对象，运算符函数返回值的类型也是Complex，这是正确的。如果c1不是Complex类，就无法启用c1.operator +(c2)，也就无法通过隐式this指针访问Complex类的成员了。</p><p>说明：有的C++编译系统（如VC++6.0）没有完全实现C++标准，它所提供的后缀.h的头文件不支持把成员函数重载为友元函数，因此在VC++6.0，应把程序的头两行：</p><p>#include &lt;iosteam&gt;</p><p>using namespace std;</p><p>改为一行：#include &lt;iosteam.h&gt; &nbsp; //C语言的风格</p><p>&nbsp;</p><p>例3 <strong>重载双目运算符</strong></p><pre class="brush:cpp;toolbar:false">bool&nbsp;operator&nbsp;&gt;(String&nbsp;&amp;string1,&nbsp;String&nbsp;&amp;string2)
+{
+	if(&nbsp;strcmp(string1.p,&nbsp;string2.p)&nbsp;&gt;&nbsp;0&nbsp;)	return&nbsp;true;
+	else		return&nbsp;false;
+}</pre><p>例4 <strong>重载单目运算符</strong></p><pre class="brush:cpp;toolbar:false">Time&nbsp;Time::operator&nbsp;++()	//定义前置自增运算符“++”重载函数
+{
+	if(&nbsp;++sec&nbsp;&gt;=&nbsp;60)	//隐含了this指针
+	{&nbsp;sec&nbsp;-=60;
+	&nbsp;&nbsp;++minute;&nbsp;}
+	return&nbsp;*this;	//返回当前新的this指针内容
+}
+Time&nbsp;Time::operator&nbsp;++(int)&nbsp;	//定义后置“++”重载函数
+{
+	Time&nbsp;temp(*this);	//定义新对象temp，将当前this指针指向的对象拷贝给temp
+	sec++;
+	if(&nbsp;sec&nbsp;&gt;=&nbsp;60)
+	{&nbsp;sec&nbsp;-=60;
+	&nbsp;&nbsp;++minute;&nbsp;}
+	return&nbsp;temp;	//返回未更新值的对象temp，实际上实参的值已经自增了。
+}</pre><p>说明：重载后置自增运算符时，多了一个int型的参数，增加这个参数只是为了与前置自增运算符重载函数有所区别，此外没有任何作用。</p><p>&nbsp;</p><p>例5 <strong>重载流插入/提取运算符</strong></p><p>&nbsp;</p><p>对“&lt;&lt;”和“&gt;&gt;”重载的函数形式如下：</p><p>istream &amp; operator &gt;&gt;(istream &amp;, 自定义类 &amp;); &nbsp; &nbsp; &nbsp; //input</p><p>ostream &amp; operator &gt;&gt;(ostream &amp;, 自定义类 &amp;); &nbsp; &nbsp; //output</p><p>例如：</p><pre class="brush:cpp;toolbar:false">{
+	output&lt;&lt;”(”&lt;&lt;c.real&lt;&lt;”+”&lt;&lt;c.imag&lt;&lt;”i)”&lt;&lt;endl;
+	return&nbsp;output;
+}
+
+cout&lt;&lt;c3&lt;&lt;c2;&nbsp;&nbsp;&nbsp;&nbsp;//调用重载后的&quot;&lt;&lt;&quot;，等价于(operator&nbsp;&lt;&lt;(cout,&nbsp;c3))&lt;&lt;c2;</pre><p>编译系统把”cout&lt;&lt;c3”解释为：operator &lt;&lt;(cout, c3)，即以cout和c3作为实参，调用operator &lt;&lt;(ostream &amp;output, Complex &amp;c)函数。因此，相当于执行了：</p><p>cout&lt;&lt;”(”&lt;&lt;c3.real&lt;&lt;”+”&lt;&lt;c3.image&lt;&lt;”i)”&lt;&lt;endl; return cout;</p><p>返回的是流提取对象cout，作为引用返回。</p><p>&nbsp;</p><p>如果有以下输出：</p><p>cout&lt;&lt;c3&lt;&lt;c2;</p><p>先处理cout&lt;&lt;c3，即(cout&lt;&lt;c3)&lt;&lt;c2;而cout&lt;&lt;c3其实是operator &lt;&lt;(cout, c3)，返回的是流提取对象cout，所以cout再和后面的c2结合，输出c2的内容。可见为什么C++规定“流提取运算符重载函数的第一个参数和函数的类型都必须是ostream类型的引用”了，就是为了返回cout，以便连续输出。</p><p>&nbsp;</p><p>问：为什么要在operator前面加’&amp;’？（即“返回引用”）</p><p>答：开始我以为ostream &amp; operator &gt;&gt;()的这个返回类型“ostream &amp;”是为了和括号中的参数“ostream &amp;”类型相对于，其实不然。因为只有运算符重载函数为成员函数时，才要求第一个参数和运算符重载函数的类型相同，而友元函数没有这个要求。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;先分析“ostream &amp;”作为参数的情况，传入的第一个参数显然是cout，cout是什么，它其实也是一个类的对象，“cin和cout分别是istream类和ostream类的对象”，所以说形参定义成引用，避免了对象的拷贝。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;再来分析函数类型为什么要定义为“ostream &amp;”，先看看原理http://blog.csdn.net/zollty/article/details/6695311。因为要使返回的对象cout能够直接使用，所以要将函数的返回值定义为引用。</p><p>&nbsp;</p><p>&nbsp;</p><p><strong><span style="font-size: 20px; ">2. 不同数据类型之间的转换</span></strong></p><p><strong>1） 标准类型数据之间的转换</strong></p><p>显示类型转换：</p><p>C语言格式：（类型名）数据，例如：(int)89.5</p><p>C++格式：类型名（数据），例如：int(89.5)</p><p>&nbsp;</p><p><strong>2） 用构造函数进行类型转换</strong></p><p>几种构造函数：</p><p>l &nbsp; &nbsp; &nbsp; &nbsp; 默认构造函数（无参，直接指定默认值）：Complex();</p><p>l &nbsp; &nbsp; &nbsp; &nbsp; 用于初始化的构造函数：Complex(double r, double i);</p><p>l &nbsp; &nbsp; &nbsp; &nbsp; 用于复制对象的复制构造函数：Complex(Complex &amp;c);</p><p>l &nbsp; &nbsp; &nbsp; &nbsp; 现在要讲解的新构造函数——转换构造函数：Complex(double r){ real=r; imag=0; }（它只有一个参数）</p><p>以上几种构造函数可以同时出现在同一个类中，它们是构造函数的重载。</p><p>&nbsp;</p><p>假如有以下声明语句：</p><p>Complex c1(3.5); &nbsp; &nbsp; &nbsp; //建立对象c1，由于只有一个参数，调用转换构造函数</p><p>也可以用声明语句建立一个无名的Complex类对象。如：</p><p>Complex(3.6); &nbsp; &nbsp; //用声明语句建立一个无名对象，合法，但是无法使用</p><p>可以在一个表达式中使用无名对象，如</p><p>c1=Complex(3.6); &nbsp; &nbsp; &nbsp;//假设c1已经被定义为Complex类对象</p><p>若在程序中有以下表达式：</p><p>c=c1+2.5;</p><p>编译出错，因为不能用运算符“+”将一个Complex类对象和一个浮点数相加。可以先将2.5转换成Complex类无名对象，然后相加：</p><p>c=c1+Complex(2.5);</p><p>请对比Complex(2.5)和int(2.5)。可以认为Complex(2.5)的作用也是强制类型转换。通常把有一个参数的构造函数用作类型转换，所以，称为转换构造函数。如可以将一个学生类对象转换为教师类对象，可以在Teacher类中写出下面的转换构造函数：</p><p>Teacher(Student &amp;s)</p><p>{ num=s.num; strcpy(name, s.name); sex=s.sex; }</p><p>但应注意：对象s中的num, name, sex必须是公用成员，否则不能被类外调用。</p><p>&nbsp;</p><p><strong>3） 用类型转换函数进行类型转换</strong></p><p>&nbsp; &nbsp; &nbsp; &nbsp;用转换构造函数可以将一个指定类型的数据转换为类的对象。但是不能反过来将一个类的对象转换为一个其他类型的数据（例如将一个Complex类对象转换成double类型数据）。C++提供了类型转换函数来解决这个问题。类型转换函数的作用是将一个类的对象转换成另一类型的数据。如果已经声明了一个Complex类：</p><pre class="brush:cpp;toolbar:false">class&nbsp;Complex
+{
+public:
+	……
+private:
+	double&nbsp;real;
+	double&nbsp;imag;
+};</pre><p>可以在Complex类中这样定义类型转换函数：</p><p>operator double()</p><p>{ return real; }</p><p>&nbsp; &nbsp; &nbsp; &nbsp;它的作用是将一个Complex类对象转换为一个double型数据，其值是Complex类中得数据成员real的值。请注意：函数名是operator double。这点是和运算符重载时的规律一致的（都是用关键字operator开头，只是被重载的是类型名）。其特点：在函数名前面不能指定函数类型，函数也没有参数。其返回值的类型是由函数名中指定的类型名来确定的（函数返回double型变量real的值）。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;在定义了前面的数据类型转换函数后，程序中的Complex类对象是不是一律都转换成double类型的数据呢？不是的，它们具有双重身份，既是Complex类对象，又可以作为double类型数据。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;转换构造函数和类型转换运算符有一个共同的功能：当需要的时候，编译系统会自动的调用这些函数，建立一个无名的临时对象（或临时变量）。例如，若已定义d1, d2为double型变量，c1, c2为Complex类对象，且类中已经定义了类型转换函数。设程序中有以下表达式：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;d1 = d2 + c1;</p><p>编译系统发现“+”左侧的d2是double型，而右侧的c1是Complex类对象，如果没有对运算符“+”进行重载，就会检查有无类型转换函数，结果发现有，就调用operate double函数把Complex类对象c1转换为double型数据，建立了一个临时的double变量，并与d2相加，最后将一个double的值赋给d1。相当于执行表达式：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;d1 = d2 + c1.operate double();</p><p>如果类中已经定义了转换构造函数并重载了运算符“+”（作为Complex类的友元函数），但未对double定义类型转换函数（或者说未对double重载），若有以下表达式：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;c2 = c1 + d2;</p><p>则系统将转换为：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;c2 = c1+ Complex(d2);</p><p>当然，如果既有转换构造函数和运算符重载，又有double类型转换函数，出现歧义的话就会出错。</p><p><br/></p>

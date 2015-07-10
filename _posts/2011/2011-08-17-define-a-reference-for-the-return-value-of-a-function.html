@@ -1,0 +1,65 @@
+---
+layout: ue
+title: 将函数的返回值引用定义为引用
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "将函数的返回值引用定义为引用"
+---
+
+<p><br/></p><p>“<strong>将函数的返回值定义为引用</strong>”是一种比较有效的做法。</p><p>例如（分析见程序的注释）：</p><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+#include&lt;string&gt;
+using&nbsp;namespace&nbsp;std;
+char&nbsp;&amp;&nbsp;get_val(string&nbsp;&amp;str,int&nbsp;i)//返回类型为引用
+{//若去掉返回值的引用，则返回的是一个无名变量，其值是返回内容的一个拷贝而已，见下一个程序。
+	return&nbsp;str[i];
+}
+int&nbsp;main()
+{
+	string&nbsp;s(&quot;123456&quot;);
+	cout&lt;&lt;s&lt;&lt;endl;
+	get_val(s,2)=&#39;a&#39;;	//即等价于：str[2]=&#39;a&#39;，因为get_val(s,2)返回的是引用，故相当于str[2]
+	cout&lt;&lt;s&lt;&lt;endl;
+	return&nbsp;0;
+}</pre><p>对比一下没有返回引用的情况：</p><pre class="brush:cpp;toolbar:false">#include&lt;iostream&gt;
+#include&lt;string&gt;
+using&nbsp;namespace&nbsp;std;
+char&nbsp;get_val(string&nbsp;&amp;str,int&nbsp;i)//返回类型不为引用
+{
+	return&nbsp;str[i];
+}
+int&nbsp;main()
+{
+	string&nbsp;s(&quot;123456&quot;);
+	cout&lt;&lt;s&lt;&lt;endl;
+	char&nbsp;p;
+	p=get_val(s,2);	//因为函数get_val()返回值不是引用，所以必须赋值给一个变量后才能使用。
+	cout&lt;&lt;p&lt;&lt;endl;
+	return&nbsp;0;
+}</pre><p>显然这种函数返回值为引用的方法大有用武之地，最常见的就是用在重载流插入/提取运算符函数中，例如：</p><pre class="brush:cpp;toolbar:false">ostream&nbsp;&amp;&nbsp;operate&nbsp;&lt;&lt;(ostream&nbsp;&amp;output,&nbsp;Complex&nbsp;&amp;c)//定义流提取运算符“&lt;&lt;”重载函数
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output&lt;&lt;”(”&lt;&lt;c.real&lt;&lt;”+”&lt;&lt;c.imag&lt;&lt;”i)”&lt;&lt;endl;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;output;
+}
+
+cout&lt;&lt;c3&lt;&lt;c2;&nbsp;&nbsp;&nbsp;&nbsp;//调用重载后的&quot;&lt;&lt;&quot;，等价于(operate&nbsp;&lt;&lt;(cout,&nbsp;c3))&lt;&lt;c2;&amp;nbsp;</pre><p>因为输出c3后紧接着要输出c2，所以要求cout&lt;&lt;c3（即operate &lt;&lt;(cout, c3)）必须返回流提取对象cout，故必须使函数operate &lt;&lt;(cout, c3)的返回值能直接使用，即：必须将函数返回值设置为引用。</p><p>&nbsp;</p><p>请自行分析下面的程序：</p><pre class="brush:cpp;toolbar:false">int&nbsp;&amp;func(int&amp;&nbsp;a)
+{
+	return&nbsp;a;
+}
+
+void&nbsp;main()&nbsp;
+{
+	int&nbsp;a=0;
+	int&nbsp;b=func(a);
+	printf(&quot;&amp;a=%p,&nbsp;&amp;(func(a))=%p,&nbsp;&amp;b=%p\n&quot;,&amp;a,&nbsp;&amp;(func(a)),&nbsp;&amp;b);//&nbsp;%p也可以换做%08X，用于输出内存地址
+}</pre><p>执行的结果为：</p><p>0012FF7C, 0012FF7C, 0012FF78</p><p>a和b的地址不等。</p><p>&nbsp;</p><p><strong><span style="font-size: 20px; ">返回指针的情形</span></strong></p><p>例如：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;stdio.h&gt;
+char&nbsp;*RetMemory()
+{
+	char&nbsp;p[]=&quot;hello&nbsp;world\n&quot;;
+	return&nbsp;p;
+}
+void&nbsp;main(&nbsp;)
+{
+	char&nbsp;*str=NULL;
+	str=RetMemory();
+	printf(str);
+}</pre><p>分析：str能得到p吗？不能！因为函数调用结束后p的内存就被回收了，所以最好是利用传参数的形式定义p或者将p定义为全局变量。</p><p>所以要避免返回 指向函数内部定义的变量或字符串常量 的指针。</p><p><br/></p>

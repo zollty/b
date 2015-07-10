@@ -1,0 +1,182 @@
+---
+layout: ue
+title: 多态性与虚函数
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "多态性与虚函数"
+---
+
+<p>多态性与虚函数 &nbsp; &nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; &nbsp; 面向对象理论中的3个术语：对象、方法和消息。对象（object）：不言而喻，它是构成系统的基本单位，有属性和行为两个要素，在C++中，每个对象都是由数据和函数这两部分组成的，数据即是对象的属性，行为称之为方法（method），方法是对数据的操作，通常由函数实现。调用对象中的函数就是向该对象传送一个消息（message），所谓“消息”，其实就是一个命令。例如：</p><p>&nbsp; &nbsp; &nbsp; &nbsp;stud.display();</p><p>就是向对象stud发出的一个“消息”，通知它执行其中的display“方法”（即display函数）。即：stud是对象，display()是方法，语句“stud.display();”是消息。</p><p>&nbsp;</p><p>1.多态性（polymorphism）</p><p>&nbsp; &nbsp; &nbsp; &nbsp;多态性定义：由继承而产生的相关的不同的类，向其对象发送同一个消息，不同的对象接收到后会产生不同的行为（即方法）。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;多态性分为两类：静态多态性和动态多态性。函数重载和运算符重载实现的多态性属于静态多态性，在程序编译时系统就能决定调用的是哪个函数，因此静态多态性有称为编译时的多态性。静态多态性是通过函数的重载实现的（运算符重载实质上也是函数重载）。动态多态性是在程序运行过程中才动态地确定操作所针对的对象，故称之为运行时的多态性。动态多态性是通过虚函数实现的。</p><p>关于静态多态性和动态多态性，请看下面的例子：</p><p>定义3个类：点、圆和圆柱</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;iostream.h&gt;
+
+//定义Point基类
+class&nbsp;Point
+{
+public:
+	Point(float=0,&nbsp;float=0);
+	void&nbsp;display();
+	friend&nbsp;ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;,&nbsp;const&nbsp;Point&nbsp;&amp;);
+protected:
+	float&nbsp;x,&nbsp;y;
+};
+
+Point::Point(float&nbsp;a,&nbsp;float&nbsp;b)
+{
+	x=a;&nbsp;y=b;
+}
+
+ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;output,&nbsp;const&nbsp;Point&nbsp;&amp;p)
+{
+	output&lt;&lt;&quot;[&quot;&lt;&lt;p.x&lt;&lt;&quot;,&quot;&lt;&lt;p.y&lt;&lt;&quot;]&quot;&lt;&lt;endl;
+	return&nbsp;output;
+}
+
+void&nbsp;Point::display()
+{
+	cout&lt;&lt;&quot;[&quot;&lt;&lt;x&lt;&lt;&quot;,&quot;&lt;&lt;y&lt;&lt;&quot;]&quot;&lt;&lt;endl;
+}
+
+//定义Circle基类
+class&nbsp;Circle:&nbsp;public&nbsp;Point
+{
+public:
+	Circle(float=0,&nbsp;float=0,&nbsp;float=0);
+	float&nbsp;area&nbsp;(&nbsp;)&nbsp;const;
+	void&nbsp;display();
+	friend&nbsp;ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;,&nbsp;const&nbsp;Circle&nbsp;&amp;);
+protected:
+	float&nbsp;radius;
+};
+
+Circle::Circle(float&nbsp;a,float&nbsp;b,float&nbsp;r):Point(a,b),radius(r){&nbsp;}
+
+float&nbsp;Circle::area(&nbsp;)&nbsp;const
+{&nbsp;return&nbsp;3.14159*radius*radius;&nbsp;}
+
+ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;output,&nbsp;const&nbsp;Circle&nbsp;&amp;c)
+{
+	output&lt;&lt;&quot;Center=[&quot;&lt;&lt;c.x&lt;&lt;&quot;,&quot;&lt;&lt;c.y&lt;&lt;&quot;],&nbsp;r=&quot;&lt;&lt;c.radius&lt;&lt;&quot;,&nbsp;area=&quot;&lt;&lt;c.area(&nbsp;)&lt;&lt;endl;
+	return&nbsp;output;
+}
+
+void&nbsp;Circle::display()
+{
+	cout&lt;&lt;&quot;Center=[&quot;&lt;&lt;x&lt;&lt;&quot;,&quot;&lt;&lt;y&lt;&lt;&quot;],&nbsp;r=&quot;&lt;&lt;radius&lt;&lt;&quot;,&nbsp;area=&quot;&lt;&lt;area(&nbsp;)&lt;&lt;endl;
+}
+
+//定义圆柱体类
+class&nbsp;Cylinder:&nbsp;public&nbsp;Circle
+{
+public:
+	Cylinder&nbsp;(float=0,float=0,float=0,float=0);
+	float&nbsp;area()&nbsp;const;//计算圆表面积，和Circle类中的area重名
+	float&nbsp;volume()&nbsp;const;
+	void&nbsp;display();
+	friend&nbsp;ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;,&nbsp;const&nbsp;Cylinder&nbsp;&amp;);
+protected:
+	float&nbsp;height;
+};
+
+Cylinder::Cylinder(float&nbsp;a,float&nbsp;b,float&nbsp;r,float&nbsp;h):Circle(a,b,r),height(h){}
+
+float&nbsp;Cylinder::area(&nbsp;)&nbsp;const
+{&nbsp;return&nbsp;2*Circle::area()+2*3.14159*radius*height;&nbsp;}
+
+float&nbsp;Cylinder::volume()&nbsp;const
+{&nbsp;return&nbsp;Circle::area()*height;&nbsp;}
+
+ostream&nbsp;&amp;&nbsp;operator&nbsp;&lt;&lt;(ostream&nbsp;&amp;&nbsp;output,&nbsp;const&nbsp;Cylinder&nbsp;&amp;cy)
+{
+	output&lt;&lt;&quot;Center=[&quot;&lt;&lt;cy.x&lt;&lt;&quot;,&quot;&lt;&lt;cy.y&lt;&lt;&quot;],&nbsp;r=&quot;&lt;&lt;cy.radius&lt;&lt;&quot;,&nbsp;h=&quot;
+		&lt;&lt;cy.height&lt;&lt;&quot;\narea=&quot;&lt;&lt;cy.area(&nbsp;)&lt;&lt;&quot;,&nbsp;volume=&quot;&lt;&lt;cy.volume(&nbsp;)&lt;&lt;endl;
+	return&nbsp;output;
+}
+
+void&nbsp;Cylinder::display()
+{
+	cout&lt;&lt;&quot;Center=[&quot;&lt;&lt;x&lt;&lt;&quot;,&quot;&lt;&lt;y&lt;&lt;&quot;],&nbsp;r=&quot;&lt;&lt;radius&lt;&lt;&quot;,&nbsp;h=&quot;
+		&lt;&lt;height&lt;&lt;&quot;\narea=&quot;&lt;&lt;area(&nbsp;)&lt;&lt;&quot;,&nbsp;volume=&quot;&lt;&lt;volume(&nbsp;)&lt;&lt;endl;
+}</pre><p>主函数(1)，静态关联</p><pre class="brush:cpp;toolbar:false">int&nbsp;main()
+{
+	Cylinder&nbsp;cy1;
+	cout&lt;&lt;&quot;A&nbsp;Cylinder:\n&quot;&lt;&lt;cy1;&nbsp;//用重载运算符“&lt;&lt;”输出cy1的数据
+	
+	Point&nbsp;&amp;p=cy1;&nbsp;//将圆柱cy1赋值给点，p是Point类对象的引用变量
+	cout&lt;&lt;&quot;\np&nbsp;as&nbsp;a&nbsp;Point:\n&quot;&lt;&lt;p;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//p作为一个“点”输出
+	
+	Circle&nbsp;&amp;c=cy1;&nbsp;//将圆柱cy1赋值给圆，c是Circle类对象的引用变量
+	cout&lt;&lt;&quot;\nc&nbsp;as&nbsp;a&nbsp;Circle:\n&quot;&lt;&lt;c&lt;&lt;endl;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//c作为一个“圆”输出
+	return&nbsp;0;
+}</pre><p>由该主函数可知：1. 圆柱对象cy1可以直接赋值给其基类的对象；2. Circle类和Cylinder类中都有一个area( )函数，之所以在Cylinder中用area( )能直接调用Cylinder::area( )而没有调用Circle:: area( )是因为“同名覆盖”的缘故，默认Cylinder中的area( )覆盖了基类中的area( )函数（如果不想覆盖，可以用纯虚函数，能够对基类函数重新定义，但是哪个效果更高还不好说）。3. 三个类中都包含了同名的重载运算符“&lt;&lt;”函数，但是他们的第二个参数类型互不相同，所以不能看做是同名覆盖，实际上，是属于静态关联。“&lt;&lt;”运算符之所以能准确地调用不同类中的重载函数，是因为系统在编译时就已经确定了调用对象。</p><p>&nbsp;</p><p>主函数(2)，动态关联：</p><pre class="brush:cpp;toolbar:false">int&nbsp;main(&nbsp;)
+{
+	Point&nbsp;p1(9,9);
+	Circle&nbsp;c1(6,6,8);
+	Cylinder&nbsp;cy1(5,5,15,7.5);
+
+	Point&nbsp;*pt=&amp;p1;
+	pt-&gt;display();
+	pt=&amp;c1;
+	pt-&gt;display();
+	pt=&amp;cy1;
+	pt-&gt;display();
+	return&nbsp;0;
+}</pre><p>首先应该明确一点：定义为指向Point基类对象的指针，当改变方向，指向派生类对象后，它仅指向派生类对象中基类的部分对象（例如当pt=&amp;c1后，调用pt-&gt;display()相当于调用pt-&gt;Point::display()），所以上面调用的display()函数只能输出基类对象的值（即：定义为Point类型的指针pt根本就无法指向派生类增加的数据或函数，例如pt-&gt; Circle::display()就会出错，提示“&#39;Circle&#39; : is not a memberof &#39;Point&#39;”）。</p><p>要想pt能指向Circle::display()，就必须用虚成员函数来实现，即把基类中的display()函数声明为virtual类型。基类中的display()函数声明为了virtual类型，代表了它可以在派生类中被重新定义，为它赋予新功能（所以可以基类中的虚函数的函数体可以为空，或者写成纯虚函数的形式），注意是“重新定义”而不是“共存”，即此时Circle中定义的display()函数不再看做是增加的部分，而是看做基类的部分，所以直接用pt-&gt;display()或者pt-&gt;Point::display()就可以调用Circle类中定义的display()函数了，写成pt-&gt; Circle::display()反而会出错。</p><p>&nbsp;</p><p>2. 虚函数</p><p>上面已经说了，C++的动态多态性是通过虚函数来实现的。“虚成员函数”简称“虚函数”，C++不允许在类外声明虚函数。“虚函数允许派生类取代基类所提供的实现。编译器确保当对象为派生类时，取代者（译注：即派生类的实现）总是被调用，即使对象是使用基类指针访问而不是派生类的指针。”</p><p>上面的例子，写成虚函数的形式：</p><pre class="brush:cpp;toolbar:false">class
+{
+	…
+	virtual&nbsp;void&nbsp;display(){}	//声明为空的虚函数
+}
+int&nbsp;mai()
+{
+	Point&nbsp;p1(9,9);
+	Circle&nbsp;c1(6,6,8);
+	Cylinder&nbsp;cy1(5,5,15,7.5);
+	Point&nbsp;*pt=&amp;p1;
+	pt-&gt;display();	//错误，因为Point类中的display()被定义为空，没有输出功能
+	pt=&amp;c1;
+	pt-&gt;display();	//直接调用就可以输出圆的内容了
+	……
+}</pre><p>也可以写成纯虚函数的形式：</p><pre class="brush:cpp;toolbar:false">class
+{
+	…
+	virtual&nbsp;void&nbsp;display()&nbsp;=0;	//声明为纯虚函数
+}
+int&nbsp;mai()
+{
+	Point&nbsp;p1(9,9);	//错误，包含纯虚函数的类被成为抽象类，不能被初始化
+	Circle&nbsp;c1(6,6,8);
+	Cylinder&nbsp;cy1(5,5,15,7.5);
+	Point&nbsp;*pt=&amp;p1;
+	pt-&gt;display();
+	pt=&amp;c1;
+	pt-&gt;display();	//直接调用就可以了
+	……
+}</pre><p>因为纯虚函数“徒有其名，而无其实”，所以包含纯虚函数的类都只作为基类，相当于提供一种基本的类型，它的不能被初始化，这种类被称为“抽象基类”，它总是被调用的。</p><p>例如，可以给点、圆和圆柱体定义一个抽象基类Shape（形状）：</p><pre class="brush:cpp;toolbar:false">class&nbsp;Shape
+{
+public:
+	virtual&nbsp;float&nbsp;area()&nbsp;const&nbsp;{&nbsp;return&nbsp;0.0;&nbsp;}	//虚函数
+	virtual&nbsp;float&nbsp;volume()&nbsp;const&nbsp;{&nbsp;return&nbsp;0.0;&nbsp;}	//虚函数
+	virtual&nbsp;void&nbsp;shapeName()&nbsp;const&nbsp;=0;	//纯虚函数
+};</pre><p>3. 虚析构函数</p><p>如果用new运算符建立了临时对象，若基类中有析构函数，并且定义了一个指向该基类的指针变量。在程序用带指针参数的delete运算符撤销对象时，会发生一个情况：系统会只执行基类的析构函数，而不执行派生类的析构函数。例如：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;iostream.h&gt;
+
+//定义Point基类
+class&nbsp;Point
+{
+public:
+	Point(&nbsp;){&nbsp;};&nbsp;//定义构造函数
+	~Point()&nbsp;{&nbsp;cout&lt;&lt;&quot;Point&nbsp;OK!&quot;&lt;&lt;endl;&nbsp;}	//析构函数
+};
+
+class&nbsp;Circle:&nbsp;public&nbsp;Point
+{
+public:
+	Circle(&nbsp;){&nbsp;};
+	~Circle()&nbsp;{&nbsp;cout&lt;&lt;&quot;Circle&nbsp;OK!&quot;&lt;&lt;endl;&nbsp;}
+protected:
+	float&nbsp;radius;
+};
+
+int&nbsp;main(&nbsp;)
+{
+	Point&nbsp;*p=new&nbsp;Circle;
+	delete&nbsp;p;&nbsp;
+	return&nbsp;0;
+}</pre><p>希望用delete释放p所指的空间，但运行结果却为：</p><p>Point OK!</p><p>表示只执行了基类Piont的析构函数，而没有执行派生类Circle的析构函数。如果希望能执行派生类中的析构函数，可以将基类的析构函数声明为虚函数，如</p><p>virtual ~ Point() { cout&lt;&lt;&quot;PointOK!&quot;&lt;&lt;endl; }</p><p>如果将基类的析构函数声明为虚函数，由该基类所派生的所有派生类的析构函数也自动成为虚函数，即使它们名字不同。可见原理和格式与上面所说的虚函数是一样的。运行结果为：</p><p>Point OK!</p><p>Circle OK!</p><p>专业人员一般都习惯声明虚析构函数，即使基类并不需要析构函数，也显式地定义一个函数体为空的析构函数，以保证在撤销动态存储空间时能得到正确的处理。</p><p><br/></p>

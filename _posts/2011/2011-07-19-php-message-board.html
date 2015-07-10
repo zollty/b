@@ -1,0 +1,655 @@
+---
+layout: ue
+title: PHP留言板 PHP在线咨询留言系统
+category: 临时保存
+tags: PHP
+keywords: "PHP留言板"
+---
+
+<p><br/></p><p>本文详细介绍本人最近在公司做的一个PHP留言板（PHP在线咨询留言系统）。</p><p>该模块是公司CMS系统中的一部分。</p><p>主要功能：</p><p>&nbsp; &nbsp; 留言，回复，注册，管理。</p><p><br/></p><p>技术细节：</p><p>&nbsp;1.注册与登录页面无刷新（AJAX）验证；</p><p>&nbsp;2.一条留言下可显示多条回复（一个原创的算法）；</p><p>&nbsp;3.留言分页显示；4.留言管理（删除）；</p><p>&nbsp;5.页面布局（HTML+DIV+CSS）；</p><p>&nbsp;6.PHP操作MySQL数据库。</p><p>要使用此留言板，必须先创建数据库，而且MySQL账号设置为root,密码为root（或者自行修改多个php文件中默认的账号和密码）。数据库弄好之后，把“留言板-zollty”文件夹放到网站目录下，访问http://localhost/mb-zollty/index.php即可。</p><p>为方便大家使用，下面给出一个数据库备份文件guestbook.txt，你只需要恢复该数据库即可，恢复方式：</p><p>【在DOS下，输入: mysql -u用户名 -p密码 guestbook &lt;F:\guestbook.txt（备份文件所在位置）】</p><p>guestbook.txt内容如下：</p><pre class="brush:sql;toolbar:false">--&nbsp;MySQL&nbsp;dump&nbsp;10.11
+--
+--&nbsp;Host:&nbsp;localhost&nbsp;&nbsp;&nbsp;&nbsp;Database:&nbsp;guestbook
+--&nbsp;------------------------------------------------------
+--&nbsp;Server&nbsp;version	5.0.51b-community-nt-log
+
+/*!40101&nbsp;SET&nbsp;@OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;@OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;@OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;NAMES&nbsp;utf8&nbsp;*/;
+/*!40103&nbsp;SET&nbsp;@OLD_TIME_ZONE=@@TIME_ZONE&nbsp;*/;
+/*!40103&nbsp;SET&nbsp;TIME_ZONE=&#39;+00:00&#39;&nbsp;*/;
+/*!40014&nbsp;SET&nbsp;@OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS,&nbsp;UNIQUE_CHECKS=0&nbsp;*/;
+/*!40014&nbsp;SET&nbsp;@OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS,&nbsp;FOREIGN_KEY_CHECKS=0&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;@OLD_SQL_MODE=@@SQL_MODE,&nbsp;SQL_MODE=&#39;NO_AUTO_VALUE_ON_ZERO&#39;&nbsp;*/;
+/*!40111&nbsp;SET&nbsp;@OLD_SQL_NOTES=@@SQL_NOTES,&nbsp;SQL_NOTES=0&nbsp;*/;
+
+--
+--&nbsp;Table&nbsp;structure&nbsp;for&nbsp;table&nbsp;`admin`
+--
+
+DROP&nbsp;TABLE&nbsp;IF&nbsp;EXISTS&nbsp;`admin`;
+SET&nbsp;@saved_cs_client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;@@character_set_client;
+SET&nbsp;character_set_client&nbsp;=&nbsp;utf8;
+CREATE&nbsp;TABLE&nbsp;`admin`&nbsp;(
+&nbsp;&nbsp;`name`&nbsp;varchar(16)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;管理名称&#39;,
+&nbsp;&nbsp;`pwd`&nbsp;varchar(32)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;管理员密码&#39;,
+&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;&nbsp;(`name`)
+)&nbsp;ENGINE=MyISAM&nbsp;DEFAULT&nbsp;CHARSET=utf8;
+SET&nbsp;character_set_client&nbsp;=&nbsp;@saved_cs_client;
+
+--
+--&nbsp;Dumping&nbsp;data&nbsp;for&nbsp;table&nbsp;`admin`
+--
+
+LOCK&nbsp;TABLES&nbsp;`admin`&nbsp;WRITE;
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`admin`&nbsp;DISABLE&nbsp;KEYS&nbsp;*/;
+INSERT&nbsp;INTO&nbsp;`admin`&nbsp;VALUES&nbsp;(&#39;zollty&#39;,&#39;e10adc3949ba59abbe56e057f20f883e&#39;),(&#39;tester&#39;,&#39;e10adc3949ba59abbe56e057f20f883e&#39;);
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`admin`&nbsp;ENABLE&nbsp;KEYS&nbsp;*/;
+UNLOCK&nbsp;TABLES;
+
+--
+--&nbsp;Table&nbsp;structure&nbsp;for&nbsp;table&nbsp;`guest`
+--
+
+DROP&nbsp;TABLE&nbsp;IF&nbsp;EXISTS&nbsp;`guest`;
+SET&nbsp;@saved_cs_client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;@@character_set_client;
+SET&nbsp;character_set_client&nbsp;=&nbsp;utf8;
+CREATE&nbsp;TABLE&nbsp;`guest`&nbsp;(
+&nbsp;&nbsp;`id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;auto_increment&nbsp;COMMENT&nbsp;&#39;客户自增id&#39;,
+&nbsp;&nbsp;`name`&nbsp;varchar(16)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;客户名称&#39;,
+&nbsp;&nbsp;`email`&nbsp;varchar(60)&nbsp;default&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;电子邮箱&#39;,
+&nbsp;&nbsp;`qq`&nbsp;varchar(11)&nbsp;default&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;QQ号码&#39;,
+&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;&nbsp;(`id`)
+)&nbsp;ENGINE=MyISAM&nbsp;AUTO_INCREMENT=7&nbsp;DEFAULT&nbsp;CHARSET=utf8;
+SET&nbsp;character_set_client&nbsp;=&nbsp;@saved_cs_client;
+
+--
+--&nbsp;Dumping&nbsp;data&nbsp;for&nbsp;table&nbsp;`guest`
+--
+
+LOCK&nbsp;TABLES&nbsp;`guest`&nbsp;WRITE;
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`guest`&nbsp;DISABLE&nbsp;KEYS&nbsp;*/;
+INSERT&nbsp;INTO&nbsp;`guest`&nbsp;VALUES&nbsp;(1,&#39;test_01&#39;,&#39;test_01@gmail.com&#39;,&#39;112345678&#39;),(2,&#39;test_02&#39;,&#39;test_02@sina.com&#39;,&#39;23658954&#39;),(3,&#39;test_03&#39;,&#39;test_03@sina.com&#39;,&#39;54545454&#39;),(6,&#39;student_01&#39;,&#39;student_01@guet.edu.cn&#39;,&#39;245457875&#39;),(5,&#39;四川大学&#39;,&#39;sichuan@scut.edu.cn&#39;,&#39;12227445&#39;);
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`guest`&nbsp;ENABLE&nbsp;KEYS&nbsp;*/;
+UNLOCK&nbsp;TABLES;
+
+--
+--&nbsp;Table&nbsp;structure&nbsp;for&nbsp;table&nbsp;`post`
+--
+
+DROP&nbsp;TABLE&nbsp;IF&nbsp;EXISTS&nbsp;`post`;
+SET&nbsp;@saved_cs_client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;@@character_set_client;
+SET&nbsp;character_set_client&nbsp;=&nbsp;utf8;
+CREATE&nbsp;TABLE&nbsp;`post`&nbsp;(
+&nbsp;&nbsp;`id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;auto_increment&nbsp;COMMENT&nbsp;&#39;POST主键自增id&#39;,
+&nbsp;&nbsp;`guest_id`&nbsp;varchar(11)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;发布人ID&#39;,
+&nbsp;&nbsp;`post`&nbsp;text&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;发布内容&#39;,
+&nbsp;&nbsp;`post_time`&nbsp;varchar(14)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;发布时间&#39;,
+&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;&nbsp;(`id`)
+)&nbsp;ENGINE=MyISAM&nbsp;AUTO_INCREMENT=7&nbsp;DEFAULT&nbsp;CHARSET=utf8;
+SET&nbsp;character_set_client&nbsp;=&nbsp;@saved_cs_client;
+
+--
+--&nbsp;Dumping&nbsp;data&nbsp;for&nbsp;table&nbsp;`post`
+--
+
+LOCK&nbsp;TABLES&nbsp;`post`&nbsp;WRITE;
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`post`&nbsp;DISABLE&nbsp;KEYS&nbsp;*/;
+INSERT&nbsp;INTO&nbsp;`post`&nbsp;VALUES&nbsp;(1,&#39;1&#39;,&#39;test_01test_01test_01test_01\r\ntest_01test_01test_01&#39;,&#39;1310744360&#39;),(2,&#39;2&#39;,&#39;您好！请问贵校今年的招生人数是多少？&#39;,&#39;1310744438&#39;),(3,&#39;3&#39;,&#39;请问，你们公司为实习生提供住宿吗？&#39;,&#39;1310744711&#39;),(6,&#39;6&#39;,&#39;请问，我们需要自己带电脑过去吗？&#39;,&#39;1310973804&#39;),(5,&#39;5&#39;,&#39;请问你们招收计算机专业的研究生吗？&#39;,&#39;1310744925&#39;);
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`post`&nbsp;ENABLE&nbsp;KEYS&nbsp;*/;
+UNLOCK&nbsp;TABLES;
+
+--
+--&nbsp;Table&nbsp;structure&nbsp;for&nbsp;table&nbsp;`revert`
+--
+
+DROP&nbsp;TABLE&nbsp;IF&nbsp;EXISTS&nbsp;`revert`;
+SET&nbsp;@saved_cs_client&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;@@character_set_client;
+SET&nbsp;character_set_client&nbsp;=&nbsp;utf8;
+CREATE&nbsp;TABLE&nbsp;`revert`&nbsp;(
+&nbsp;&nbsp;`id`&nbsp;int(11)&nbsp;NOT&nbsp;NULL&nbsp;auto_increment&nbsp;COMMENT&nbsp;&#39;revert主键自增id&#39;,
+&nbsp;&nbsp;`post_id`&nbsp;varchar(11)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;留言ID&#39;,
+&nbsp;&nbsp;`revert`&nbsp;text&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;回复内容&#39;,
+&nbsp;&nbsp;`revert_time`&nbsp;varchar(14)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;回复时间&#39;,
+&nbsp;&nbsp;`admin`&nbsp;varchar(16)&nbsp;NOT&nbsp;NULL&nbsp;COMMENT&nbsp;&#39;管理员名称&#39;,
+&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;&nbsp;(`id`)
+)&nbsp;ENGINE=MyISAM&nbsp;AUTO_INCREMENT=12&nbsp;DEFAULT&nbsp;CHARSET=utf8;
+SET&nbsp;character_set_client&nbsp;=&nbsp;@saved_cs_client;
+
+--
+--&nbsp;Dumping&nbsp;data&nbsp;for&nbsp;table&nbsp;`revert`
+--
+
+LOCK&nbsp;TABLES&nbsp;`revert`&nbsp;WRITE;
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`revert`&nbsp;DISABLE&nbsp;KEYS&nbsp;*/;
+INSERT&nbsp;INTO&nbsp;`revert`&nbsp;VALUES&nbsp;(1,&#39;5&nbsp;&#39;,&#39;欢迎报考耶鲁大学计算机专业的研究生！&#39;,&#39;1310745105&#39;,&#39;zollty&#39;),(11,&#39;6&nbsp;&#39;,&#39;公司有电脑，但是宿舍没有哦！&#39;,&#39;1310973862&#39;,&#39;zollty&#39;),(3,&#39;3&nbsp;&#39;,&#39;提供住宿，实习生是每个月3500的工资！&#39;,&#39;1310745228&#39;,&#39;tester&#39;),(4,&#39;5&nbsp;&#39;,&#39;多条回复查询！&#39;,&#39;1310953006&#39;,&#39;zollty&#39;),(5,&#39;5&nbsp;&#39;,&#39;再次回复！！！！！！！！&#39;,&#39;1310959821&#39;,&#39;zollty&#39;),(6,&#39;2&nbsp;&#39;,&#39;test,sdgdskkjfdsgjkfjk,fdjfd,dfjkj.&#39;,&#39;1310972183&#39;,&#39;zollty&#39;),(7,&#39;2&nbsp;&#39;,&#39;什么情况？？\r\ntest!&#39;,&#39;1310972216&#39;,&#39;zollty&#39;),(10,&#39;6&nbsp;&#39;,&#39;嗯&#39;,&#39;1310973819&#39;,&#39;&lt;span&nbsp;style=&quot;font-family:&nbsp;Arial,&nbsp;Helvetica,&nbsp;sans-serif;&quot;&gt;tester&lt;/span&gt;&lt;span&nbsp;style=&quot;font-family:&nbsp;Arial,&nbsp;Helvetica,&nbsp;sans-serif;&quot;&gt;&#39;),(9,&#39;5&nbsp;&#39;,&#39;换个号回复！&#39;,&#39;1310973648&#39;,&#39;&lt;/span&gt;&lt;span&nbsp;style=&quot;font-family:&nbsp;Arial,&nbsp;Helvetica,&nbsp;sans-serif;&quot;&gt;tester&lt;/span&gt;&lt;span&nbsp;style=&quot;font-family:&nbsp;Arial,&nbsp;Helvetica,&nbsp;sans-serif;&quot;&gt;&#39;);&lt;/span&gt;
+/*!40000&nbsp;ALTER&nbsp;TABLE&nbsp;`revert`&nbsp;ENABLE&nbsp;KEYS&nbsp;*/;
+UNLOCK&nbsp;TABLES;
+/*!40103&nbsp;SET&nbsp;TIME_ZONE=@OLD_TIME_ZONE&nbsp;*/;
+
+/*!40101&nbsp;SET&nbsp;SQL_MODE=@OLD_SQL_MODE&nbsp;*/;
+/*!40014&nbsp;SET&nbsp;FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS&nbsp;*/;
+/*!40014&nbsp;SET&nbsp;UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS&nbsp;*/;
+/*!40101&nbsp;SET&nbsp;COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION&nbsp;*/;
+/*!40111&nbsp;SET&nbsp;SQL_NOTES=@OLD_SQL_NOTES&nbsp;*/;
+
+--&nbsp;Dump&nbsp;completed&nbsp;on&nbsp;2011-07-18&nbsp;&nbsp;8:00:13</pre><p>也可以自行创建该数据库，MySQL下创建数据库的命令如下：</p><p>创建数据库：</p><p>create database guestbook default character set utf8 collate utf8_general_ci;</p><p>创建表：</p><p>guest——存储用户信息</p><p>post——存储留言</p><p>revert——存储回复信息</p><p>admin——管理员账号数据库</p><pre class="brush:sql;toolbar:false">create&nbsp;table&nbsp;guest(
+id&nbsp;int(11)&nbsp;not&nbsp;null&nbsp;auto_increment&nbsp;comment&#39;客户自增id&#39;,
+name&nbsp;varchar(16)&nbsp;not&nbsp;null&nbsp;comment&#39;客户名称&#39;,
+email&nbsp;varchar(60)&nbsp;null&nbsp;comment&#39;电子邮箱&#39;,
+qq&nbsp;varchar(11)&nbsp;null&nbsp;comment&#39;QQ号码&#39;,
+primary&nbsp;key(id)
+)engine=Myisam;</pre><p><br/></p><pre class="brush:sql;toolbar:false">create&nbsp;table&nbsp;post(
+id&nbsp;int(11)&nbsp;not&nbsp;null&nbsp;auto_increment&nbsp;comment&#39;POST主键自增id&#39;,
+guest_id&nbsp;varchar(11)&nbsp;not&nbsp;null&nbsp;comment&#39;发布人ID&#39;,
+post&nbsp;text&nbsp;not&nbsp;null&nbsp;comment&#39;发布内容&#39;,
+post_time&nbsp;varchar(14)&nbsp;not&nbsp;null&nbsp;comment&#39;发布时间&#39;,
+primary&nbsp;key(id)
+)engine=Myisam;</pre><p><br/></p><pre class="brush:sql;toolbar:false">create&nbsp;table&nbsp;revert(
+id&nbsp;int(11)&nbsp;not&nbsp;null&nbsp;auto_increment&nbsp;comment&#39;revert主键自增id&#39;,
+post_id&nbsp;varchar(11)&nbsp;not&nbsp;null&nbsp;comment&#39;留言ID&#39;,
+revert&nbsp;text&nbsp;not&nbsp;null&nbsp;comment&#39;回复内容&#39;,
+revert_time&nbsp;varchar(14)&nbsp;not&nbsp;null&nbsp;comment&#39;回复时间&#39;,
+admin&nbsp;varchar(16)&nbsp;null&nbsp;comment&#39;管理名称&#39;,
+primary&nbsp;key(id)
+)engine=Myisam;</pre><p><br/></p><pre class="brush:sql;toolbar:false">create&nbsp;table&nbsp;admin(
+name&nbsp;varchar(16)&nbsp;not&nbsp;null&nbsp;comment&#39;管理名称&#39;,
+pwd&nbsp;varchar(16)&nbsp;not&nbsp;null&nbsp;comment&#39;管理员密码&#39;,
+primary&nbsp;key(name)
+)engine=Myisam;</pre><p><br/></p><p>外键关系是：guest.id = post.guest_id，post.id = revert.post_id，revert.admin=admin.name</p><p><br/></p><p>文件清单：</p><pre class="brush:plain;toolbar:false">index.php
+login.php
+logout.php
+register.php
+register_ok.php
+chkadmin.php
+post.php
+revert.php
+delete.php
+conn.php
+yzm.php</pre><p>数据库连接文件conn.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php
+	$conn=mysql_connect(&#39;localhost&#39;,&#39;root&#39;,&#39;root&#39;)&nbsp;or&nbsp;die(&quot;connection&nbsp;error&quot;.mysql_error());
+	mysql_select_db(&quot;guestbook&quot;,$conn);
+	mysql_query(&quot;set&nbsp;names&nbsp;gb2312&quot;);
+?&gt;</pre><p>注册页面文件register.php如下：</p><pre class="brush:html;toolbar:false;">&lt;!DOCTYPE&nbsp;html&nbsp;PUBLIC&nbsp;&quot;-//W3C//DTD&nbsp;XHTML&nbsp;1.0&nbsp;Transitional//EN&quot;&nbsp;&quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html&nbsp;xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+&lt;meta&nbsp;http-equiv=&quot;Content-Type&quot;&nbsp;content=&quot;text/html;&nbsp;charset=gb2312&quot;&nbsp;/&gt;
+&lt;title&gt;管理员注册&lt;/title&gt;
+
+&lt;/head&gt;
+&lt;script&nbsp;language=&quot;javascript&quot;&gt;
+function&nbsp;rechk()
+{
+	if(register.name.value==&quot;&quot;)
+	{
+		alert(&quot;用户名不能为空！&quot;);
+		register.name.focus();
+		return&nbsp;false;
+	}
+	if(register.pwd.value==&quot;&quot;)
+	{
+		alert(&quot;用户密码不能为空！&quot;);
+		register.pwd.focus();
+		return&nbsp;false;
+	}
+}
+function&nbsp;chkname(form)//利用Js的innerHTML方法实现无刷新验证，下同
+{
+	if(form.name.value==&quot;&quot;)
+	{
+		name1.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;请输入用户名！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else&nbsp;if(form.name.value.length&gt;10)
+	{
+		name1.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;用户名长度应小于10位！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else
+	{
+		name1.innerHTML=&quot;&lt;font&nbsp;color=green&gt;恭喜你，该用户名未被占用！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+}
+function&nbsp;chkpwd1(form)
+{
+	if(form.pwd.value==&quot;&quot;)
+	{
+		pwd11.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;密码格式错误！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else&nbsp;if(form.pwd.value.length&lt;6)
+	{
+		pwd11.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;注册密码长度应大于6位！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else
+	{
+		pwd11.innerHTML=&quot;&lt;font&nbsp;color=green&gt;输入正确&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+}
+function&nbsp;chkpwd2(form)
+{
+	if(form.pwd2.value==&quot;&quot;)
+	{
+		pwd21.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;请输入确认密码！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else&nbsp;if(form.pwd2.value.length&lt;6)
+	{
+		pwd21.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;确认密码长度应大于6位！&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+	else&nbsp;if(form.pwd.value!=form.pwd2.value)
+	{
+		pwd21.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;注册密码与确认密码不同！&lt;/font&gt;&quot;;&nbsp;
+	}
+	else
+	{
+		pwd21.innerHTML=&quot;&lt;font&nbsp;color=green&gt;输入正确&lt;/font&gt;&quot;;&nbsp;&nbsp;
+	}
+}
+function&nbsp;chkyzm(form)
+{
+	if(form.yzm.value==&quot;&quot;)
+	{
+		yzm1.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;请输入效验码！&lt;/font&gt;&quot;;&nbsp;
+	}
+	else&nbsp;if(form.yzm.value!=form.yzm2.value)
+	{
+		yzm1.innerHTML=&quot;&lt;font&nbsp;color=#FF0000&gt;效验码输入错误!&lt;/font&gt;&quot;;
+	}
+	else
+	{
+		yzm1.innerHTML=&quot;&lt;font&nbsp;color=green&gt;输入正确&lt;/font&gt;&quot;;
+	}
+}
+function&nbsp;yzm(form)//利用yzm生成验证码图像
+{
+	var&nbsp;num1=Math.round(Math.random()*10000000);
+	var&nbsp;num=num1.toString().substr(0,4);
+	document.write(&quot;&lt;img&nbsp;name=codeimg&nbsp;src=&#39;yzm.php?num=&quot;+num+&quot;&#39;&gt;&quot;);
+	form.yzm2.value=num;
+}
+function&nbsp;code(form)
+{
+	var&nbsp;num1=Math.round(Math.random()*10000000);
+	var&nbsp;num=num1.toString().substr(0,4);
+	document.codeimg.src=&quot;yzm.php?num=&quot;+num;
+	form.yzm2.value=num;
+}
+&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;table&nbsp;width=&quot;450&quot;&nbsp;border=&quot;0&quot;&nbsp;align=&quot;center&quot;&nbsp;cellpadding=&quot;0&quot;&nbsp;cellspacing=&quot;0&quot;&gt;
+&nbsp;&lt;form&nbsp;id=&quot;register&quot;&nbsp;name=&quot;register&quot;&nbsp;method=&quot;post&quot;&nbsp;action=&quot;register_ok.php&quot;&gt;
+&nbsp;	&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;	&lt;td&nbsp;colspan=&quot;5&quot;&nbsp;align=&quot;center&quot;&nbsp;valign=&quot;middle&quot;&gt;&lt;h2&gt;管理员注册&lt;/h2&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;81&quot;&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;align=&quot;right&quot;&gt;用户名：&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&nbsp;colspan=&quot;3&quot;&gt;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;id=&quot;name&quot;&nbsp;name=&quot;name&quot;&nbsp;type=&quot;text&quot;&nbsp;&nbsp;onBlur=&quot;javascript:chkname(register)&quot;&nbsp;onMouseOver=&quot;this.style.backgroundColor=&#39;#ffffff&#39;&quot;&nbsp;onMouseOut=&quot;this.style.backgroundColor=&#39;#e8f4ff&#39;&quot;&nbsp;/&gt;&amp;nbsp;&lt;font&nbsp;color=&quot;red&quot;&gt;*&lt;/font&gt;&lt;/td&gt;&lt;!--单元格随鼠标变色--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;id=&quot;name1&quot;&gt;&lt;font&nbsp;color=&quot;#999999&quot;&gt;请输入用户名&lt;/font&gt;&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;81&quot;&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;align=&quot;right&quot;&gt;注册密码：&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&nbsp;colspan=&quot;3&quot;&gt;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;id=&quot;pwd&quot;&nbsp;name=&quot;pwd&quot;&nbsp;type=&quot;password&quot;&nbsp;onBlur=&quot;javascript:chkpwd1(register)&quot;&nbsp;onMouseOver=&quot;this.style.backgroundColor=&#39;#ffffff&#39;&quot;&nbsp;onMouseOut=&quot;this.style.backgroundColor=&#39;#e8f4ff&#39;&quot;/&gt;&amp;nbsp;&lt;font&nbsp;color=&quot;red&quot;&gt;*&lt;/font&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;152&quot;&gt;&lt;div&nbsp;id=&quot;pwd11&quot;&gt;&lt;font&nbsp;color=&quot;#999999&quot;&gt;请输入密码&lt;/font&gt;&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;81&quot;&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;align=&quot;right&quot;&gt;确认密码：&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&nbsp;colspan=&quot;3&quot;&gt;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;id=&quot;pwd2&quot;&nbsp;name=&quot;pwd2&quot;&nbsp;type=&quot;password&quot;&nbsp;onBlur=&quot;&nbsp;javascript:chkpwd2(register)&quot;&nbsp;onMouseOver=&quot;this.style.backgroundColor=&#39;#ffffff&#39;&quot;&nbsp;onMouseOut=&quot;this.style.backgroundColor=&#39;#e8f4ff&#39;&quot;/&gt;&amp;nbsp;&lt;font&nbsp;color=&quot;red&quot;&gt;*&lt;/font&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;id=&quot;pwd21&quot;&gt;&lt;font&nbsp;color=&quot;#999999&quot;&gt;确认密码&lt;/font&gt;&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;align=&quot;right&quot;&gt;验证码：&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&gt;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;id=&quot;yzm&quot;&nbsp;type=&quot;text&quot;&nbsp;name=&quot;yzm&quot;&nbsp;size=&quot;8&quot;&nbsp;onBlur=&quot;javascript:chkyzm(register)&quot;&nbsp;onMouseOver=&quot;this.style.backgroundColor=&#39;#ffffff&#39;&quot;&nbsp;onMouseOut=&quot;this.style.backgroundColor=&#39;#e8f4ff&#39;&quot;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;name=&quot;yzm2&quot;&nbsp;type=&quot;hidden&quot;&nbsp;value=&quot;&quot;&nbsp;/&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;65&quot;&nbsp;align=&quot;center&quot;&nbsp;valign=&quot;middle&quot;&gt;&lt;script&gt;yzm(register)&lt;/script&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;width=&quot;51&quot;&gt;&lt;a&nbsp;href=&quot;javascript:code(register)&quot;&gt;看不清&lt;/a&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&gt;&lt;div&nbsp;id=&quot;yzm1&quot;&gt;&lt;font&nbsp;color=&quot;#999999&quot;&gt;输入验证码&lt;/font&gt;&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;tr&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&nbsp;colspan=&quot;2&quot;&gt;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;submit&quot;&nbsp;name=&quot;Submit&quot;&nbsp;value=&quot;提交&quot;&nbsp;onclick=&quot;return&nbsp;rechk();&quot;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&amp;nbsp;&amp;nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;reset&quot;&nbsp;value=&quot;重写&quot;&nbsp;/&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;td&nbsp;height=&quot;25&quot;&nbsp;colspan=&quot;3&quot;&gt;&lt;div&nbsp;style=&quot;color:#FF0000&quot;&gt;带&quot;*&quot;号的为必填项&lt;/div&gt;&lt;/td&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/tr&gt;
+&nbsp;&nbsp;&lt;/form&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre><p>管理员登录文件login.php如下：</p><pre class="brush:html;toolbar:false">&lt;!DOCTYPE&nbsp;html&nbsp;PUBLIC&nbsp;&quot;-//W3C//DTD&nbsp;XHTML&nbsp;1.0&nbsp;Transitional//EN&quot;&nbsp;&quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html&nbsp;xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+&lt;meta&nbsp;http-equiv=&quot;Content-Type&quot;&nbsp;content=&quot;text/html;&nbsp;charset=gb2312&quot;&nbsp;/&gt;
+&lt;title&gt;管理员登录&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;table&nbsp;width=&quot;590&quot;&gt;
+&lt;tr&gt;
+&lt;td&nbsp;width=&quot;582&quot;&gt;
+&lt;form&nbsp;action=&quot;chkadmin.php&quot;&nbsp;method=&quot;POST&quot;&nbsp;name=&quot;myform&quot;&gt;
+管理员：&lt;input&nbsp;type=&quot;text&quot;&nbsp;name=&quot;username&quot;&nbsp;size=&quot;20&quot;/&gt;
+密码：&lt;input&nbsp;type=&quot;password&quot;&nbsp;name=&quot;password&quot;&nbsp;size=&quot;20&quot;&gt;
+&lt;input&nbsp;type=&quot;submit&quot;&nbsp;value=&quot;登录&quot;&nbsp;name=&quot;Submit&quot;/&gt;
+&lt;input&nbsp;type=&quot;button&quot;&nbsp;onclick=&quot;javascript:location.href=&#39;index.php&#39;&quot;&nbsp;value=&quot;放弃&quot;/&gt;
+&lt;a&nbsp;style=&quot;color:blue&quot;&nbsp;href=&quot;register.php&quot;&gt;&nbsp;&nbsp;&nbsp;注册&lt;/a&gt;
+&lt;/form&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre><p>管理员回复文件revert.php如下：</p><p><br/></p><p><br/></p><p>登出文件logout.php如下：</p><pre class="brush:php;toolbar:false;">&lt;?php&nbsp;&nbsp;
+session_start();&nbsp;&nbsp;
+SESSION[&#39;login&#39;]=false;//置为false，取消管理员权限
+echo&nbsp;&quot;location.href=&#39;index.php&#39;;&quot;;
+?&gt;</pre><p><br/></p><p>发送留言文件post.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php
+header(&#39;content-type:text/html;charset=utf-8&#39;);&nbsp;//告诉程序我们的脚本将返回什么格式的数据，和返回数据的字符集,否则IE里面看到返回是乱码
+if&nbsp;(!get_magic_quotes_gpc())&nbsp;{
+&nbsp;&nbsp;//判断PHP解析器是否为数据加上了自动转义，如果没有，就执行foreach语句自己添加转义
+&nbsp;&nbsp;foreach&nbsp;(POST&nbsp;as&nbsp;&amp;&nbsp;$items)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;$items&nbsp;=&nbsp;addslashes($items);
+&nbsp;&nbsp;}
+}
+$name&nbsp;=&nbsp;POST[&#39;name&#39;];
+$qq&nbsp;=&nbsp;POST[&#39;qq&#39;];
+$email&nbsp;=&nbsp;POST[&#39;email&#39;];
+$post&nbsp;=&nbsp;POST[&#39;post&#39;];
+if&nbsp;($name&nbsp;==&nbsp;&quot;&quot;&nbsp;||&nbsp;strlen($name)&nbsp;&gt;&nbsp;10)&nbsp;{
+&nbsp;&nbsp;//通过界定符“&lt;&lt;&lt;”在PHP代码中嵌入Js代码和其他代码
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;alert(&#39;请输入正确的有户名&#39;);history.go(-1);&quot;;
+&nbsp;&nbsp;exit();
+}
+if&nbsp;($qq&nbsp;==&nbsp;&quot;&quot;&nbsp;&amp;&amp;&nbsp;$email&nbsp;==&nbsp;&quot;&quot;)&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+&nbsp;&nbsp;exit();
+}
+if&nbsp;($qq&nbsp;!=&nbsp;&quot;&quot;&nbsp;&amp;&amp;&nbsp;(!is_numeric($qq)&nbsp;||&nbsp;$qq&nbsp;&gt;&nbsp;9999999999&nbsp;||&nbsp;$qq&nbsp;&lt;=&nbsp;9999))&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+&nbsp;&nbsp;exit();
+}
+if&nbsp;($email&nbsp;!=&nbsp;&quot;&quot;&nbsp;&amp;&amp;&nbsp;(!ereg(&quot;^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+&quot;,&nbsp;$email)&nbsp;||&nbsp;strlen($email)&nbsp;&gt;&nbsp;60))&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+&nbsp;&nbsp;exit();
+}
+if&nbsp;(strlen($post)&nbsp;&gt;&nbsp;400)&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+&nbsp;&nbsp;exit();
+}
+//链接数据库
+$con&nbsp;=&nbsp;mysql_connect(&#39;localhost&#39;,&nbsp;&#39;root&#39;,&nbsp;&#39;root&#39;)&nbsp;or&nbsp;die(&#39;链接数据库失败！&#39;&nbsp;.&nbsp;mysql_error());
+mysql_query(&#39;set&nbsp;names&nbsp;gb2312&#39;);
+mysql_select_db(&#39;GuestBook&#39;);&nbsp;//把客户信息插入guest表
+$insertSql&nbsp;=&nbsp;&quot;insert&nbsp;into&nbsp;guest&nbsp;(name,qq,email)&nbsp;values&nbsp;(&#39;$name&#39;,&#39;$qq&#39;,&#39;$email&#39;)&quot;;
+if&nbsp;(mysql_query($insertSql))&nbsp;{
+&nbsp;&nbsp;$guestid&nbsp;=&nbsp;mysql_insert_id();
+}&nbsp;else&nbsp;{
+&nbsp;&nbsp;echo&nbsp;$insertSql;
+&nbsp;&nbsp;echo&nbsp;mysql_error();
+&nbsp;&nbsp;echo&nbsp;&quot;数据插入失败!&quot;;
+&nbsp;&nbsp;exit();
+}
+//把以上插入取得的客户id和留言信息插入到post表中
+$post_time&nbsp;=&nbsp;time();
+$insertPostSql&nbsp;=&nbsp;&quot;insert&nbsp;into&nbsp;post(guest_id,post,post_time)&nbsp;values(&#39;$guestid&#39;,&#39;$post&#39;,&#39;$post_time&#39;)&quot;;
+if&nbsp;(mysql_query($insertPostSql))&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+}&nbsp;else&nbsp;{
+&nbsp;&nbsp;echo&nbsp;&lt;&lt;&nbsp;&lt;&nbsp;&quot;&quot;;
+}
+?&gt;</pre><p><br/></p><p>注册验证文件register_ok.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php
+session_start();
+class&nbsp;chkinput
+{
+&nbsp;&nbsp;var&nbsp;$name;
+&nbsp;&nbsp;var&nbsp;$pwd;
+&nbsp;&nbsp;function&nbsp;chkinput($x,&nbsp;$y)
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name&nbsp;=&nbsp;$x;&nbsp;//实例化类&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;pwd&nbsp;&nbsp;=&nbsp;$y;
+&nbsp;&nbsp;}
+&nbsp;&nbsp;function&nbsp;checkinput()
+&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;&quot;conn.php&quot;;&nbsp;//引进数据库连接文件&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;$return&nbsp;=&nbsp;mysql_query(&quot;insert&nbsp;into&nbsp;admin(name,pwd)&nbsp;values(&#39;&quot;&nbsp;.&nbsp;$this-&gt;name&nbsp;.&nbsp;&quot;&#39;,&#39;&quot;&nbsp;.&nbsp;$this-&gt;pwd&nbsp;.&nbsp;&quot;&#39;)&quot;);&nbsp;//将注册的账号和密码插入数据库&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($return)&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SESSION[&#39;login&#39;]=true;//注册成功后，赋予管理员权限
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SESSION[admin_name]=POST[name];//记录登录的管理员的name
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;&quot;alert(&#39;恭喜你，注册成功！&#39;);location.href=&#39;index.php&#39;;&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;&quot;alert(&#39;管理员注册失败！&#39;);history.back();&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;}
+}
+$obj=new&nbsp;chkinput(trim(POST[name]),trim(md5(POST[pwd])));//注册的密码通过MD5加密后在存入数据库
+$obj-&gt;checkinput();
+?&gt;</pre><p><br/></p><p>管理员登录验证文件chkadmin.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php&nbsp;&nbsp;
+session_start();&nbsp;&nbsp;
+class&nbsp;chkinput&nbsp;&nbsp;
+{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;$name;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;$pwd;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;chkinput($x,$y)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;name=$x;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$this-&gt;pwd=$y;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;checkinput()&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;include&nbsp;&quot;conn.php&quot;;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$sql=mysql_query(&quot;select&nbsp;*&nbsp;from&nbsp;admin&nbsp;where&nbsp;name=&#39;&quot;.$this-&gt;name.&quot;&#39;&quot;);//即执行select&nbsp;*&nbsp;from&nbsp;admin&nbsp;where&nbsp;name=&#39;传入的数据&#39;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$info=mysql_fetch_array($sql);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($info==fasle)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;&quot;alert(&#39;不存在此管理员！&#39;);history.back();&quot;;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exit();&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if($info[pwd]==$this-&gt;pwd)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+SESSION[&#39;login&#39;]=true;
+&nbsp;&nbsp;
+SESSION[admin_name]=$info[name];echo&nbsp;&quot;alert(&#39;恭喜你，登录成功！&#39;);location.href=&#39;index.php&#39;;&quot;;
+}else{
+echo&nbsp;&quot;alert(&#39;密码错误！&#39;);history.back();&quot;;exit();}}}}
+$obj=new&nbsp;chkinput(trim(POST[&#39;username&#39;]),trim(md5(POST[&#39;password&#39;])));
+$obj-&gt;checkinput();
+?&gt;</pre><p><br/></p><p>生成随机文件yzm.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php&nbsp;&nbsp;
+//此为生成随即验证码的文件，主要使用的是srand()和imagestring()函数&nbsp;&nbsp;
+srand((double)microtime()*1000000);&nbsp;&nbsp;
+$im=imagecreate(42,16);&nbsp;&nbsp;
+$black=imagecolorallocate($im,0,0,0);&nbsp;&nbsp;
+$white=imagecolorallocate($im,255,255,255);&nbsp;&nbsp;
+$gray=imagecolorallocate($im,200,200,200);&nbsp;&nbsp;
+imagefill($im,0,0,$gray);&nbsp;&nbsp;
+&nbsp;&nbsp;
+for($i=0;$i&lt;4;$i++){&nbsp;&nbsp;
+&nbsp;$str=mt_rand(1,3);&nbsp;&nbsp;
+&nbsp;$size=mt_rand(3,6);&nbsp;&nbsp;
+&nbsp;$authnum=substr(
+&nbsp;&nbsp;
+GET[num],$i,1);&nbsp;
+imagestring($im,$size,(2+$i*10),$str,$authnum,imagecolorallocate($im,rand(0,130),rand(0,130),rand(0,130)));}&nbsp;
+for($i=0;$i&lt;200;$i++){&nbsp;
+$randcolor=imagecolorallocate($im,rand(0,255),rand(0,255),rand(0,255));&nbsp;
+imagesetpixel($im,rand()%70,rand()%30,$randcolor);&nbsp;&nbsp;
+&nbsp;}
+&nbsp;imagepng($im);
+&nbsp;imagedestroy($im);
+&nbsp;?&gt;</pre><p><br/></p><p>删除留言页面文件delete.php如下：</p><pre class="brush:php;toolbar:false">&lt;?php&nbsp;&nbsp;
+session_start();&nbsp;&nbsp;
+header(&#39;content-type:text/html;charset=utf-8&#39;);&nbsp;&nbsp;
+$con=mysql_connect(&#39;localhost&#39;,&#39;root&#39;,&#39;root&#39;)&nbsp;or&nbsp;die(&#39;链接数据库失败！&#39;);&nbsp;&nbsp;
+mysql_query(&#39;set&nbsp;names&nbsp;gb2312&#39;);&nbsp;&nbsp;
+mysql_select_db(&#39;GuestBook&#39;);&nbsp;&nbsp;
+&nbsp;&nbsp;
+if(!SESSION[&#39;login&#39;])//若管理员未登录，则拒绝，退出该文件
+{echo&nbsp;&quot;&quot;;exit();}
+
+if(isset(
+&nbsp;&nbsp;
+GET[&#39;id&#39;])&amp;&amp;
+&nbsp;&nbsp;
+GET[&#39;id&#39;]!=&quot;&quot;)//如果post.id存在且不为空，则可执行删除操作
+{
+$delRevertSql=&quot;delete&nbsp;from&nbsp;revert&nbsp;where&nbsp;post_id=&quot;.GET[&#39;id&#39;];
+mysql_query($delRevertSql);
+$delGuestSql=&quot;delete&nbsp;from&nbsp;guest&nbsp;where&nbsp;id&nbsp;=&nbsp;(select&nbsp;guest_id&nbsp;from&nbsp;post&nbsp;where&nbsp;id=&quot;.GET[&#39;id&#39;].&quot;)&quot;;
+mysql_query($delGuestSql);
+$delPostSql=&quot;delete&nbsp;from&nbsp;post&nbsp;where&nbsp;id=&quot;.GET[&#39;id&#39;];
+mysql_query($delPostSql);
+if(mysql_error()==&quot;&quot;){
+echo&nbsp;&quot;&quot;;
+}
+}
+?&gt;</pre><p>首页文件index.php如下：</p><pre class="brush:php;toolbar:false;">&lt;?php
+session_start();
+$con&nbsp;=&nbsp;mysql_connect(&#39;localhost&#39;,&nbsp;&#39;root&#39;,&nbsp;&#39;root&#39;)&nbsp;or&nbsp;die(&#39;链接数据库失败！&#39;);
+mysql_query(&#39;set&nbsp;names&nbsp;gb2312&#39;);
+mysql_select_db(&#39;GuestBook&#39;);
+$pagesize&nbsp;=&nbsp;8;&nbsp;//每一页显示多少留言记录
+if&nbsp;(isset(GET[&#39;page&#39;])&nbsp;&amp;&amp;&nbsp;GET[&#39;page&#39;]&nbsp;!=&nbsp;&#39;&#39;)&nbsp;$page&nbsp;=&nbsp;GET[&#39;page&#39;];
+else&nbsp;$page&nbsp;=&nbsp;0;
+$sql&nbsp;=&nbsp;&quot;SELECT&nbsp;a&nbsp;.&nbsp;*&nbsp;,&nbsp;b.name,&nbsp;b.email,&nbsp;b.qq,&nbsp;c.revert_time,&nbsp;c.post_id,&nbsp;c.revert,c.adminFROM&nbsp;post&nbsp;aLEFT&nbsp;JOIN&nbsp;revert&nbsp;c&nbsp;ON&nbsp;(&nbsp;a.id&nbsp;=&nbsp;c.post_id&nbsp;)&nbsp;,&nbsp;guest&nbsp;bWHERE&nbsp;a.guest_id&nbsp;=&nbsp;b.idORDER&nbsp;BY&nbsp;a.id&nbsp;DESC&quot;;
+$numRecord&nbsp;=&nbsp;mysql_num_rows(mysql_query($sql));&nbsp;//获取总记录条数
+$totalpage&nbsp;=&nbsp;ceil($numRecord&nbsp;/&nbsp;$pagesize);&nbsp;//进1法取整
+$recordSql&nbsp;=&nbsp;$sql&nbsp;.&nbsp;&quot;&nbsp;LIMIT&nbsp;&quot;&nbsp;.&nbsp;$page&nbsp;*&nbsp;$pagesize&nbsp;.&nbsp;&quot;,&quot;&nbsp;.&nbsp;$pagesize;&nbsp;//附上限制条件
+$result&nbsp;=&nbsp;mysql_query($recordSql);
+?&gt;
+
+&lt;html&nbsp;xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;meta&nbsp;http-equiv=&quot;Content-Type&quot;&nbsp;content=&quot;text/html;&nbsp;charset=gb2312&quot;&nbsp;/&gt;
+&lt;style&nbsp;type=&quot;text/css&quot;&gt;
+body&nbsp;{margin-left:&nbsp;0px;margin-top:&nbsp;0px;}
+a:link&nbsp;{text-decoration:&nbsp;none;color:&nbsp;#FF6600;}
+.STYLE1&nbsp;{color:#FFFFFF;font-weight:&nbsp;bold;font-size:&nbsp;20px;}
+&lt;/style&gt;
+&lt;script&nbsp;language=&quot;javascript&quot;&gt;
+function&nbsp;checkInput()&nbsp;{&nbsp;//Js正则表达式验证
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;Email&nbsp;=&nbsp;document.getElementById(&#39;email&#39;);&nbsp;//通过id获取文本框中输入的内容
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;QQ&nbsp;=&nbsp;document.getElementById(&#39;qq&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;name&nbsp;=&nbsp;document.getElementById(&#39;name&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;post&nbsp;=&nbsp;document.getElementById(&#39;post&#39;);&nbsp;//验证用户名：不能超过10个字符（5个汉字），不能输入非法字符，不能为空
+&nbsp;&nbsp;&nbsp;&nbsp;nameValue&nbsp;=&nbsp;name.value.replace(/\s+/g,&nbsp;&quot;&quot;);&nbsp;//replace()方法用于替换一个与正则表达式匹配的子串,/\s+/后跟g代表全局替换
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;SPECIAL_STR&nbsp;=&nbsp;&quot;~!%^&amp;*();\&quot;?&gt;&lt;[]{}\\|,:/=+—&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;nameflag&nbsp;=&nbsp;true;
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;nameValue.lenght;&nbsp;i++)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(SPECIAL_STR.indexOf(nameValue.charAt(i))&nbsp;!=&nbsp;-1)&nbsp;//charAt()方法可返回指定位置的字符
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nameflag&nbsp;=&nbsp;false;&nbsp;//indexOf()方法可返回某个指定的字符串值在字符串中首次出现的位置
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(nameValue&nbsp;==&nbsp;&#39;&#39;)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;请填写用户名称！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(nameValue.length&nbsp;&gt;&nbsp;10)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;用户名称最多10个字符（5个汉字）！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(nameflag&nbsp;===&nbsp;false)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;用户名称不能包含非法字符请更改！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;//验证QQ号码
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;par&nbsp;=&nbsp;/^[1-9]\d{4,12}$/;
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(QQ.value&nbsp;!=&nbsp;&#39;&#39;&nbsp;&amp;&amp;&nbsp;!par.test(QQ.value))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;请输入正确的QQ号码&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;//验证Email地址
+&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;emailpar&nbsp;=&nbsp;/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/;
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Email.value&nbsp;!=&nbsp;&#39;&#39;&nbsp;&amp;&amp;&nbsp;!emailpar.test(Email.value))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;请输入正确的邮箱地址！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(QQ.value&nbsp;==&nbsp;&#39;&#39;&nbsp;&amp;&amp;&nbsp;Email.value&nbsp;==&nbsp;&#39;&#39;)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;邮箱和QQ必选其一&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(post.value&nbsp;==&nbsp;&quot;&quot;)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;请输入留言内容！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(post.value.length&nbsp;&gt;&nbsp;400)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(&#39;留言内容太长！&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+&lt;/script&gt;&gt;
+
+&lt;table&nbsp;width=&quot;800&quot;&nbsp;border=&quot;0&quot;&nbsp;align=&quot;center&quot;&gt;
+&nbsp;&nbsp;&lt;td&nbsp;height=&quot;80&quot;&nbsp;bgcolor=&quot;#003366&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;span&nbsp;class=&quot;STYLE1&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;简易留言板PHP（&lt;a&nbsp;href=&quot;http://blog.csdn.net/zollty&quot;&nbsp;class=&quot;STYLE1&quot;&gt;zollty&lt;/a&gt;）
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/span&gt;
+&nbsp;&nbsp;&lt;/td&gt;
+&nbsp;&nbsp;&lt;td&nbsp;height=&quot;5&quot;&nbsp;bgcolor=&quot;#efefef&quot;&gt;&lt;/td&gt;
+&lt;/table&gt;
+
+&lt;table&nbsp;width=&quot;800&quot;&nbsp;border=&quot;0&quot;&nbsp;align=&quot;center&quot;&nbsp;bgcolor=&quot;#fefefe&quot;&gt;
+&lt;?php
+
+$reply_id&nbsp;=&nbsp;0;&nbsp;//记录留言id
+while&nbsp;($rs&nbsp;=&nbsp;mysql_fetch_object($result))&nbsp;//把返回对象赋值给rs变量
+{
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($rs-&gt;id&nbsp;!=&nbsp;$reply_id)&nbsp;//若留言id不等于当前回复的id则显示回复信息，否则隐藏留言，直接显示后面的回复
+&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;?&gt;&nbsp;
+&nbsp;留言人：name?&gt;&nbsp;|&nbsp;Email：email?&gt;&nbsp;|&nbsp;QQ:qq?&gt;&nbsp;|&nbsp;留言时间：post_time+8*3600)
+&nbsp;?&gt;
+&nbsp;&nbsp;
+&nbsp;&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isset(SESSION[&#39;login&#39;])&nbsp;&amp;&amp;&nbsp;SESSION[&#39;login&#39;])&nbsp;//如果管理员已经登录，则显示回复和删除的权限&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?&gt;&nbsp;
+&nbsp;回复&nbsp;|&nbsp;删除&nbsp;&nbsp;&nbsp;post)).&quot;
+&quot;;&nbsp;}//end&nbsp;if($rs-&gt;id…)
+&nbsp;&nbsp;
+&nbsp;?&gt;&nbsp;
+&nbsp;&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($rs-&gt;revert&nbsp;!=&nbsp;&quot;&quot;)&nbsp;{&nbsp;?&gt;&nbsp;
+&lt;font&nbsp;style=&quot;color:red&quot;&gt;管理员[&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($rs-&gt;admin&nbsp;!=&nbsp;&quot;&quot;)&nbsp;echo&nbsp;$rs-&gt;admin;
+?&gt;]回复：
+&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;nl2br(htmlspecialchars($rs-&gt;revert));&nbsp;?&gt;[回复时间：&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;($rs-&gt;revert_time&nbsp;!=&nbsp;&quot;&quot;)&nbsp;echo&nbsp;date(&quot;Y-m-d&nbsp;H:i:s&quot;,&nbsp;$rs-&gt;revert_time&nbsp;+&nbsp;8&nbsp;*&nbsp;3600);
+?&gt;]&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;//end&nbsp;if($rs-&gt;revert!=&quot;&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;?&gt;id;//把post.id赋值给$reply_id以便下一轮检测post.id是否与上一轮相同}//end&nbsp;while()
+&nbsp;?&gt;&nbsp;
+&nbsp;0)&nbsp;echo&nbsp;&quot;上一页|&quot;
+&nbsp;&nbsp;
+&nbsp;;if($page&lt;$totalpage-1)&nbsp;echo&nbsp;&quot;下一页&quot;&nbsp;;//点击下一页后page变量加1，将显示&quot;上一页&quot;?&gt;&nbsp;&nbsp;&nbsp;
+&nbsp;
+&nbsp;&lt;td&nbsp;width=&quot;117&quot;&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;姓名：&lt;/td&gt;
+&nbsp;&lt;td&nbsp;width=&quot;673&quot;&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;
+&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;text&quot;&nbsp;name=&quot;name&quot;&nbsp;id=&quot;name&quot;&nbsp;/&gt;
+&nbsp;&lt;/td&gt;
+&nbsp;&lt;td&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;Email：&lt;/td&gt;
+&nbsp;&lt;td&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;
+&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;text&quot;&nbsp;name=&quot;email&quot;&nbsp;id=&quot;email&quot;&nbsp;/&gt;
+&nbsp;&lt;/td&gt;
+&nbsp;&lt;td&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;QQ：&lt;/td&gt;
+&nbsp;&lt;td&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;
+&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;text&quot;&nbsp;name=&quot;qq&quot;&nbsp;id=&quot;qq&quot;&nbsp;/&gt;
+&nbsp;&lt;/td&gt;
+&nbsp;&lt;td&nbsp;colspan=&quot;2&quot;&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;留言内容：&lt;/td&gt;
+&nbsp;&lt;td&nbsp;colspan=&quot;2&quot;&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;
+&nbsp;&nbsp;&nbsp;&lt;textarea&nbsp;name=&quot;post&quot;&nbsp;id=&quot;post&quot;&nbsp;cols=&quot;40&quot;&nbsp;rows=&quot;5&quot;&gt;
+&nbsp;&lt;/td&gt;
+&nbsp;&lt;td&nbsp;colspan=&quot;2&quot;&nbsp;bgcolor=&quot;#FFFFFF&quot;&gt;
+&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;submit&quot;&nbsp;name=&quot;Submit&quot;&nbsp;value=&quot;提交&quot;&nbsp;onclick=&quot;return&nbsp;checkInput();&quot;&nbsp;/&gt;
+&nbsp;&nbsp;&nbsp;&lt;input&nbsp;type=&quot;reset&quot;&nbsp;name=&quot;Submit2&quot;&nbsp;value=&quot;重置&quot;&nbsp;/&gt;
+&nbsp;&lt;/td&gt;&nbsp;
+
+&lt;a&nbsp;href=&quot;login.php&quot;&gt;管理员登录&nbsp;
+&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isset(SESSION[&#39;login&#39;])&nbsp;&amp;&amp;&nbsp;SESSION[&#39;login&#39;])&nbsp;{&nbsp;?&gt;
+&nbsp;&nbsp;&lt;a&nbsp;href=&quot;logout.php&quot;&gt;退出&nbsp;
+&lt;?php
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;//end&nbsp;if
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+?&gt;</pre><p><br/></p><p><br/></p>

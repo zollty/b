@@ -1,0 +1,31 @@
+---
+layout: ue
+title: PHP访问MySQL数据库
+category: PHP网站服务器端开发
+tags: PHP
+keywords: "PHP"
+---
+
+<p style="text-align: center; "><strong>PHP访问MySQL数据库</strong></p><p>因为连接数据库需要较长的时间和较大的资源开销，所以如果在多个网页中都要频繁地访问数据库，则可以建立与数据库的持续连接。即调用mysql_pconnect()代替mysql_connect()。</p><p>基本步骤：</p><p>1.连接服务器：mysql_connect();</p><p>2.选择数据库：mysql_select_db();</p><p>3.执行SQL语句：mysql_query();</p><p>————————————————————————</p><p>查询：select</p><p>显示：show</p><p>插入：insert into</p><p>更新：update</p><p>删除：delete</p><p>————————————————————————</p><p>4.关闭结果集：mysql_free_result($result);</p><p>5.关闭数据库：mysql_close($link);</p><p>__________________________________________________________</p><p>————————————————————————————————</p><p>分析testconn.php文件：</p><pre class="brush:php;toolbar:false">&lt;?php
+	$link=mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;root&quot;)&nbsp;or&nbsp;die(&quot;connection&nbsp;&nbsp;error&quot;.mysql_error());
+	$flag=mysql_select_db(&quot;guestbook&quot;,$link);
+	if($flag){
+		echo&nbsp;&quot;数据库选择成功！&quot;;
+	}
+?&gt;</pre><p>1.连接服务器：mysql_connect(&#39;hostname&#39;,&#39;username&#39;,&#39;password&#39;)</p><p>其中hostname代表 主机名或IP(若端口号省略则默认为3306)，该函数返回值代表一个资源标识（相当于指针），通常赋值给一个变量：</p><p>$link=mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;root&quot;) or die(&quot;can&#39;t connect database&quot;.mysql_error());</p><p>2.连接指定数据库：mysql_select_db(&quot;数据库名&quot;[,连接标识])，最多两个参数，成功则返回1，失败则返回0，示例如下</p><pre class="brush:php;toolbar:false">&lt;?php
+&nbsp;&nbsp;$link=mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;root&quot;)&nbsp;or&nbsp;die(&quot;connection&nbsp;error&quot;.mysql_error());
+&nbsp;&nbsp;$flag=mysql_select_db(&quot;guestbook&quot;,$link);
+&nbsp;&nbsp;mysql_query(&quot;set&nbsp;names&nbsp;gb2312&quot;);
+&nbsp;&nbsp;if($flag){
+	echo&nbsp;&quot;connect&nbsp;success!&quot;.&quot;&lt;br/&gt;&quot;;
+&nbsp;&nbsp;}
+?&gt;</pre><p>3.执行SQL语句：mysql_query(&quot;SQL语句&quot;[,连接标识])，最多两个参数，如果执行的是查询指令select，</p><p>成功则返回查询后的结果集（相当于指针），失败则返回0，如果SQL语句是insert,delete,update等操作</p><p>指令，成功则返回1，最多两个参数，成功则返回1，失败则返回0</p><p>$result=mysql_query(&quot;select * from tb_memeber&quot;,$link);</p><p>注：mysql_unbuffered_query()函数与mysql_query类似，但是不自动获取并缓存结果集，所以效率更高。</p><p>&nbsp;4.使用mysql_fetch_array()函数从数组结果集中获取信息</p><p>语法格式：array mysql_fetch_array(resource result[,int result_type])</p><p>即它有两个参数：</p><p>resource result //resource类型（相当于指针）</p><p>int result_type //int类型，这个参数通常不用</p><p>返回的形式是数组型(array)。</p><p>注：类似的还有函数mysql_fetch_row()，用于逐行获取数据。mysql_fetch_object()函数也类似，但输出的时候必须写成指针的形式，例如$info-&gt;email，不能写成$info-&gt;[2]。</p><p>这三个函数的特点是，每执行一次获取一行记录(colunm)，执行第二次则获取第二行记录…，例如：</p><p>$sql=mysql_query(&quot;select * from guest&quot;,$link);</p><p>显然，这里面有很多行记录，调用mysql_fetch_array($sql)一次获取一行记录：</p><pre class="brush:php;toolbar:false">$info=mysql_fetch_array($sql);echo&nbsp;$info[name];//输出第一行记录中的name值zollty
+$info=mysql_fetch_array($sql);echo&nbsp;$info[name];//输出第二行记录中的name值
+$info=mysql_fetch_array($sql);echo&nbsp;$info[name];//输出第三行记录中的name值
+……</pre><p>上面的写法很笨，可以简写为：</p><pre class="brush:php;toolbar:false">do{
+&nbsp;&nbsp;echo&nbsp;$info[name];
+}while($info=mysql_fetch_array($sql))</pre><p>或者：<br/></p><pre class="brush:php;toolbar:false">do{
+&nbsp;&nbsp;&nbsp;&nbsp;$info=mysql_fetch_array($sql);
+&nbsp;&nbsp;&nbsp;&nbsp;if($info)
+&nbsp;&nbsp;&nbsp;&nbsp;{echo&nbsp;$info[name];}
+}while($info)</pre><p>第一种写法更简洁，但是很难理解，第二种写法是C语言的写法，其逻辑很清晰。</p><p>5.使用mysql_num_rows()函数获取查询结果集中的记录数。</p><p>注：要想获取由insert,update,delete语句所影响到的数据行数，则必须使用mysql_affected_rows()函数。</p><p><br/></p>
