@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 将Windows的桌面目录、收藏夹等设置到D盘
+category: 电脑、手机、平板_无难事
+tags: Windows
+keywords: "桌面、收藏夹设置到D盘"
+---
+
+<p><br/></p><p>PS：我们有很多东西放在桌面上，但是<strong>一旦系统出了故障要还原或者重装，桌面上的东西就没救了</strong>（当然，如果你是高手，当系统出了故障进不去时，可以试着<strong>用U盘启动，然后把C盘下桌面上的东西拷贝出来</strong>）。&nbsp;</p><p><strong>最好的办法是，将桌面目录设置到其他盘（比如D盘）</strong>。 <span style="color: rgb(192, 0, 0); ">C盘中，尽量不要放重要的资料</span>。</p><p>&nbsp;</p><p>我以前系统坏过一次，桌面上好多重要的资料都丢了。</p><p>&nbsp;</p><p>方法如下：</p><p>&nbsp;</p><p>1、打开注册表：运行（WIN键+R键），输入regedit</p><p>2、依次点开：</p><p>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\<strong>Shell Folders</strong></p><p>找到右面的Desktop项，双击修改其路径，<strong>我在E盘新建了E:\Users\<span style="color: rgb(192, 0, 0); ">Desktop</span></strong>，然后把这个路径粘贴进去。</p><p>&nbsp;</p><p>3、再找到：</p><p>…(同上)\Explorer\<strong>User Shell Folders</strong></p><p>找到右面的Desktop项，双击修改成和上面一样的路径。</p><p>&nbsp;</p><p>注销或重启后就可以用了，然后把原来桌面上的东西拷贝到新的桌面上。</p><p><br/></p><p>同理，设置<strong>收藏夹</strong>、IE收藏夹也是在上面那个路径下：</p><p>…(同上)\Explorer\Shell Folders</p><p>…(同上)\Explorer\User Shell Folders</p><p>找到&quot;<strong>Favorites</strong>&quot;这一项，修改其值即可。</p><p><br/></p>

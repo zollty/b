@@ -1,0 +1,38 @@
+---
+layout: ue
+title: 关于循环最后一步特殊处理的算法
+category: 算法_数据结构_设计模式
+tags: 算法
+keywords: "循环最后一步特殊处理的算法"
+---
+
+<p><br/></p><p>这是个一般性的问题，算法思路很重要。</p><p><br/></p><p>问题描述：</p><p>直接看下面的代码（以Java为例）：</p><pre class="brush:java;toolbar:false">while&nbsp;((p&nbsp;=in.readLine(buf,&nbsp;0,&nbsp;len))&nbsp;!=&nbsp;-1)&nbsp;{
+&nbsp;&nbsp;&nbsp;isBreakStr&nbsp;=&nbsp;new&nbsp;String(buf,&nbsp;0,&nbsp;p);
+&nbsp;&nbsp;&nbsp;if&nbsp;(&nbsp;isBreakStr.indexof(breakStr)!=-1&nbsp;){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;遇到分隔符则终止读取
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;out.write(buf,&nbsp;0,&nbsp;p);
+}</pre><p>&nbsp;</p><p>由于数据源的原因，<strong>在循环的最后一步</strong>时，读入的字符中有换行符。<strong>我想把这个换行符去掉</strong>，<strong>最简易的办法就是 在最后一步读取数据时，直接略过这个换行符</strong>。</p><p>&nbsp;</p><p>所以<strong>在最后一次读取数据时，要进行特殊处理</strong>。</p><p>&nbsp;</p><p><strong>而上面的程序，最后一步是break</strong>。<strong>break的上一次循环，才是“最后一次数据的读取”！！</strong></p><p><strong><span style="color: rgb(192, 0, 0); ">怎么获得break的上一次循环呢？</span></strong>因为我<strong>不知道循环要进行多少步</strong>，<strong>不知道什么时候break，所以我不知道</strong>何时才是“最后一次数据的读取”。</p><p>&nbsp;</p><p>基本思路：<strong>延迟</strong>一步写入，循环一次<strong>不立即写入</strong>。</p><p>&nbsp;</p><p>思路一：延迟一步写入，循环一次不立即写入。待下次循环时再判断是否为最后一次，如果是最后一次，再做特殊处理。</p><p>&nbsp;</p><p>（思路一）实践总结：这种思路看似简单，实现起来相当麻烦，最后我还是没搞定。</p><p>&nbsp;</p><p>思路二：延迟一步写入，循环一次不立即写入。<strong>弄一个队列（或者List）作为缓存容器，将原本写入流的地方，换成add到队列中。而循环时，延迟写入，只写入上一次的数据。</strong></p><p>&nbsp;</p><p>（思路二）实践总结：这种方法实现起来非常简洁，而且<strong>不但可以延迟一步，还可以延迟几步</strong>，能很好的<strong>满足我的需求</strong>。具体实现方法如下（以Java为例）：</p><pre class="brush:java;toolbar:false">Queue&lt;ByteBufferInfo&gt;&nbsp;queue&nbsp;=&nbsp;new&nbsp;LinkedList&lt;ByteBufferInfo&gt;();
+ByteBufferInfo&nbsp;tempbb&nbsp;=&nbsp;null;
+while&nbsp;((p&nbsp;=&nbsp;in.readLine(buffer,&nbsp;0,&nbsp;len))&nbsp;!=&nbsp;-1)&nbsp;{
+	if(queue.size()&gt;1){
+		tempbb&nbsp;=&nbsp;queue.poll();&nbsp;//出队
+		out.write(tempbb.buffer,&nbsp;0,&nbsp;tempbb.size);&nbsp;
+	}
+	isBreakStr&nbsp;=&nbsp;new&nbsp;String(buffer,&nbsp;0,&nbsp;p);
+	if(&nbsp;isBreakStr.indexof(breakStr)!=-1&nbsp;){
+		//&nbsp;遇到分隔符则终止读取
+		break;
+	}
+	queue.offer(&nbsp;new&nbsp;ByteBufferInfo(buffer,p)&nbsp;);&nbsp;//入队
+}
+int&nbsp;qs&nbsp;=&nbsp;queue.size();&nbsp;int&nbsp;tint&nbsp;=&nbsp;qs-1;
+for(int&nbsp;i=0;&nbsp;i&lt;qs;&nbsp;i++){
+	tempbb&nbsp;=&nbsp;queue.poll();
+	if(i&lt;tint)&nbsp;{
+		outputStream.write(tempbb.buffer,&nbsp;0,&nbsp;tempbb.size);
+	}else{
+		outputStream.write(tempbb.buffer,&nbsp;0,&nbsp;tempbb.size-2);
+	}
+}</pre><p><br/></p><p><br/></p>

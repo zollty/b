@@ -1,0 +1,58 @@
+---
+layout: ue
+title: 巧妙地解决Log4j文件重命名失败的问题
+category: Web服务器端开发技术
+tags: Log4j
+keywords: "Log4j文件重命名失败"
+---
+
+<p><br/></p><p>一、问题描述</p><p>1、大家在用log4j时，可能会遇到下面的一个报错信息：</p><p><span style="color: rgb(255, 0, 0); ">Failed to rename [/opt/proj.log] to [/opt/proj.log.2014-03-20].</span></p><p>这个算是<strong>log4j.DailyRollingFileAppender的一个BUG</strong>，网上很多修改方案，不过我能搜到的，<strong>都不理想</strong>。</p><p><br/></p><p>2、一般性问题：文件重命名失败</p><p>详细的内容可以参见论坛的帖子：<a href="http://bbs.csdn.net/topics/330195396" target="_blank" textvalue="http://bbs.csdn.net/topics/330195396">http://bbs.csdn.net/topics/330195396</a></p><p>关键内容如下：</p><p><span style="background-color: rgb(238, 236, 225); font-size: 16px; ">我也遇到了和LZ相同的问题，也是无法重命名，但是可以先重命名，然后再执行其他操作！如果先执行其他的操作，比如读这个文件，然后再修改这个文件名字，就无法重命名了，我先把代码贴出来了，大家帮忙了啊！！</span></p><pre class="brush:java;toolbar:false">File&nbsp;file&nbsp;=&nbsp;new&nbsp;File(fileName);
+File&nbsp;newFile&nbsp;=&nbsp;new&nbsp;File(fileName.replace(&quot;2008&quot;,&nbsp;&quot;2011&quot;));
+
+BufferedReader&nbsp;bReader&nbsp;=&nbsp;new&nbsp;BufferedReader(new&nbsp;FileReader(file));
+PrintWriter&nbsp;pWriter&nbsp;=&nbsp;new&nbsp;PrintWriter(newFile.getPath());
+String&nbsp;linesString&nbsp;=&nbsp;&quot;&quot;;
+if&nbsp;(!file.exists())&nbsp;{
+	throw&nbsp;new&nbsp;RuntimeException(&quot;文件不存在&quot;);
+}else{
+	while((linesString&nbsp;=&nbsp;bReader.readLine())!=null){
+	System.out.println(linesString.replace(&quot;2008-&quot;,&nbsp;&quot;2009-&quot;));
+	}
+	bReader.close();
+	pWriter.close();			
+}
+if(file.renameTo(newFile)){
+	System.out.println(&quot;Rename&nbsp;file&nbsp;succeed&quot;);
+}else&nbsp;{
+	System.out.println(&quot;Rename&nbsp;file&nbsp;failed&quot;);
+}</pre><p><span style="font-size: 16px; background-color: rgb(238, 236, 225); ">你这个只是单纯的为文件重命名，没进行其他的操作，现在的问题是，进行了其他的读写流之类的操作，然后重命名操作失败了！只是单纯的重命名，大家都能成功的！！</span></p><p><br/></p><p><br/></p><p><strong>二、解决方案</strong></p><p>在我写这篇文章之前，还没有真正地有效解决这个问题。</p><p>我的解决方案是这样的：</p><p>第一步：</p><p>先把原文件copy一份，copy的那份就命名为要重命名的文件。</p><p>比如proj.log，我拷贝一份，命名成proj.2014-03-20.log</p><p><br/></p><p>第二步：</p><p>本来我的思路是这样的：删除原proj.log，然后再新建一个proj.log</p><p>但是我发现，原proj.log文件不但无法重命名，而且无法删除。</p><p><br/></p><p>所以，我换了种思路：<strong>直接打开proj.log的输入流，然后把它的文件内容清空</strong>。</p><p><br/></p><p>总结一下，<strong>变相的文件重命名</strong>思路：直接上代码，参见注释。</p><pre class="brush:java;toolbar:false">&nbsp;&nbsp;&nbsp;&nbsp;File&nbsp;target&nbsp;=&nbsp;new&nbsp;File(newFilename);
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(target.exists())&nbsp;{&nbsp;//新文件若存在，则删掉
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target.delete();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;File&nbsp;file&nbsp;=&nbsp;new&nbsp;File(fileName);&nbsp;//&nbsp;旧文件
+&nbsp;&nbsp;&nbsp;&nbsp;boolean&nbsp;result&nbsp;=&nbsp;file.renameTo(target);&nbsp;//将旧文件更名
+&nbsp;&nbsp;&nbsp;&nbsp;if(result)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogLog.debug(fileName&nbsp;+&quot;&nbsp;-&gt;&nbsp;&quot;+&nbsp;newFilename);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{&nbsp;//更名失败，则采取变相的更名方法
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FileUtils.cloneFile(file,&nbsp;target);&nbsp;//&nbsp;将旧文件拷贝给新文件
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogLog.debug(fileName&nbsp;+&quot;&nbsp;-&gt;&nbsp;&quot;+&nbsp;newFilename);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//清空旧文件
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;emptyFileContent(file);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(IOException&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogLog.error(&quot;Failed&nbsp;to&nbsp;rename&nbsp;[&quot;+fileName+&quot;]&nbsp;to&nbsp;[&quot;+newFilename+&quot;].&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+	
+&nbsp;&nbsp;&nbsp;&nbsp;/**&nbsp;清空文件内容&nbsp;*/
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;emptyFileContent(File&nbsp;file)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FileOutputStream&nbsp;out&nbsp;=&nbsp;null;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out&nbsp;=&nbsp;new&nbsp;FileOutputStream(file);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;out.write(new&nbsp;byte[0]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(Exception&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LogLog.error(&quot;Can&#39;t&nbsp;not&nbsp;empty&nbsp;&quot;&nbsp;+&nbsp;file.getName());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;finally&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IOUtils.close(out);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}</pre><p><br/></p>

@@ -1,0 +1,37 @@
+---
+layout: ue
+title: C、C++容易出错的几个地方
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "C、C++容易出错的地方"
+---
+
+<p><br/></p><p>1. sizeof()和strlen()函数</p><p>sizeof常见标准用法：</p><p>(1)</p><p>char buff[6];</p><p>&nbsp; &nbsp; strncpy(buff, argv[1], sizeof(buff));</p><p>(2)</p><p>int array[] = { 3, 1, 4, 1, 5, 9 };</p><p>&nbsp; unsigned int array_size = sizeof(array) / sizeof(array[0]);</p><p>(3)</p><p>&nbsp; &nbsp; &nbsp;typedef struct data_type {</p><p>&nbsp; &nbsp; &nbsp; &nbsp;int age;</p><p>&nbsp; &nbsp; &nbsp; &nbsp;char name[20];</p><p>&nbsp; &nbsp; &nbsp;} data;</p><p>&nbsp;</p><p>&nbsp; &nbsp; &nbsp;data *bob;</p><p>&nbsp; &nbsp; &nbsp;bob = (data*) malloc( sizeof(data) );</p><p>&nbsp; &nbsp; &nbsp;if( bob != NULL ) {</p><p>&nbsp; &nbsp; &nbsp; &nbsp;bob-&gt;age = 22;</p><p>&nbsp; &nbsp; &nbsp; &nbsp;strcpy( bob-&gt;name, &quot;Robert&quot; );</p><p>&nbsp; &nbsp; &nbsp; &nbsp;printf( &quot;%s is %d years old\n&quot;, bob-&gt;name, bob-&gt;age );</p><p>&nbsp; &nbsp; &nbsp;}</p><p>&nbsp; &nbsp; &nbsp;free( bob );</p><p>可见，sizeof主要用于求某种数据（例如int，数组，字符串，指针，结构体…）的size，例如：</p><p>char str[]=&quot;hello&quot;;</p><p>char *p1=str;</p><p>此时，用sizeof(str)得到的是6，因为hell0是5个字符，系统储存的时候会在hello的末尾加上结束标识\0，一共为6个字符；</p><p>&nbsp; &nbsp; 而sizeof(p1)得到的却是4，它求得的是指针变量p1的长度，在32位机器上，一个地址都是32位，即4个字节。</p><p>&nbsp; &nbsp; 用sizeof(*p1)得到的是1，因为*p1定义为char，相当于一个字符，所以只占一个字节。</p><p>&nbsp; &nbsp; 用strlen(str)，得到的会是5，因为strlen求得的长度不包括最后的\0。</p><p>&nbsp; &nbsp; 用strlen(p1)，得到的是5，与strlen(str)等价。</p><p>上面的是sizeof和strlen的区别，也是 指针字符串和 数组字符串 的区别。</p><p>&nbsp;</p><p>编程时这种错误非常隐秘，见下面的一个例子。</p><p>#include &lt;stdio.h&gt;</p><p>#include &lt;string.h&gt;</p><p>#include &lt;stdlib.h&gt;</p><p>int main( )</p><p>{</p><p>&nbsp; &nbsp; char *src=&quot;hello world&quot;;</p><p>&nbsp; &nbsp; char *dest=NULL;</p><p>&nbsp; &nbsp; int len=strlen(src);//这里很容易出错，写成sizeof(src)就是求指针的长度，即4</p><p>&nbsp; &nbsp; dest=(char *)malloc(len+1);//这里很容易出错，写成len</p><p>&nbsp; &nbsp; char *d=dest;</p><p>&nbsp; &nbsp; char *s=&amp;src[len-1]; //这里很容易出错，写成len</p><p>&nbsp; &nbsp; while(len--!=0)</p><p>&nbsp; &nbsp; &nbsp; &nbsp; *d++=*s--;</p><p>&nbsp; &nbsp; *d=&#39;\0&#39;; //这句很容易漏写</p><p>&nbsp; &nbsp; printf(&quot;%s\n&quot;, dest);</p><p>&nbsp; &nbsp; free(dest); //这句很容易漏写</p><p>&nbsp; &nbsp; return 0;</p><p>}</p><p>注意，我上面这个C语言程序是在Linux平台下gcc编译的，Windows平台下的VC6不支持即用即声明的形式，必须先定义后使用。用VC6编译可以改成下面的形式：</p><p>#include &lt;stdio.h&gt;</p><p>#include &lt;string.h&gt;</p><p>#include &lt;stdlib.h&gt;</p><p>int main( )</p><p>{</p><p>&nbsp; &nbsp; char *src, *dest, *d, *s;</p><p>&nbsp; &nbsp; int len;</p><p>&nbsp; &nbsp; src=&quot;hello world&quot;;</p><p>&nbsp; &nbsp; dest=NULL;</p><p>&nbsp; &nbsp; len=strlen(src);</p><p>&nbsp; &nbsp; dest=(char *)malloc(len+1);</p><p>&nbsp; &nbsp; d=dest;</p><p>&nbsp; &nbsp; s=&amp;src[len-1];</p><p>&nbsp; &nbsp; while(len--!=0)</p><p>&nbsp; &nbsp; &nbsp; &nbsp; *d++=*s--;</p><p>&nbsp; &nbsp; *d=&#39;\0&#39;;</p><p>&nbsp; &nbsp; printf(&quot;%s\n&quot;, dest);</p><p>&nbsp; &nbsp; free(dest);</p><p>&nbsp; &nbsp; return 0;</p><p>}</p><p>首先说明一下malloc函数和free函数的使用</p><p>&nbsp; &nbsp; #include &lt;stdlib.h&gt;</p><p>&nbsp; &nbsp; void *malloc( unsigned int size );</p><p>它的功能是在内存的动态存储区分配一个长度为size字节的连续空间。函数返回的是一个指向分配域其实地址的指针，这个指针的类型是void类型。如果函数未能执行成功则返回一个空指针NULL，使用这个函数必须包含头文件stdio.h。</p><p>&nbsp; &nbsp; void类型的指针，指向一个类型未定的变量，也就是说它可以指向char类型变量，也可以指向int类型或其它类型。因此在将它的值赋值给另外一个指针时要进行强制类型转换，例如：</p><p>char *p1=&quot;123456&quot;;</p><p>void *p2=&quot;abcdef&quot;;</p><p>p1=(char *)p2;//两者类型必须相同，也可以p2=(void *)p1;</p><p>&nbsp;</p><p>malloc函数必须和free函数成对出现，使用完了free(dest);</p><p>&nbsp;</p><p>&nbsp;</p><p>2. 数组中易错的地方</p><p>分析下面这段小程序：</p><pre class="brush:cpp;toolbar:false">#include&lt;stdio.h&gt;
+void&nbsp;main()
+{
+	int&nbsp;a[5]={1,2,3,4,5};
+	int&nbsp;*ptr=(int&nbsp;*)(&amp;a+1);
+	printf(&quot;%d,&nbsp;%d\n&quot;,&nbsp;*(a+1),&nbsp;*(ptr-1));
+}</pre><p>以及下面这个程序：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;stdlib.h&gt;
+#include&nbsp;&lt;stdio.h&gt;
+
+static&nbsp;void&nbsp;show_str_pointer(const&nbsp;char&nbsp;**ppstr)
+{
+&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%s\n&quot;,&nbsp;*ppstr);
+}
+
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;array[4]&nbsp;=&nbsp;&quot;abc&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;char&nbsp;*pointer&nbsp;=&nbsp;&quot;abc&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;show_str_pointer(&amp;pointer);
+&nbsp;&nbsp;&nbsp;&nbsp;show_str_pointer(&amp;array);
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>执行结果为：</p><p>abc</p><p>7�</p><p>&amp;array与array的语义相同。在这里指针与数组是不能互换的。&amp;pointer为指针的地址，与show_str_pointer参数char **ppstr指向指针的指针的变量类型相同。而&amp;array仍然为数组地址，与参数char **ppstr的类型不符。</p><p>稍后将做详细讲解。</p><p><br/></p><p>3. ++运算符</p><pre class="brush:cpp;toolbar:false">#include&lt;stdio.h&gt;
+main()
+{
+int&nbsp;i=0;
+printf(&quot;%d&nbsp;%d&nbsp;%d\n&quot;,i++,i++,i++);
+printf(&quot;%d&nbsp;%d&nbsp;%d\n&quot;,++i,++i,++i);
+return&nbsp;0;
+}</pre><p>输出结果：</p><p>0 0 0</p><p>6 5 4</p><p><br/></p>

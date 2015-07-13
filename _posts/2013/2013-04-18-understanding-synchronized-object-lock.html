@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 理解synchronized对象锁
+category: Java语言程序设计
+tags: synchronized
+keywords: "synchronized对象锁"
+---
+
+<p><br/></p><p><span style="font-size: 20px; ">深入 Java虚拟机层面 去理解：</span></p><p><br/></p><p>在java虚拟机中，每个<strong>对象</strong>和<strong>类</strong>在逻辑上都是<strong>和一个监视器相关联的</strong>。&nbsp;</p><p><strong>对于对象来说</strong>，相关联的监视器<strong>保护对象的实例变量</strong>。&nbsp;</p><p><strong>对于类来说</strong>，监视器<strong>保护类的类变量</strong>。&nbsp;</p><p><br/></p><p>（<strong>如果一个对象没有实例变量，或者一个类没有变量，相关联的监视器就什么也不监视</strong>。）&nbsp;</p><p>为了实现监视器的排他性监视能力，java虚拟机<strong>为每一个对象和类都关联一个锁</strong>。代表任何时候只允许一个线程拥有的特权。线程访问实例变量或者类变量不需锁。&nbsp;</p><p><br/></p><p>但是<strong>如果线程获取了锁</strong>，那么<strong>在它释放这个锁之前，就没有其他线程可以获取同样数据的锁了</strong>。（锁住一个对象就是获取对象相关联的监视器）&nbsp;</p><p><br/></p><p><strong>类锁实际上是用对象锁来实现的</strong>。<strong>当虚拟机装载一个class文件的时候，它就会创建一个java.lang.Class类的实例</strong>。<strong>当锁住一个对象的时候，实际上锁住的是那个类的Class对象</strong>。&nbsp;</p><p><br/></p><p>一个线程可以<strong>多次对同一个对象上锁</strong>。对于每一个对象，<strong>java虚拟机维护一个加锁计数器，线程每获得一次该对象，计数器就加1，每释放一次，计数器就减 1</strong>，当计数器值为0时，锁就被完全释放了。（在执行wait、notify、notifyall的时候，需要有一个与之关联的集合来保存这个对象的锁被lock了几次，unlock了几次，满足如可重入锁的需求）&nbsp;</p><p><br/></p><p>从中我们可以领悟到，<strong>只有对象才有锁，基本类型、方法、代码块什么的，实际上都没有锁</strong>。JAVA中，所有的对象都是继承自Object，Object与锁机制有一定的关联。在设计可同步的变量、方法等时，首先要考虑到的是：<strong>需要寻找一个对象与之关联</strong>，找到一个合适的对象，那就对了。</p><p><br/></p>

@@ -1,0 +1,66 @@
+---
+layout: ue
+title: Java程序设计之静态方法和单例模式
+category: Java语言程序设计
+tags: Java,单例模式
+keywords: "Java,单例模式"
+---
+
+<p><br/></p><p>一、问题的引出</p><p><br/></p><p>目的：设计一个加密的工具类。</p><p><br/></p><p>写法一：【单例模式】</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;CipherUtils&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;List&nbsp;key;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;CipherUtils&nbsp;instance;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;CipherUtils(String...&nbsp;args){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO&nbsp;比较复杂的初始化KEY的过程
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;boolean&nbsp;initInstance(String...&nbsp;args){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;instance&nbsp;=&nbsp;new&nbsp;CipherUtils(args);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;CipherUtils&nbsp;getInstance(){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;instance;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;正在用到的加密方法
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;doCipher(String...&nbsp;args){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&nbsp;map&nbsp;=&nbsp;new&nbsp;HashMap();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;map.put(&quot;key&quot;,&nbsp;key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>》》调用方法：</p><p>CipherUtils cu= CipherUtils.getInstance();</p><p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <strong>cu.doCipher</strong>(...);</p><p><br/></p><p>写法二：【静态方法模式】　　</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;CipherUtils&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;List&nbsp;key;
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;正在用到的加密方法
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;String&nbsp;doCipher(String...&nbsp;args){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Map&nbsp;map&nbsp;=&nbsp;new&nbsp;HashMap();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;map.put(&quot;key&quot;,&nbsp;key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;null;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;比较复杂的初始化KEY的过程
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;initKey(String...&nbsp;args){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>》》调用方法：<strong>CipherUtils.doCipher</strong>(...);</p><p><br/></p><p>注意以上例子，只是一个模拟，真实情况 <strong>类的属性可能不止一个，可能有三个以上属性</strong>。</p><p><br/></p><p>写法一的特点：</p><p>1、使用时调的方法都是非static的(doCipher等等)</p><p>2、类的属性都是非static的。</p><p>3、拥有单例模式的所有优点。</p><p><br/></p><p>写法二的优点：</p><p>1、属性和方法都是static的。</p><p>2、static是全局共享的，所以也拥有单例模式的核心优点。</p><p><br/></p><p>另外，还注意到一点，单例模式 有一个比 静态方法模式 更好的地方：</p><p>&nbsp; &nbsp; 它可以被继承，方法可以被子类重载，所以扩展性更强。</p><p><br/></p><p>例如一个子类SubCipher重载了doCipher方法，那么调用方式如下：</p><p>CipherUtils cu= <strong>SubCipher.getInstance</strong>();</p><p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<strong>cu.doCipher</strong>(...);</p><p>注意到，调用处（第二行）是无需修改代码的。但是如果是静态方法的话，只能重命名一个方法了，而且调用出还要改代码，比如：</p><p><strong>CipherUtils.doCipher_02</strong>(...);</p><p><br/></p><p><strong><span style="font-size: 20px; ">二、问题的研究</span></strong></p><p><br/></p><p>　　这一部分主要参考了网上3、4篇关于<strong>类似问题的讨论</strong>。</p><p>　　比如：</p><p>http://www.blogjava.net/ITdavid/archive/2008/01/22/176939.html</p><p>http://wenku.baidu.com/view/f08eb06125c52cc58bd6befe.html</p><p><br/></p><p>　　具体分析见第三节-总结。</p><p><br/></p><p><strong><span style="font-size: 20px; ">三、总结</span></strong></p><p><br/></p><p>1、搞清楚单例模式的缺点和优势，不要乱用。</p><p><strong>一般我不用单例模式，因为这样增加了代码管理成本</strong>。但是<strong>以下几个场景最好用单例模式</strong>：<br/></p><p><br/></p><p>1）场景一：类可能会有<strong>继承</strong>、方法可能需要<strong>重载</strong>。（Spring里面有些东西就是这样设计的）</p><p><br/></p><p>2）场景二：<strong>类的所有属性需要保持一致性，（要么都改变，要么都不改变）</strong>，<strong>且这个类的非private方法较多（5个以上）</strong>。<strong>单例模式</strong>实现这个功能就<strong>比较方便</strong>，直接把原来缓存的static实例对象整体替换掉，<strong>重新new</strong><strong>一个</strong>就可以了，</p><p><br/></p><p>但是如果用<strong>静态方法</strong>来实现，则在更新属性时，需要停止所有的static方法被调用，也就意味着，要<strong>在所有的方法中加上synchronized关键字</strong>，即：<strong>单例模式只需要同步getInstance这个方法就可以，而静态方法模式，需要同步所有的方法</strong>。</p><p><br/></p><p>如果<strong>类的实例方法不多，在5个以内</strong>，那其实<strong>给每个方法都加上synchronized关键字</strong>那也无所谓，反正效率上讲，静态方法还稍微高一些，但是如果方法多了，则还是采用单例模式吧。</p><p><br/></p><p>2、就我上面，那个问题而言，最好是采用静态方法模式，因为<strong>只有一个doCipher方法，不符合场景二，而且本身是个工具类，无需类的继承，所以也不符合场景一</strong>。</p><p><br/></p><p>PS：参考Struts的源码，我们其实可以对同步静态方法进行适当改造。<strong>单例模式有一个缺点是，无论你做什么操作，都需要同步，性能上稍微低了一点点</strong>，<strong>静态方法则</strong>可以采用一种“<strong>读写锁</strong>”的模式，<strong>当有“写操作”时，则不允许其他操作，当只有“读操作时”，则不允许“写操作”</strong>但是允许其他读操作。其实现可以<strong>参考如下struts的源码</strong>：</p><p>&nbsp; &nbsp; com.opensymphony.xwork2.util.logging.LoggerFactory;</p><p>&nbsp; &nbsp; java.util.concurrent.locks.ReadWriteLock;</p><p>&nbsp; &nbsp; java.util.concurrent.locks.ReentrantReadWriteLock;</p><p><br/></p><p><br/></p><p>PS：在Effective Java一书中，作者提到了一种单例模式的方法，我觉得有些繁琐，仅供参考：</p><p>&nbsp; &nbsp; java程序还有被称为类型安全枚举的模式：定义一类来代表枚举类型的单个元素，并且不提供任何公有的构造函数，相反提供公有的静态final域，使枚举类型的每一个常量都对应一个域。如：</p><pre class="brush:java;toolbar:false">//the&nbsp;typesafe&nbsp;enum&nbsp;pattern
+public&nbsp;class&nbsp;Suit{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;String&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;Suit(String&nbsp;name){this.name=name;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString(){return&nbsp;name;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;CLUBS&nbsp;=new&nbsp;Suit(&quot;Clubs&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;DIAMANDS=new&nbsp;Suit(&quot;Diamands&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;HEARTS&nbsp;=new&nbsp;Suit(&quot;Hearts&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;SPADES&nbsp;=new&nbsp;Suit(&quot;Spades&quot;);
+}</pre><p>　　即使这个类没有声明为final,客户也没法创建这个类的对象，也无法扩展这个类，因而除了通过这些公有的静态final域导出的Suit对象之外，永远不会有其它的对象存在。</p><p>　好处：&nbsp;</p><p>&nbsp; &nbsp; &nbsp; &nbsp;提供了编译的类型安全性&nbsp;</p><p>&nbsp; &nbsp; &nbsp; 多个“类型安全枚举”可以包含相同名字的枚举常量，因为每个类都有自己的命名空间。&nbsp;</p><p>&nbsp; &nbsp; &nbsp; 新的常量加入到一个类型安全枚举类中，无需重新编译客户代码，因为常量并没有被编译到客户代码中。&nbsp;</p><p>&nbsp; &nbsp; &nbsp; 可以通过改写toString来允许其值转化为可打印字符串。&nbsp;</p><p>因为任何方法都可以被加到类型安全枚举中类中，所以它们可以实现任何接口。如Comparable：</p><pre class="brush:java;toolbar:false">//ordinal-based&nbsp;typesafe&nbsp;enum
+public&nbsp;class&nbsp;Suit&nbsp;implements&nbsp;Comparable{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;String&nbsp;name;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;static&nbsp;int&nbsp;nextOrdinal=0;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;final&nbsp;int&nbsp;ordinal&nbsp;=&nbsp;nextOrdinal++;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;Suit(String&nbsp;name){this.name=name;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;toString(){return&nbsp;name;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;int&nbsp;compareTo(Object&nbsp;o){
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;ordinal-((Suit)o).ordinal;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;CLUBS&nbsp;=new&nbsp;Suit(&quot;Clubs&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;DIAMANDS=new&nbsp;Suit(&quot;Diamands&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;HEARTS&nbsp;=new&nbsp;Suit(&quot;Hearts&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;final&nbsp;Suit&nbsp;SPADES&nbsp;=new&nbsp;Suit(&quot;Spades&quot;);
+}</pre><p>因为类型安全枚举类型的常量是对象，所以你可以把这些常量放到集合中。如：</p><p>&nbsp; &nbsp; private static final Suit[] PRIVATE_VALUES={CLUBS, DIAMAONDS, HEARTS, SPADES};</p><p>&nbsp; &nbsp; public static final List VALUES=Collection.unmodifiableList(Array.asList(PRIVATE_VALUES));&nbsp;</p><p>基于序数形式的类型安全枚举模式，在声明中增加implements Serializable,然后提供一一个readResolve方法，即可支持序列化。</p><p>&nbsp; &nbsp; private Object readResolve() throws ObjectStreamException{</p><p>&nbsp; &nbsp; &nbsp; &nbsp; return PRIVATE_VALUES[ordinal];</p><p>&nbsp; &nbsp; }&nbsp;</p><p>类型安全枚举类在性能可与int枚举常量相比美，因为可以使用“引用的同一性比较”来检查逻辑上的相关等关系。</p><p>使得一个类型安全枚举类可以扩展，只需要提供一个受保护的构造函数即可。&nbsp;</p><p>对客户没有用的方法，应声明为prtotected，对客户隐藏，允许子类修改。且如果没有合理的默认实现，应声明为abstract，</p><p>改写equals和hashCode，使他们成为final，以保证该枚举类。</p><p><br/></p><p><br/></p>
