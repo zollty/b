@@ -169,7 +169,7 @@ h4, .h4, h5, .h5 {
 }
 .pagi-list-item a{
   padding:.2em .2em;
-  color: #dd0000;
+  color: #184B76; /* #dd0000 */
   text-decoration: none;
 }
 
