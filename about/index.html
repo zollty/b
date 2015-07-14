@@ -3,7 +3,7 @@ layout: base
 title: 关于
 ---
 
-<div class="panel panel-primary">
+<div class="panel panel-primary my-mt10">
   <div class="panel-heading">
     <h3 class="panel-title">关于</h3>
   </div>
@@ -23,20 +23,20 @@ title: 关于
 	<p>英文名：Zollty Tsou，网名：zollty</p>
 	<p>男，85后，著名码农，搬砖5年，现就职于某IT公司研发中心。</p>
 	<p>热爱软件技术和产品，做的是后端、玩的是前端，著有ZolltyMVC、zollty-tmpl.js等框架和工具库 ( See: <a href="https://github.com/zollty" target="_blanck">My Github</a> )</p>
-	<p>快速联系方式：<a href="mailto:zollty@qq.com">zollty@qq.com</a></p>
+	<p>
+        快速联系方式：<a href="mailto:zollty@qq.com">zollty@qq.com</a>&nbsp;&nbsp;
+        <a href="{{ site.author.weibo }}" target="_blank">
+          <i class="fa fa-weibo fa-2x"></i>
+        </a>
+        <a href="{{ site.author.github }}" target="_blank">
+          <i class="fa fa-github fa-2x"></i>
+        </a>
+        <a href="{{ site.baseurl }}{{ site.atom_path }}" target="_blank">
+          <i class="fa fa-rss fa-2x"></i>
+        </a>
+        <a href="mailto:{{ site.author.email }}">
+          <i class="fa fa-envelope-o fa-2x"></i>
+        </a>
+    </p>
   </div>
 </div>
-
-<hr>
-<a href="{{ site.author.weibo }}" target="_blank">
-  <i class="fa fa-weibo fa-2x"></i>
-</a>
-<a href="{{ site.author.github }}" target="_blank">
-  <i class="fa fa-github fa-2x"></i>
-</a>
-<a href="{{ site.baseurl }}{{ site.atom_path }}" target="_blank">
-  <i class="fa fa-rss fa-2x"></i>
-</a>
-<a href="mailto:{{ site.author.email }}">
-  <i class="fa fa-envelope-o fa-2x"></i>
-</a>
