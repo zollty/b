@@ -1,8 +1,12 @@
 ---
-title: 归档
+title: 首页
 layout: base
 ---
 
+
+<div class="col-md-12 aside3-title" style="margin-left: -15px;">
+	<h2 style="margin-top: 10px;">文章列表</h2>
+</div>
 <div class="pagi">
 	<ul class="pagi-list">
 	{% for post in paginator.posts %}
@@ -10,15 +14,15 @@ layout: base
       {% capture this_month %}{{ post.date | date: "%m" }}{% endcapture %}
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %}
       {% capture next_month %}{{ post.previous.date | date: "%m" }}{% endcapture %}
-	  
+
 	  {% if forloop.first %}
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
 		<li class="pagi-list-item">
-		  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m-%d" }}</time> &raquo; 
+		  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m-%d" }}</time> &raquo;
 		  <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
 	    </li>
-	  
+
 	  {% if forloop.last %}{% else %}
 	  {% if this_year != next_year or this_month != next_month %}
 		<li class="pagi-list-seperator" id="{{next_year}}-{{next_month}}">{{next_year}}年-{{next_month}}月</li>
