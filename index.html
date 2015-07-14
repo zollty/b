@@ -16,6 +16,7 @@ layout: base
 	<ul class="pagi-list">
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
+
 		<li class="pagi-list-item">
 		  <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m-%d" }}</time> &raquo;
 		  <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
@@ -25,6 +26,10 @@ layout: base
 	</ul>
 	  {% else %}
 	  {% if this_year != next_year or this_month != next_month %}
+		{% if forloop.index>8 %}
+			{% break %}
+		{% endif %}
+
 		<li class="pagi-list-seperator" id="{{next_year}}-{{next_month}}">{{next_year}}年-{{next_month}}月</li>
 	  {% endif %}
 	  {% endif %}
