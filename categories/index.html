@@ -3,12 +3,13 @@ title: 分类
 layout: base
 ---
 
-<div id="cate-wr">
+<div id="cate-wr" class="my-tag-bg">
+<div class="my-tag-content">
 {% for cat in site.categories %}
   <a href="#{{ cat[0] | cgi_escape | remove: "%" }}" title="{{ cat[0] }}" rel="{{ cat[1].size }}">{{ cat[0] }} <sup>{{ cat[1].size }}</sup></a>
 {% endfor %}
 </div>
-
+</div>
 <div class="my-tag-wr">
 {% for cat in site.categories %}
   <button type="button" class="btn btn-primary show" data-toggle="collapse" id="{{ cat[0] | cgi_escape | remove: "%" }}" data-target="#modal-{{ cat[0] | cgi_escape | remove: "%" }}">{{ cat[0] }} ({{ cat[1].size }})&nbsp; <span class="caret"></span></button>
