@@ -1,14 +1,14 @@
 ---
 layout: ue
 title: 百度UEditor本地化配置 笔记
-category: JavaEE技术
+category: 
 tags: ueditor
 keywords: "ueditor配置"
 ---
 
-<p><br/></p><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">三、修改默认字体</span></strong></p><p>我将默认字体修改为：</p><pre class="brush:css;toolbar:false">font-family:&nbsp;&quot;Helvetica&nbsp;Neue&quot;,&nbsp;&quot;Helvetica&quot;,&nbsp;&quot;Microsoft&nbsp;YaHei&quot;,
+<p><br/></p><p><strong><span style="font-size: 18px;">一、修改默认字体</span></strong></p><p>我将默认字体修改为：</p><pre class="brush:css;toolbar:false">font-family:&nbsp;&quot;Helvetica&nbsp;Neue&quot;,&nbsp;&quot;Helvetica&quot;,&nbsp;&quot;Microsoft&nbsp;YaHei&quot;,
 &nbsp;&nbsp;&nbsp;&nbsp;&quot;WenQuanYi&nbsp;Micro&nbsp;Hei&quot;,&nbsp;&quot;Hiragino&nbsp;Sans&nbsp;GB&quot;,&nbsp;Simsun,&nbsp;Arial,&nbsp;sans-serif;</pre><p>需要做的工作如下：<br/></p><p>1）在/themes/iframe.css文件中，添加body字体。</p><p>2）在<span style="line-height: 19.2000007629395px;">/dialogs/preview/preview.html文件中，注释掉css：#preview *{font-family:sans-serif;font-size:16px;}，</span><span style="line-height: 1.2;">并且引入iframe.css：</span></p><pre class="brush:html;toolbar:false">&lt;link&nbsp;rel=&quot;stylesheet&quot;&nbsp;type=&quot;text/css&quot;&nbsp;href=&quot;../../themes/iframe.css&quot;&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;&lt;/title&gt;</pre><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">四、本地化list</span></strong></p><p>官方的说明如下：</p><pre class="brush:html;toolbar:false">列表文件本地化使用说明：
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;&lt;/title&gt;</pre><p><br/></p><p><strong><span style="font-size: 18px;">二、本地化list</span></strong></p><p>官方的说明如下：</p><pre class="brush:html;toolbar:false">列表文件本地化使用说明：
 1、解压放到你的themes/文件夹下（可以按照需求放置路径）
 2、修改editor_config.js文件，修改listiconpath配置项：
 &nbsp;&nbsp;&nbsp;&nbsp;listiconpath&nbsp;:&nbsp;URL+&#39;themes/ueditor-list/&#39;&nbsp;&nbsp;//如果是自己的目录，请使用&nbsp;&nbsp;&#39;/&#39;开头的绝对路径
@@ -21,7 +21,7 @@ keywords: "ueditor配置"
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rootPath&nbsp;:&nbsp;&#39;../../&#39;,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;liiconpath:&nbsp;&#39;../../themes/ueditor-list/&#39;,
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;chartContainerHeight:500
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})</pre><p><br/></p><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">五、解决table样式编辑和预览时不一致的BUG</span></strong></p><p><br/></p><p>BUG说明：UEditor有两段重复的代码——ueditor.parse.js的内容在ueditor.all.js里面基本上重复了一遍。前者用于发布或预览文章时，对html内容进行渲染（二次加工），后者用于初始化编辑器时，为编辑窗口提供样式等支持。</p><p><br/></p><p>在<span style="line-height: 19.2000007629395px;">ueditor.parse.js中的table样式为：</span></p><pre class="brush:js;toolbar:false">UE.parse.register(&#39;table&#39;,&nbsp;function&nbsp;(utils)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})</pre><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">三、解决table样式编辑和预览时不一致的BUG</span></strong></p><p><br/></p><p>BUG说明：UEditor有两段重复的代码——ueditor.parse.js的内容在ueditor.all.js里面基本上重复了一遍。前者用于发布或预览文章时，对html内容进行渲染（二次加工），后者用于初始化编辑器时，为编辑窗口提供样式等支持。</p><p><br/></p><p>在<span style="line-height: 19.2000007629395px;">ueditor.parse.js中的table样式为：</span></p><pre class="brush:js;toolbar:false">UE.parse.register(&#39;table&#39;,&nbsp;function&nbsp;(utils)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;...
 	var&nbsp;selector&nbsp;=&nbsp;this.selector;
 	//追加默认的表格样式
@@ -103,4 +103,4 @@ table&nbsp;tr.firstRow&nbsp;th&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//case&nbsp;&#39;i&#39;:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;&nbsp;&nbsp;node.tagName&nbsp;=&nbsp;&#39;em&#39;;
 &nbsp;&nbsp;&nbsp;&nbsp;}
-});</pre><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p>
+});</pre><p><br/></p>
