@@ -1,10 +1,10 @@
 # Outputting
 permalink: /archive/:year/:month/:title.html
-paginate: 15
+paginate: 21
 paginate_path: '/index:num'
 timezone:      Asia/Shanghai
 
-# Conversion 
+# Conversion
 lsi: true # 在github中是无效的
 highlighter: pygments
 markdown: rdiscount
@@ -28,7 +28,7 @@ gavatar: http://ires.qiniudn.com/my/img/avatar-80-80.jpg
 favicon: http://ires.qiniudn.com/my/img/favicon.ico
 
 # 作者信息
-author: 
+author:
   name: Zollty
   email: zollty@163.com
   link: http://blog.zollty.com/b
@@ -37,8 +37,8 @@ author:
 
 # google analytics 设置
 ga:
-  id: 
-  url: 
+  id:
+  url:
 
 # comments 设置
 comments:
@@ -52,7 +52,7 @@ comments:
 active: tab-技术
 
 # 首页除了最新文章外显示分类
-cates: 
+cates:
   - Life
   - CoreOS
 
