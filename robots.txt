@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /n/
+Disallow: /b/index*
+Disallow: /b/tags/
+Disallow: /b/categories/
+Disallow: /b/about/
+Disallow: /b/public/
+Sitemap: http://blog.zollty.com/b/sitemap.xml
