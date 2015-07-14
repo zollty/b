@@ -30,12 +30,13 @@ layout: base
 	  {% if forloop.last %}
 	</ul>
 	  {% else %}
-	  {% if this_year != next_year or this_month != next_month %}
-		{% if forloop.index > 5 %}
-	</ul>
-			{% break %}
-		{% endif %}
 
+	{% if forloop.index > 10 %}
+</ul>
+		{% break %}
+	{% endif %}
+
+	  {% if this_year != next_year or this_month != next_month %}
 		<li class="pagi-list-seperator" id="{{next_year}}-{{next_month}}">{{next_year}}年-{{next_month}}月</li>
 	  {% endif %}
 	  {% endif %}
@@ -50,7 +51,7 @@ layout: base
 
 	{% for post in paginator.posts %}
 
-	{% if forloop.index < 10 %}
+	{% if forloop.index < 11 %}
 	{% continue %}
 	{% endif %}
 
@@ -59,7 +60,7 @@ layout: base
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %}
       {% capture next_month %}{{ post.previous.date | date: "%m" }}{% endcapture %}
 
-	  {% if forloop.index == 10 %}
+	  {% if forloop.index == 11 %}
 	<ul class="pagi-list">
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
