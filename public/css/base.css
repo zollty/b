@@ -67,6 +67,12 @@ h4, .h4, h5, .h5 {
 .aside1_bottom > .table {
   margin-bottom: 0px;
 }
+
+.aside1_bottom > .table td {
+  background: #1f2c39;
+  border: 1px solid #1f2c39;
+}
+
 /* 右侧内容栏 */
 .aside3 {
   height: 100%;
