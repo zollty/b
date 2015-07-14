@@ -362,6 +362,9 @@ UE.parse.register('insertcode',function(utils){
                     aa(i+1);
                 });
                 } else {
+
+                    utils.cssRule('my-syntaxhlt','.syntaxhighlighter table td.code .line {padding: 0 4px!important;}');
+                    
                     utils.each(pres,function(pi){
                     if(pi && /brush/i.test(pi.className)){
                             SyntaxHighlighter.highlight(pi);
@@ -371,8 +374,8 @@ UE.parse.register('insertcode',function(utils){
                 }
             }
             aa(0);
-            
-            
+
+
         }else{
            utils.each(pres,function(pi){
                 if(pi && /brush/i.test(pi.className)){
