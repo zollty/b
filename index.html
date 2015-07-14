@@ -6,6 +6,11 @@ layout: base
 
 <div class="aside3-index aside3-title">文章列表</div>
 <div class="pagi">
+
+	<div class="row">
+
+		<div class="col-md-6">
+
 	{% for post in paginator.posts %}
 	  {% capture this_year %}{{ post.date | date: "%Y" }}{% endcapture %}
       {% capture this_month %}{{ post.date | date: "%m" }}{% endcapture %}
@@ -38,7 +43,7 @@ layout: base
 
 
 
-
+</div><div class="col-md-6">
 
 
 
@@ -73,9 +78,9 @@ layout: base
 	  {% endif %}
 	{% endfor %}
 
+</div>
 
-
-
+</div>
 
 
 	<div id="post-pagination" class="pagi-foot">
