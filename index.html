@@ -54,7 +54,7 @@ layout: base
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %}
       {% capture next_month %}{{ post.previous.date | date: "%m" }}{% endcapture %}
 
-	  {% if forloop.first %}
+	  {% if forloop.index == 10 %}
 	<ul class="pagi-list">
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
