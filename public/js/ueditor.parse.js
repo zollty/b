@@ -349,7 +349,8 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
+            var jsurlAry = ['http://ires.qiniudn.com/lib/js/shCore.3.0.83.all.min.js'];
+            //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
             function aa(i){
                if(i<jsurlAry.length) {
                utils.loadFile(document,{
