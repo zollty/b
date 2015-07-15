@@ -51,7 +51,7 @@ layout: base
 
 	{% for post in paginator.posts %}
 
-	{% if forloop.index < 15 %}
+	{% if forloop.index < 16 %}
 	{% continue %}
 	{% endif %}
 
@@ -60,7 +60,7 @@ layout: base
       {% capture next_year %}{{ post.previous.date | date: "%Y" }}{% endcapture %}
       {% capture next_month %}{{ post.previous.date | date: "%m" }}{% endcapture %}
 
-	  {% if forloop.index == 15 %}
+	  {% if forloop.index == 16 %}
 	<ul class="pagi-list">
 	    <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>
       {% endif %}
