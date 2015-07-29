@@ -1,0 +1,9 @@
+---
+layout: ue
+title: Java程序设计之——代码耦合性与包的结构
+category: Java语言程序设计
+tags: Java
+keywords: "代码耦合性、包结构"
+---
+
+<p><br/></p><p><strong><span style="font-size: 20px; ">问题和分析：</span></strong></p><p>&nbsp; &nbsp; 如下，一种 常见的 <strong>包结构</strong>：</p><p>&nbsp;|--<strong>x.y.service</strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;-------存放service接口（interface）</p><p>&nbsp;|--<strong>x.y.service.impl</strong> &nbsp; &nbsp;-------存放service接口的实现类</p><p>这种设计，从代码结构上来说，是<strong>下层</strong>（impl层）的<strong>代码 依赖于上层</strong>（service层）的<strong>代码</strong>，这样有个好处：<strong>代码耦合性低</strong>，我们可以<strong>把下层代码移除，而上层代码不会受到影响</strong>。</p><p><br/></p><p>但是，在某些时候，我们往往违反了这个规则，我们经常在上层 调用下层的代码。比如说下面这个例子：</p><p style="white-space: normal; ">&nbsp;|--<strong>x.y.xml</strong>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; -------存放xml相关工具类</p><p style="white-space: normal; ">&nbsp;|--<strong>x.y.xml.praser</strong>&nbsp;&nbsp; &nbsp;-------专门存放20多个xml解析器，供上层xml工具类中调用</p><p>从常理来说，<strong>x.y.xml</strong>包 是一个对外提供服务的包，而<strong>x.y.xml.praser</strong>是在 x.y.xml&nbsp;<strong>内部使用</strong>的包。所以说这样设计是合理的。</p><p><br/></p><p><strong><span style="font-size: 20px; ">总结：</span></strong></p><p>&nbsp; &nbsp;参考Spring、Apache等优秀Java开源项目的源码，我们发现，上面所说的两种情况都是存在的，但是第二种情况出现得比较少，仅在一些特殊的情况下才这样用。</p><p>&nbsp; &nbsp;结论： <strong>在同一个 业务package 下，直接隶属于该package的代码 应该 尽量少的引用 其子package的代码，也就是说，顶层package一般存放一些接口、公用类等相对独立的代码（不会引用子package的代码），但是在某些情况下，例如某些部分要单独放在子package中，而且在父package中要引用这些代码</strong>。</p><p><br/></p><p><br/></p><p><br/></p>

@@ -14,7 +14,7 @@ keywords: "获取Spring Bean"
 &lt;!--&nbsp;启动监听&nbsp;--&gt;
 &lt;listener&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
-&lt;/listener&gt;</pre><p><br/></p><p>此时，可以通过<br/></p><p>org.springframework.web.context.ContextLoaderListener来获取bean。关键代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;SpringBeanFactory{
+&lt;/listener&gt;</pre><p><br/></p><p>此时，可以通过<br/></p><p>org.springframework.web.context.<strong><span style="color: rgb(192, 0, 0); ">ContextLoaderListener</span></strong>来获取bean，</p><p>或者org.springframework.web.context.<strong><span style="color: rgb(192, 0, 0); ">ContextLoader</span></strong>也可以。</p><p>关键代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;SpringBeanFactory{
 	private&nbsp;static&nbsp;ApplicationContext&nbsp;ctx;
 	/**&nbsp;通过ContextLoaderListener取得ctx&nbsp;*/
 	public&nbsp;static&nbsp;void&nbsp;initApplicationContext(){
@@ -44,4 +44,4 @@ keywords: "获取Spring Bean"
 		event.getServletContext().log(&quot;Start&nbsp;initing&nbsp;ApplicationContext...&quot;);
 		SpringBeanFactory.initApplicationContext();
 	}
-}</pre><p><br/></p><p><br/></p><p>并把StartListener.java配置在web.xml中，这样就可以在服务器启动的时候得到ctx了。并把StartListener.java配置在web.xml中，这样就可以在服务器启动的时候得到ctx了。</p><p><br/></p><p><br/></p>
+}</pre><p><br/></p><p>并把StartListener.java配置在web.xml中，这样就可以在服务器启动的时候得到ctx了。并把StartListener.java配置在web.xml中，这样就可以在服务器启动的时候得到ctx了。</p><p><br/></p>
