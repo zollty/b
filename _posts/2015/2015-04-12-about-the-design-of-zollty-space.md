@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Zollty Space（个人网络空间）的建设
-category: 程序员风采
+category: 程序员风采__技术人生
 tags: Blog
 keywords: zollty blog
 ---
