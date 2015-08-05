@@ -1,0 +1,55 @@
+---
+layout: ue
+title: Zollty Space（个人网络空间）的建设
+category: 程序员风采__技术人生
+tags: Blog
+keywords: "zollty space"
+---
+
+<p><span style="font-size: 24px; ">一、个人网络空间的<strong>意义</strong></span></p><p style="line-height: normal; ">1. 对外宣传某些思想的窗口。（最本质的意义）</p><p style="line-height: normal; ">2. 展示自我的能力。（在人际圈或者面试的时候）</p><p style="line-height: normal; ">3. 存放一些固定的、较永久的资料，对外提供浏览或下载。</p><p style="line-height: normal; ">4. 存放一些临时的小资料（大资料需要用网盘去分享）。</p><p><br/></p><p><span style="font-size: 20px; ">因此，个人网络空间的<strong>规划</strong>如下：</span></p><p style="line-height: normal; ">1. 要对外宣传和展示，就要引入大的流量和人气。<span style="color: rgb(49, 133, 155); ">可以借助CSDN、CNBLOG、OSChina吸引流量到个人网站来（在个人博客上发一篇文章时，同时转载到CSDN/CNBLOG/OSC上）</span></p><p style="line-height: normal; ">2. 个人博客上，文章<strong>不宜多</strong>，但是<strong>质量要好</strong>。<strong>包括</strong>文章的内容和<strong>外在</strong>，都要比较贴心和令人<strong>赏心悦目</strong>。</p><p style="line-height: normal; ">3. 对于一些短文说说，看能不能整理一下，定期放到一个突出的位置，供大家浏览和评论。</p><p><br/></p><p><span style="font-size: 20px; "><strong>站点规划</strong>如下：</span></p><p style="line-height: normal; ">&gt; * 主站点为：<a href="http://blog.zollty.com" target="_blank" textvalue="blog.zollty.com">blog.zollty.com</a></p><p style="line-height: normal; ">&gt; * 中长篇博文网站地址&nbsp;<strong>/b</strong>：<a href="http://blog.zollty.com/b/" target="_blank" textvalue="blog.zollty.com/b/">blog.zollty.com/b/</a></p><p style="line-height: normal; ">&gt; * 短文说说、随笔地址&nbsp;<strong>/n</strong>：<a href="http://blog.zollty.com/n/" target="_blank" textvalue="blog.zollty.com/n/">blog.zollty.com/n/</a></p><p><br/></p><p><span style="font-size: 24px; ">二、技术要求</span></p><p>&nbsp; &nbsp; <strong>主要关注内容</strong>，包括文本、图片、声音、视频等。</p><p>&nbsp; &nbsp; 其实<strong>样式也是内容的一部分</strong>，不过大多数情况下，只要内容不丢失，样式都是可以重新设计的。</p><p><br/></p><p>所以要求如下：</p><p>* 可以根据<strong>纯内容</strong>生成HTML静态页面，而且<strong>易于更新、</strong>重新生成HTML。</p><p>* <strong>易于编辑</strong>，<strong>样式调整方便</strong>，<strong>所见即所得</strong>。</p><p>* <strong>各种文本</strong>内容、图片、声音、视频等易于管理。</p><p>* <strong>样式</strong>能够保留。</p><p><br/></p><p>现行技术方案：</p><p><span style="color: rgb(127, 127, 127); text-decoration: line-through; ">&gt; Markdown</span></p><p>&gt; 富文本编辑器（<strong>UEditor</strong>、KindEditor）</p><p><br/></p><p><span style="font-size: 24px; ">三、Zollty Space的定义、规划和设计</span></p><p><strong><span style="font-size: 20px; ">3.1 定义和规划</span></strong></p><p>&nbsp; &nbsp; Zollty Space是一个<strong>统一平台</strong>，是多个项目的集合（包括博客、随笔、开源项目等），主要用于展示和存放我的各种文章和资料，现阶段主要包括如下几部分：</p><p><br/></p><p style="line-height: normal; ">1. 博文(Blog)-项目地址： http://blog.zollty.com/b</p><p style="line-height: normal; ">2. 说说(Tweets)-项目地址： http://blog.zollty.com/n</p><p style="line-height: normal; ">3. 个人公开信息（开源项目，个人微博，个人资料，技术博客等）</p><p style="line-height: normal; ">4. 其他专题资料（技术培训，专题项目等）</p><p style="line-height: normal; "><br/></p><p style="line-height: normal; ">这几个部分，集中<strong>用一个横向的网页导航串联起来</strong>，即<strong>共享同一个Zollty Space横向导航</strong>。</p><p><br/></p><p><strong><span style="font-size: 20px; ">3.2 Zollty Space的永久链接(url)设计</span></strong></p><p>&nbsp; &nbsp; 一些重要的文章或者资料，可能会<strong>以一个url网址的形式分享出去</strong>，这就<strong>要求这个url网址在多年之后仍然可用</strong>。所以我博客文章和一些重要资料的url，都需要固定，<strong>不管我博客服务器如何变化，但是url始终不变</strong>。</p><p><br/></p><p><strong><span style="font-size: 20px; ">3.3 Zollty Blog设计</span></strong></p><p><span style="font-size: 20px; ">3.3.1 博文永久链接设计</span><br/></p><p>&nbsp; &nbsp; 经过深入考察和分析，决定博客url前缀为：<a href="http://blog.zollty.com/b/" target="_blank" textvalue="http://blog.zollty.com/b/">http://blog.zollty.com/b/</a></p><p>&nbsp; &nbsp; 即，用&quot;<strong>b</strong>&quot;来代表&quot;<strong>博客系统</strong>&quot;（blog）。</p><p>其中，发布的文章，url前缀定义为：<span style="color: rgb(0, 112, 192); ">http://blog.zollty.com/b/<strong>archive</strong></span></p><p>&nbsp; &nbsp; <span style="color: rgb(0, 112, 192); "><strong>archive</strong></span>后面通常接 “<strong>/</strong>年<strong>/</strong>月<strong>/</strong>文章英文名.html”，例如：</p><p><a href="http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html" target="_blank" textvalue="http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html">http://blog.zollty.com/b/archive/2015/04/about-the-design-of-zollty-space.html</a> </p><p><br/></p><p>我想说的是，这个文章的链接，我会尽量<strong>保证它是永久有效的（n年之后仍然可以访问）</strong>。</p><p><br/></p><p><span style="font-size: 20px; ">3.3.2 博客目录</span></p><p>&nbsp; &nbsp; 一级目录初步如下：</p><p style="line-height: normal; "><span style="font-size: 16px; color: rgb(0, 112, 192); ">*&nbsp;归档<br/></span></p><p style="line-height: normal; "><span style="font-size: 16px; color: rgb(0, 112, 192); ">* 分类</span></p><p style="line-height: normal; "><span style="font-size: 16px; color: rgb(0, 112, 192); ">* 标签</span></p><p style="line-height: normal; "><span style="font-size: 16px; color: rgb(0, 112, 192); ">* 资源？</span></p><p style="line-height: normal; "><span style="font-size: 16px; color: rgb(0, 112, 192); ">* 关于</span></p><p><br/></p><p><span style="font-size: 20px; ">3.3.3 字体</span></p><p>&nbsp; &nbsp; 经过经验总结和研究，以及多种测试，决定网页字体设置为：</p><p><span style="color: rgb(192, 0, 0); ">font-family: &quot;Helvetica Neue&quot;,&quot;Helvetica&quot;,&quot;Microsoft YaHei&quot;,&quot;WenQuanYi Micro Hei&quot;,&quot;Hiragino Sans GB&quot;,Simsun,Arial,sans-serif;</span></p><p>&nbsp; &nbsp; 即英文主要为<strong>Helvetica</strong>（其实&quot;Open Sans&quot;也不错，但是要引入谷歌的字体，天朝网络不好，故放弃），中文主要为&quot;<strong>Microsoft YaHei</strong>&quot;，同时对Android、iOS、Linux<strong>均有考虑和测试</strong>，最终为上面的设置。</p><p><br/></p><p><span style="font-size: 24px; ">四、静态资源文件存放规划</span></p><p><span style="font-size: 20px; ">4.1 参考</span></p><pre class="brush:plain;toolbar:false">GITHUB：
+
+	https://assets-cdn.github.com/assets/github-099e0ecc2851c8aca89ef6dafa191df3b0f2a2c8ad34e134c5473ca1ba0a59b2.css
+	https://assets-cdn.github.com/assets/spinners/octocat-spinner-128-338974454bb5c32803e82f601beb051d373744b024fe8742a76009700fd7e033.gif
+
+京东：
+
+	http://misc.360buyimg.com/wz/wlwhjyxkz.jpg
+	http://misc.360buyimg.com/jdf/1.0.0/unit/wl/1.0.0/wl.js
+	http://misc.360buyimg.com/lib/js/2013/DD_belatedPNG.js
+	http://misc.360buyimg.com/lib/js/e/jquery-1.2.6.pack.js
+	http://misc.360buyimg.com/product/js/2013/home.js
+	http://img11.360buyimg.com/da/jfs/xxxd.png
+	http://img13.360buyimg.com/da/20120221/112_40_WvArIl.png
+
+其他：
+
+	http://s1.bdstatic.com/r/www/cache/static/home/img/sugbg_d24a0811.gif
+	http://t10.baidu.com/it/
+
+	http://img01.taobaocdn.com
+	http://g.tbcdn.cn/tpi/topbar/1.1.42/global-min.css
+	http://g.tbcdn.cn/trip/trip-home/0.4.10
+	http://gtms03.alicdn.com/tps/i3/TB0.png
+
+	http://g.tbcdn.cn
+	http://g.alicdn.com
+	http://img.alicdn.com
+
+	http://qzonestyle.gtimg.cn/qzone/v8/index/touch-icon-ipad-retina.png
+	http://cn.qzonestyle.gtimg.cn/aoi/skin/35.css?max_age=19830212&amp;d=20141030172230
+	http://cn.qzonestyle.gtimg.cn/aoi/img/logo/favicon.ico?max_age=31536000
+	http://i.gtimg.cn/open/app_icon/00/02/75/50/27550_16.png
+	https://a.alipayobjects.com/homeindex/1.0.1/homeindex.css
+	https://i.alipayobjects.com/common/favicon/favicon.ico
+	https://i.alipayobjects.com/i/ecmng/swf/201502/02.05flash.swf
+	https://a.alipayobjects.com/ar/??alipay.smartracker-1.1.js
+	https://a.alipayobjects.com/??seajs/seajs/2.2.3/sea.js
+
+	http://s.doubanio.com/f/shire/5d546bd6e07d202f3cc0083a2e77880fb77f57a9/css/douban.css
+	http://s.doubanio.com/f/shire/e49e2/pics/new_menu.gif
+	http://s.doubanio.com/misc/mixed_static/66cf6da32f8bc656.css
+
+	http://t.douban.com/img/files/file-1426478788.png
+
+	http://img.t.sinajs.cn/t6/style/css/module/base/frame.css
+	http://js.t.sinajs.cn/t6/home/js/pl/top/topInit.js</pre><p><span style="font-size: 20px; ">4.2 我的规划</span></p><p>采用【CDN】：<span style="color: rgb(0, 112, 192); "><strong>http://assets.zollty.com</strong></span><strong> </strong>域名</p><p>例如：</p><p style="line-height: normal; "><span class="Apple-tab-span" style="white-space:pre">	</span>http://assets.zollty.com/<strong>my</strong>/</p><p style="line-height: normal; "><span class="Apple-tab-span" style="white-space:pre">	</span>http://assets.zollty.com/<strong>lib</strong>/</p><p style="line-height: normal; "><span class="Apple-tab-span" style="white-space:pre">	</span>http://assets.zollty.com/<strong>course</strong>/</p><p style="line-height: normal; "><span class="Apple-tab-span" style="white-space:pre">	</span>http://assets.zollty.com/<strong>temp</strong>/</p><p style="line-height: normal; "><span class="Apple-tab-span" style="white-space:pre">	</span>http://assets.zollty.com/<strong>misc</strong>/</p><p><br/></p><p>目前还无法映射成除了github之外的其他域名，所以，重要的静态资源也统一在 github 上面托管。</p><p>当然了，也可以跳转到 七牛云存储</p><p style="line-height: normal; ">比如&nbsp;</p><p style="line-height: normal; ">http://assets.zollty.com/course/travesky/learn-spring</p><p style="line-height: normal; ">跳转到</p><p style="line-height: normal; ">http://ires.qiniudn.com/course/travesky/learn-spring</p><p><br/></p><p><span style="font-size: 20px; ">4.3 现行方案</span></p><p><span style="color: rgb(192, 0, 0); ">博客</span>私有<span style="color: rgb(0, 112, 192); ">图片</span>和<span style="color: rgb(112, 48, 160); ">资料</span>：</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>http://ires.qiniudn.com/<span style="color: rgb(192, 0, 0); ">my</span>/<span style="color: rgb(0, 112, 192); ">img</span>/</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>http://ires.qiniudn.com/<span style="color: rgb(192, 0, 0); ">my</span>/<span style="color: rgb(112, 48, 160); ">misc</span>/</p><p>公用JS等<strong>程序库文件</strong>：</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>http://ires.qiniudn.com/<strong>lib</strong>/js/</p><p>其他<strong>专题</strong>，例如：</p><p>http://ires.qiniudn.com/course/</p><p>http://ires.qiniudn.com/temp/</p><p>http://ires.qiniudn.com/misc/</p><p><br/></p>
