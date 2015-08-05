@@ -1,0 +1,123 @@
+---
+layout: ue
+title: Java理论知识和编程问题总结
+category: Java语言程序设计
+tags: Java
+keywords: "Java理论知识和常见编程问题"
+---
+
+<p>1、class.getResource 和 class.getClassLoader().getResource的区别</p><p>它们的区别在于路径上的区别：<br/></p><p><strong>Class.getResource(String path)</strong></p><p>&nbsp; &nbsp; path不以 &#39;/&#39; 开头时，默认是从此类所在的包下取资源；</p><p>&nbsp; &nbsp; path 以 &#39;/&#39; 开头时，则是从ClassPath根下获取；</p><p><strong>Class.getClassLoader().getResource(String path)</strong><br/></p><p>&nbsp; &nbsp; path不能以 &#39;/&#39; 开头；（否则什么都取不到）</p><p>&nbsp; &nbsp; path是从ClassPath根下获取；</p><p>由此可知：</p><p><strong>class.getResource(&quot;/&quot;) == class.getClassLoader().getResource(&quot;&quot;)</strong></p><p><br/></p><p><br/></p><p>1、主(数据)类型，9种：boolean、byte(-128~127)、char(Unicode: 0~2^16-1)、short(-2^15~2^15-1)</p><p>、int(-2^31~2^31-1)、float(IEEE754)、long(-2^63~2^63-1)、double(IEEE754)、void</p><p><br/></p><p>2、Java 1.1增加了两个类，用于进行高精度的计算：BigInteger和BigDecimal。</p><p>&nbsp; &nbsp; 尽管它们大致可以划分为“封装器”类型，但两者都没有对应的“主类型”。这两个类都有自己特殊的“方法”，对应于我们针对主类型执行的操作。也就是说，能对int或float做的事情，对BigInteger和BigDecimal一样可以做。只是必须使用方法调用，不能使用运算符。此外，由于牵涉更多，所以运算速度会慢一些。我们牺牲了速度，但换来了精度。</p><p>&nbsp; &nbsp; BigInteger支持任意精度的整数。也就是说，我们可精确表示任意大小的整数值，同时在运算过程中不会丢失任何信息。</p><p>&nbsp; &nbsp; BigDecimal支持任意精度的定点数字。例如，可用它进行精确的币值计算。至于调用这两个类时可选用的构建器和方法，请自行参考联机帮助文档。</p><p><br/></p><p>3、一旦将变量作为类成员使用，就要特别注意由Java分配的默认值。……然而，这种保证却并不适用于“局部”变量——那些变量并非一个类的字段。所以，int x; 那么x会得到一些随机值（这与C和C++是一样的），不会自动初始化成零。</p><p><br/></p><p>4、HashMap的迭代方法，使用迭代器 Iterator ：</p><pre class="brush:java;toolbar:false">Iterator&nbsp;it&nbsp;=&nbsp;hs.keySet().iterator();
+while(it.hasNext()){
+&nbsp;&nbsp;&nbsp;&nbsp;Object&nbsp;o&nbsp;=&nbsp;it.next();
+&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(hs.get(o));
+}</pre><p><br/></p><p>5、this调用构造函数</p><pre class="brush:java;toolbar:false">class&nbsp;Person{
+
+	Person(){
+	}
+	
+	Person(String&nbsp;name,&nbsp;int&nbsp;age){
+		this.name&nbsp;=&nbsp;name;
+		this.age&nbsp;=&nbsp;age;
+	}
+	
+	Person(String&nbsp;name,&nbsp;int&nbsp;age,&nbsp;String&nbsp;address){
+		this(name,&nbsp;age);&nbsp;//高级用法，调用上面那个构造函数，该句必须是本函数的第一句
+		this.address&nbsp;=&nbsp;address;
+	}
+	
+	String&nbsp;name;
+	int&nbsp;age;
+	String&nbsp;address;
+}</pre><p><br/></p><p>2. 类的继承</p><pre class="brush:java;toolbar:false">//子类必须调用父类的构造函数，用super函数，super必须放在构造函数的第一句
+class&nbsp;Student&nbsp;extends&nbsp;Person{
+	int&nbsp;grade;
+	Student(){
+		//super();//可省略，编译器会默认加上，也可以用super传入参数
+	}
+	
+	Student(int&nbsp;grade){
+		this();//this()和super()的区别是super()是调用父类的构造函数
+	}
+}</pre><p>补充：内部类</p><p>内部类可以任意的使用外部类的成员变量。但是它绝不是继承了外部类。</p><pre class="brush:java;toolbar:false">class&nbsp;A{
+	int&nbsp;i;
+	class&nbsp;B{
+		int&nbsp;j;
+		int&nbsp;funcB(){
+			return&nbsp;i+j;
+			//完整的写法为&nbsp;return&nbsp;A.this.i+this.j;
+		}
+	}
+}</pre><p>编译时产生</p><p>A.class和A$B.class</p><p><br/></p><p>在其他类中生成类A和类B：</p><p>A a = new A();</p><p>A.B b = new A().new B();</p><p>//或者 A.B b = a.new B();</p><p><br/></p><p>最常用的其实是“匿名内部类”</p><p>常见实例：在一个类中，要调用一个接口。但是这个接口还没有任何实现类。</p><p>此时就可以在调用的地方（用一个匿名内部类）去实例化。匿名内部类一般都是作为参数使用的。在监听器和线程中经常用到。</p><p>例如<br/></p><pre class="brush:java;toolbar:false">class&nbsp;B{
+	void&nbsp;func(A&nbsp;a){
+		a.doSomething();&nbsp;//其中A是一个接口
+	}
+}</pre><p>那么调用B的func时可以这么写：</p><pre class="brush:java;toolbar:false">B&nbsp;b&nbsp;=&nbsp;new&nbsp;B();
+b.fun(
+	new&nbsp;A(){
+		//实现A接口中的抽象方法
+		public&nbsp;void&nbsp;doSomething(){
+			System.out.println(&quot;匿名内部类&quot;);
+		}
+	}
+);</pre><p>上面蓝色部分就是匿名内部类，可见，匿名内部类没有名字，它是一对中括号括起来的。它的实现方式为：new一个接口，紧跟着一对中括号，并在中括号中实现接口中的抽象方法。</p><p><br/></p><p>补充：装饰者</p><p>工人接口、水管工、A公司的水管工（装饰者）</p><p>例如：</p><pre class="brush:java;toolbar:false">Plumber&nbsp;plumber&nbsp;=&nbsp;new&nbsp;Plumber();&nbsp;//水管工
+AWorder&nbsp;aWoker1&nbsp;=&nbsp;new&nbsp;AWorder(plumber);&nbsp;//&nbsp;A公司的水管工，plumber转型成Worker</pre><p>即，可以给水管工多加一层包装，使其包含A公司额外指定的功能。Plumber定义如下：</p><pre class="brush:java;toolbar:false">class&nbsp;Plumber&nbsp;implements&nbsp;Worker{
+	public&nbsp;void&nbsp;doSomeWork(){
+		System.out.println(&quot;修水管&quot;);
+	}
+}</pre><p>AWorder定义如下：</p><pre class="brush:java;toolbar:false">class&nbsp;AWorker&nbsp;implements&nbsp;Worker{
+	private&nbsp;Worker&nbsp;worker;
+	public&nbsp;AWorker(Worker&nbsp;worker){
+		this.woker&nbsp;=&nbsp;worker;
+	}
+	public&nbsp;void&nbsp;doSomeWork(){
+		Sytem.out.println(&quot;你好&quot;);&nbsp;//A公司额外添加的功能
+		worker.doSomeWork();&nbsp;//基础功能
+	}
+}</pre><p><br/></p><p>3. 成员函数的重载<br/></p><pre class="brush:java;toolbar:false">//为避免重复写父类方法的代码，用super.父类成员函数名()的方式来调用父类的成员函数
+void&nbsp;introduce(){
+&nbsp;&nbsp;&nbsp;&nbsp;super.introduce();
+&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;&nbsp;grade:&nbsp;&quot;&nbsp;+&nbsp;grade);
+}</pre><p><br/></p><p>&nbsp;</p><p>4、集合、泛型</p><p>1) HashMap 和Hashtable 的区别？</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>HashMap 是Hashtable 的轻量级实现（非线程安全的实现），它们都完成了Map 接口，主要区别在于HashMap 允许空（null）键值（key）。由于非线程安全，效率上可能高于Hashtable。<span style="color: rgb(0, 112, 192); ">HashMap 允许将null 作为一个entry 的key 或者value，而Hashtable 不允许</span>。HashMap 把Hashtable 的contains 方法去掉了，改成containsvalue 和containsKey。因为contains 方法容易让人引起误解。Hashtable 继承自Dictionary类，而HashMap 是Java1.2 引进的Map interface 的一个实现。&nbsp;</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>最大的不同是，<span style="color: rgb(0, 112, 192); ">Hashtable 的方法是Synchronize 的，而 HashMap 不是</span>，在多个线程访问 Hashtable时，不需要自己为它的方法实现同步，而HashMap就必须为之提供额外同步。</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>Hashtable 和HashMap 采用的hash/rehash 算法都大概一样，所以性能不会有很大的差异。</p><p><br/></p><p>2) 说出ArrayList、Vector、LinkedList 的存储性能和特性？</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>ArrayList 和 Vector 都是使用数组方式存储数据，它们都允许直接按序号索引元素。但是插入元素要涉及数组元素移动等内存操作，所以索引数据快而插入数据慢。</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>由于Vector 使用了synchronized 方法（线程安全），通常性能上较ArrayList差。</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>LinkedList 使用双向链表实现存储，按序号索引数据需要进行前向或后向遍历，但是插入数据时只需要记录本项的前后项即可，所以插入速度快索引速度慢。</p><p><br/></p><p>9、线程、并发</p><p>1）创建线程的两种方法及区别？</p><p>&nbsp; &nbsp; 1. 继承Thread</p><p>&nbsp; &nbsp; 2. 实现Runnable接口。</p><p>Runnable除了具有Thread的功能外，还有如下一些好处：</p><p>&nbsp; &nbsp; a) 多个线程可以操作相同的数据资源。</p><p>&nbsp; &nbsp; b) 避免了Java单继承带来的局限。</p><p><br/></p><p>2） 线程同步的方法？</p><p>&nbsp; &nbsp; 使用wait()、notify()、sleep()、allnotity()方法来使线程之间可以互相通信。</p><p>wait()：等待状态，释放所持有的对象的lock，可以喝notify配套使用。</p><p>sleep()：阻塞状态，不会释放对象锁，时间一到，即可进入可执行状态。</p><p>notify()：唤醒一个处于等待状态的线程。但不能确切的指定唤醒哪一个，由JVM来决定，且不是按优先级。</p><p>allnotity()：唤醒所有处于等待状态的线程，但是并不是给所有唤醒的线程一个对象的锁，而是让它们竞争，只有获得锁的那个线程才可以进入可执行状态。</p><p><br/></p><p>关于yield()方法</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>yield()是指暂停当前正在执行的线程对象，并执行其他线程。暂停执行是指当前线程放弃所分得的 CPU 资源，并不是使线程处于阻塞状态，即线程仍处于可执行状态，随时可能再次分得CPU。调用yield()的效果等价于调度程序认为该线程已执行了足够的时间从而转到另一个线程。</p><p><br/></p><p>3） 线程的执行过程</p><p>New、start()、Runnable(就绪)、Blocked(阻塞)、Running(执行)、run()、Dead(死亡)</p><p><br/></p><p>在一个Test中调用线程对象First，那么当Test中main运行时一共有三个线程：main线程、First线程和垃圾回收线程。</p><p>Test.java、First.java<br/></p><pre class="brush:java;toolbar:false">First&nbsp;f&nbsp;=&nbsp;new&nbsp;First();
+f.start();
+for(int&nbsp;i=0;i&lt;100;i++){
+System.out.println(&quot;main--&gt;&quot;+i);
+}
+&nbsp;
+class&nbsp;Firt&nbsp;extends&nbsp;Thread{
+public&nbsp;void&nbsp;run(){
+for(int&nbsp;i=0;i&lt;100;i++){
+System.out.println(&quot;First--&gt;&quot;+i);
+}
+}
+}</pre><p>运行结果是 First--&gt;i 和 main--&gt;i 无序显示。</p><p><br/></p><p>用Runnable实现线程</p><p>步骤：</p><p>&nbsp; 1. 生成一个Runnable接口实现类的对象</p><p>&nbsp; &nbsp; &nbsp; RunnableImpl ri = new RunnableImpl();</p><p>&nbsp; 2. 生成一个Thread对象，并将Runnable接口实现类的对象作为参数传递给Thread对象。</p><p>&nbsp; &nbsp; &nbsp; Thread t = new Thread(ri);</p><p>&nbsp; 3 . 执行Thread对象的start方法。</p><p>&nbsp; &nbsp; &nbsp; t.start();</p><p><br/></p><p><strong>Thread.sleep(n)</strong></p><p><strong>不一定在n毫秒后能立即运行，因为它醒了之后要去争夺CPU，夺到CPU之后才能运行</strong>。</p><p><br/></p><p><strong>Thread.yield()</strong></p><p>自动的<strong>让出CPU</strong>，然后<strong>再去和其他线程一起去抢CPU</strong>，有可能还是它抢到CPU……</p><p><br/></p><p>setPriority()</p><p>设置优先级，在start()之前设置：</p><p>t.setPriority(Thread.MAX_PRIORITY);</p><p>t.setPriority(Thread.MIN_PRIORITY);</p><p>最大优先级为10。最小优先级为1。</p><p><br/></p><p>多线程数据安全、线程同步</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>例子：生成两个Thread对象，但是共用一个线程体(RunnableImpl)，每一个线程都有名字。</p><pre class="brush:java;toolbar:false">class&nbsp;A&nbsp;implements&nbsp;Runnable&nbsp;{
+&nbsp;&nbsp;&nbsp;int&nbsp;i=100;
+&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while(true)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//synchronized(this)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Thread.currentThread().getName()+&quot;is&nbsp;running...&quot;+i);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i--;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread.yield();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(i&lt;0)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;....
+class&nbsp;ThreadTest&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;r&nbsp;=&nbsp;new&nbsp;A();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;a&nbsp;=&nbsp;new&nbsp;Thread(r);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Thread&nbsp;b&nbsp;=&nbsp;new&nbsp;Thread(r);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.setName(&quot;第a线程&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.setName(&quot;第b线程&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a.start();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b.start();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(Thread.currentThread.getName()+&quot;is&nbsp;starting....&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p><span class="Apple-tab-span" style="white-space: pre; ">	</span>用Synchronized(this){...}同步代码块。锁住当前代码块，保证当前代码块只能被一个线程执行（但不一定能连续执行，只能确保其他线程无法使用该代码块，当其他线程试图执行该代码块时会一直等待，直到锁被释放）。<br/></p><p>&nbsp; &nbsp;&nbsp;<br/></p><p><span style="font-size: 20px; ">10、IO</span></p><p>IO流有三种分类方式<br/></p><p>第一种分法：</p><p style="line-height: normal; ">&nbsp; 1. 输入流</p><p style="line-height: normal; ">&nbsp; 2. 输出流</p><p>第二种分法：</p><p style="line-height: normal; ">&nbsp; 1. 字节流</p><p style="line-height: normal; ">&nbsp; 2. 字符流</p><p>第三种分法：</p><p style="line-height: normal; ">&nbsp; 1. 节点流（原始数据）</p><p style="line-height: normal; ">&nbsp; 2. 处理流（再加工）</p><p><br/></p><p>IO核心类</p><p>1. 字节流</p><p style="line-height: normal; ">&nbsp;InputStream（抽象类）： FileInputStream</p><p style="line-height: normal; ">&nbsp;OutputStream（抽象类）：FileOutputStream</p><p>2. 字符流和字符包装流<br/></p><p style="line-height: normal; ">&nbsp;Reader：FileReader、InputStreamReader、BufferedReader</p><p style="line-height: normal; ">&nbsp;Writer：FileWriter、OutputStreamWriter、BufferedWriter</p><p><br/></p><p>FileReader用法：[直接以字符的方式读文件]</p><p>直接用文件做参数：new FileReader(&quot;foo.in&quot;)</p><p><br/></p><p>OutputStreamWriter用法：[以字节方式打开文件，用字符方式写数据，将字符流转换成字节流]</p><p>用OutputStream（和字符集charsetName）作参数，例如OutputStreamWriter( fos,&quot;GBK&quot; )</p><p><br/></p><p>BufferedReader用法：</p><p>用FileReader()或者InputStreamReader做参数，例如BufferedReader(new FileReader(&quot;foo.in&quot;) );</p><p><span class="Apple-style-span" style="line-height: normal; ">new File(&quot;D://src&quot;,&quot;a.txt&quot;)</span><br/></p><p style="line-height: normal; ">new File(&quot;D:\src&quot;,&quot;a.txt&quot;)</p><p>&quot;//&quot;等同于&quot;\&quot;，前者是后者的转义符表达方式</p><p><br/></p><p>System.out是FilterOutputStream定义的一个属性，字节流FilterOutputStream属于OutputStream的直接子类</p><p>PrintStream是FilterOutputStream的直接子类，但不会抛出IOException</p><p><br/></p><p>如何创建一个InputStreamReader对象：</p><p style="line-height: normal; ">new InputStreamReader(new FileInputStream(&quot;data.txt&quot;));</p><p style="line-height: normal; ">new InputStreamReader(System.in);</p><p><br/></p><p><br/></p><p><span class="Apple-style-span" style="font-size: 20px; line-height: 36px;">11、</span>多态的实现方式：方法的重载和重写，涉及到继承和接口<br/></p><p><br/></p><p>12、重载和重写的区分？</p><p>&nbsp; &nbsp;重写要求很严：<strong>重写的方法，它的参数列表、返回类型，都要和父类中的方法相同</strong>。</p><p>&nbsp; &nbsp;且它的 <strong>权限修饰符</strong> 级别要 大于等于 父类中的方法，例如父类是public，那么重写的时候就不能用private去修饰。而且重写的方法，<strong>抛出的异常</strong>要小于父类中的方法，例如父类没有抛出异常，则重写的方法就不能抛出异常。</p><p><br/></p><p>13、静态内部类(Static Nested Class)和内部类(Inner Class)的区别？<br/></p><p>&nbsp; &nbsp; 顾名思义，静态内部类为静态的，不需要外部类被初始化就可以直接被实例化。而一般内部类需要先new一个外部类才能实例化。</p><p><br/></p><p>14、抽象类和接口的区别？</p><p>&nbsp; &nbsp; 接口中所有的方法都是抽象的，接口只能定义static final成员变量。</p><p><br/></p><p>15、抽象(abstract)方法能否和static、native、synchronized一同使用？<br/></p><p>&nbsp; &nbsp; 回答：都不可以。</p><p><br/></p><p><span style="font-size: 20px; ">16、异常</span></p><p>什么是异常？</p><p>&nbsp; &nbsp; 异常是指中断了正常指令流的事件。</p><p>&nbsp; &nbsp; 异常分为：</p><p>运行时异常（可以不进行异常捕获，运行时意外发生的，比如数组越界、除数为0）</p><p>非运行时异常（编译时异常，必须进行异常捕获）</p><p><br/></p><p>常见类型有</p><p>Throwable -&gt;&nbsp;</p><p>&nbsp; &nbsp; Error和Exception</p><p>Exception -&gt;</p><p>&nbsp; &nbsp;&nbsp;1. Uncheck Exception</p><p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 运行时异常：RuntimeException（ArithmeticException、IndexOutOfBoundsException）</p><p>&nbsp; &nbsp;&nbsp;2.&nbsp;Ckeck Exception</p><p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;非运行时异常(编译时异常)：IOException、ClassNotFoundException、SQLException</p><p><br/></p><p>运行时异常的应用举例：</p><p>例如判断用户的年龄，如果年龄为负数，则终止程序。<br/></p><p><span class="Apple-tab-span" style="white-space:pre">	</span>1. 用非运行时异常（那么必须要进行异常捕捉）</p><pre class="brush:java;toolbar:false">try{
+&nbsp;&nbsp;&nbsp;&nbsp;if(&nbsp;age&lt;0&nbsp;){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;Exception(&quot;age&nbsp;must&nbsp;&gt;=&nbsp;0&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}catch(Exception&nbsp;e){&nbsp;}</pre><p>&nbsp; &nbsp; &nbsp; &nbsp; 2. [推荐]用运行时异常（可以不进行捕捉，出错时直接中断程序）</p><pre class="brush:java;toolbar:false">if(&nbsp;age&lt;0&nbsp;){
+&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;RuntimeException(&quot;age&nbsp;must&nbsp;&gt;=&nbsp;0&quot;);
+}</pre><p>&nbsp; &nbsp; &nbsp; &nbsp;3. 用throws抛出异常，但是在调用的地方需要捕捉异常。一般在某个地方集中来捕获异常。</p><p><br/></p><p><span style="font-size: 20px; ">13. 断言</span></p><p>上面的异常处理的第二种方式：</p><pre class="brush:java;toolbar:false">if(&nbsp;age&lt;0&nbsp;){
+&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;RuntimeException(&quot;age&nbsp;must&nbsp;&gt;=&nbsp;0&quot;);
+}</pre><p>可以改写成用断言来实现：</p><pre class="brush:java;toolbar:false">assert&nbsp;age&nbsp;&gt;=&nbsp;0:&quot;age&nbsp;must&nbsp;&gt;=0&quot;;</pre><p>注意，它和if的判断条件是相反的，因为它是&quot;假设age&gt;=0&quot;，当假设为false时才打印后面那句。<br/></p><p>断言的两种表达式：</p><p>1）assert expression1;&nbsp;</p><p>2）assert expression1: expression2;</p><p>其实1）是2）的简单版本。</p><p><br/></p><p>编译执行时要用</p><p>编译：javac -source 1.6 Test.java &nbsp; ---其中,1.6指java的版本.</p><p>执行：java <strong>-ea</strong> Test</p><p><br/></p><p><br/></p>
