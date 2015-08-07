@@ -1,9 +1,9 @@
 ---
 layout: ue
-title: 常用的shell命令
+title: 常用的Shell命令
 category: Linux系统与应用
-tags: Linux,shell
-keywords: "linux,shell"
+tags: Linux,Shell
+keywords: "Linux,Shell"
 ---
 
 <p>Linux doc &nbsp;2011 by: zollty</p><p>&nbsp;</p><p>1. cat命令:标准的输入、输出，显示文件。例如</p><p>cat -n test.c，输出每行编号</p><p>cat -b test.c，对空白行不编号</p><p>注意：Windows下所见的空白行不一定是真正的空白行，因为含有\r\n!只有用Vi或gedit等创建的原始文档中空出来的行才是真正的“空行”。</p><p>&nbsp;</p><p>-n输出行编号</p><p>-b对空白行不编号</p><p>-s大于两行的空行换成一行</p><p>-v显示出了TAB和换行符以外的字符标记^和M</p><p>-E display $at end of each line</p><p>-T display TABcharacters as ^I</p><p>-A equivalentto –vET</p><p>-e equivalentto –vE</p><p>&nbsp;</p><p>新建文件并输入内容：</p><p>cat &gt;f1</p><p>注意：使用cat命令进行输入时，而且只能用退格键(Backspace)来删除光标前一位置的字符。并且一旦按下回车键，该行输入的字符就不可修改。按Ctrl+D键结束输入。</p><p>&nbsp;</p><p>在文件末尾增加内容：</p><p>cat &gt;&gt;f1</p><p>然后就是接着输入内容，记住内容最后留一个空行。（以后写文档都养成最后留一个空行的习惯）</p><p>&nbsp;</p><p>2. wc命令:显示文件信息，参数如下</p><p>-c --bytes</p><p>-m --chars</p><p>-l --lines</p><p>-w –word counts</p><p>例：统计f1文件的行数，单词数和字符数，并将统计结果存放在countf1文件。</p><p>输入wc &lt; f1 &gt; countf1，再查看cat countf1，注意那个&lt;和&gt;并不是括号，而是定向符。</p><p>&nbsp;</p><p>&nbsp;</p><p>3. 分页显示目录目录中文件及目录</p><p>显示/etc目录中文件及目录（一律按名称排序）</p><p>ls /etc|more： 显示第一页，按空格键可查看下一页信息。</p><p>ls /etc|head –n 15：显示前15行</p><p>如何区分文件或者目录？答：看后缀，无后缀的一般是目录。</p><p>&nbsp;</p><p>4. 通配符的使用</p><p>最实用的通配符是：</p><p>* --可代表任意多个字符</p><p>? –代表一个字符</p><p>示例：</p><p>（i）ls /bin/c* &nbsp; &nbsp; &nbsp; (ii)ls /bin/c??</p><p>&nbsp;</p><p>不常用的：</p><p>ls /bin/[c,s,h]* ………………首字母为c或s或h</p><p>ls /bin/[!a-e]*………………首字母不是a、b、c、d、e</p><p>!!……………………………重复上一步操作。即执行ls /bin/[!a-e]*</p><p>&nbsp;</p><p>5. 设置手工启动图形化用户界面</p><p>在/etc/inittab文件中：</p><p>id：0-6分别代表：0代表关机， 6代表重启，5代表重启到图形界面。另外3代表多用户的字符界面，比较常用（5和3之间切换）。其他不用管。</p><p><br/></p>
