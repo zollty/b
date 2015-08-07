@@ -1,0 +1,64 @@
+---
+layout: ue
+title: Java设计模式
+category: Java语言程序设计
+tags: Java,设计模式
+keywords: "Java设计模式"
+---
+
+<div><p><br/></p><p>单例模式的使用场景：</p></div><div><br/></div><div>1、缓存资源，控制资源的并发读、写。（资源即类的属性）</div><div>例如：有一把锁，需要两把钥匙才能打开。在更换钥匙期间，是不允许开锁的。</div><div>而且，两把钥匙必须更换完才允许开锁，即，只更换完一把时，是不允许开锁的。</div><div><br/></div><div>假设一个线程修改完了一把钥匙，正准备修改第二把钥匙，而此时另外一个线程又试图开锁。</div><div>有两种做法：</div><div>1）此时不允许开锁，必须等第二把钥匙更改完成后才允许。</div><div>2）允许开锁，仍然用未更改的旧钥匙。</div><div>读的时候，为提高效率，最好能避免使用synchronized同步。</div><div><br/></div><div><br/></div><div>设计模式：</div><div>Proxy</div><div>Adapter</div><div>Decorator</div><div>Wrapper</div><div>Delegate</div><div><br/></div><div>区别：</div><div><br/></div><div>Proxy：某个客户端不能直接操作到某个对象，但又必须和那个对象有所互动。</div><div>Proxy就象一道墙,其他程序只能和Proxy交互操作。</div><div><br/></div><div>用法1： 授权、检查机制。</div><div>比如，通过ForumProxy代理，控制用户对论坛的访问权限。代码如下：</div><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;ForumProxy&nbsp;implements&nbsp;Forum&nbsp;{
+&nbsp;private&nbsp;ForumPermissions&nbsp;permissions;
+&nbsp;private&nbsp;Forum&nbsp;forum;
+&nbsp;public&nbsp;ForumProxy(Forum&nbsp;forum,&nbsp;ForumPermissions&nbsp;permissions){
+&nbsp;&nbsp;&nbsp;&nbsp;this.forum&nbsp;=&nbsp;forum;
+&nbsp;&nbsp;&nbsp;&nbsp;this.permissions&nbsp;=&nbsp;permissions;
+&nbsp;}
+&nbsp;public&nbsp;void&nbsp;setName(String&nbsp;name)&nbsp;{
+&nbsp;　　&nbsp;&nbsp;//只有是系统或论坛管理者才可以修改名称
+&nbsp;　　&nbsp;&nbsp;if&nbsp;(permissions.isSystemOrForumAdmin())&nbsp;{
+&nbsp;　　　　&nbsp;&nbsp;forum.setName(name);
+&nbsp;　　&nbsp;&nbsp;}
+&nbsp;}
+}</pre><p>只能通过ForumProxy来创建Forum，并且要求传入ForumPermissions。在setName的时候，会首先检查权限。</p><div>动态代理就是这个系列的一种高级实现方式。</div><div><br/></div><div>用法2：延迟初始化。先要获得某种资源，但是不急着去使用它。</div><div>例如，如果直接用</div><div>ABC obj= new ABC(); // 或者 ABC obj = getABC();</div><div>obj.doXXX();</div><div>假设获得obj的过程很漫长，而且不会立即用到，那么就建立一个ABCProxy对象，然后再调用代理对象的doXXX()方法：</div><div>void doXXX(){</div><div>&nbsp;ABC obj= new ABC(); // 或者 ABC obj = getABC();</div><div>&nbsp;obj.doXXX();</div><div>}</div><div><br/></div><div>Decorator模式：</div><div>不改变原来定义的类，但是又想给他增加功能。而且又不想继承它。</div><div>那就用Decorator模式，例如BufferedReader：</div><div>&nbsp;FileReader fr = new FileReader(filename);</div><div>&nbsp;BufferedReader br = new BufferedReader(fr);</div><div>将原来的对象作为参数传到Decorator中，注意</div><div>Decorator和原来的对象，都implements了同一个接口，比如Reader。</div><div>调用Decorator时，可以在原对象的方法前后，加上Decorator自定义的方法。</div><div><br/></div><div>Decorator模式和Proxy模式的区别在于，Decorator着重于“增加功能”，而Proxy着重于“改造”。</div><div>通常来说，Proxy的使用频率比Decorator要高。</div><div><br/></div><div><br/></div><div>Adapter模式：将两个类组合在一起使用，建立一种统一的使用方法。</div><div>例如，假设我们有两种打桩方式：方形桩、圆形桩。现在有一个应用，需要既打方形桩，又打圆形桩。</div><div>实现方式如下：</div><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;PegAdapter&nbsp;extends&nbsp;SquarePeg&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;RoundPeg&nbsp;roundPeg;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;PegAdapter(RoundPeg&nbsp;peg)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.roundPeg=peg;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;打桩-同时打两个
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;insert(String&nbsp;str)&nbsp;{&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super.insert(str);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roundPeg.insertIntoHole(str);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>加入：需要打桩，但是打什么类型的桩是动态确定的。</p><div>实现方式如下：</div><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;PegAdapter&nbsp;implements&nbsp;IRoundPeg,&nbsp;ISquarePeg{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;RoundPeg&nbsp;roundPeg;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;SquarePeg&nbsp;squarePeg;
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;构造方法&nbsp;-&nbsp;RoundPeg
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;PegAdapter(RoundPeg&nbsp;peg){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.roundPeg=peg;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;构造方法&nbsp;-&nbsp;SquarePeg
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;PegAdapter(SquarePeg&nbsp;peg){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.squarePeg=peg;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;打桩-选择一个打桩
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;insert(String&nbsp;str){&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(roundPeg!=null)&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roundPeg.insertIntoHole(str);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;squarePeg.insertIntoHole(str);}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>Strategy(策略模式)</p><div>跟Adapter模式类似，比Adapter模式狭隘。用于动态确定调用的对象。</div><div>例如：</div><div>我们要建立一个算法解决类，用来提供客户端可以自由选择算法。</div><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;RepTempRuleSolve&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;实际的算法对象
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;RepTempRule&nbsp;strategy;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;指定算法
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;RepTempRuleSolve(RepTempRule&nbsp;rule){
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.strategy=rule;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;切换算法
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;changeAlgorithm(RepTempRule&nbsp;newAlgorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;strategy&nbsp;=&nbsp;newAlgorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;doService(Site&nbsp;site,String&nbsp;oldString)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;strategy.replace(site,oldString);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p><br/></p>
