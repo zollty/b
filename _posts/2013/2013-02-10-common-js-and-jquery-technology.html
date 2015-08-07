@@ -15,22 +15,22 @@ keywords: "JavaScript jQuery技巧"
 &nbsp;&nbsp;&nbsp;RA_CHO_value&nbsp;=&nbsp;RA_CHO_value.substring(0,&nbsp;RA_CHO_value.length-1);&nbsp;
 &nbsp;&nbsp;}&nbsp;
 &nbsp;&nbsp;alert(RA_CHO_value);&nbsp;
-&nbsp;});</pre><p><br/></p><p>jQuery设置标签为隐藏或显示动画（注意不是style）</p><p>$(this).hide(&quot;fast&quot;);</p><p>$(this).show(&quot;fast&quot;);</p><p>jQuery判断标签是否为隐藏或显示状态</p><p>if($(&quot;#a&quot;).is(&quot;:visible&quot;))</p><p>if($(&quot;#a&quot;).is(&quot;:hidden&quot;))</p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"><br/></span></p><p>jQuey AJAX模板</p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span></p><pre class="brush:js;toolbar:false">$.ajax({&nbsp;
-&nbsp;&nbsp;&nbsp;url:&nbsp;&#39;/ax/text&#39;,&nbsp;
-&nbsp;&nbsp;&nbsp;type:&nbsp;&#39;POST&#39;,&nbsp;
-&nbsp;&nbsp;&nbsp;data:&nbsp;{&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;eftDateBegin:&nbsp;$(&quot;#eftDateBegin&quot;).val(),&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;eftDateEnd:&nbsp;&nbsp;&nbsp;$(&quot;#eftDateEnd&quot;).val()
-&nbsp;&nbsp;&nbsp;},&nbsp;
-&nbsp;&nbsp;&nbsp;dataType:&nbsp;&#39;json&#39;,&nbsp;
-&nbsp;&nbsp;&nbsp;timeout:&nbsp;1000,&nbsp;
-&nbsp;&nbsp;&nbsp;success:&nbsp;function&nbsp;(data)&nbsp;{&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(&quot;input#showTime&quot;).val(data[0].demoData);&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;},&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;error:&nbsp;function&nbsp;(XMLHttpRequest,&nbsp;textStatus,&nbsp;errorThrown)&nbsp;{&nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert();&nbsp;
+&nbsp;});</pre><p><br/></p><p>jQuery设置标签为隐藏或显示动画（注意不是style）</p><p>$(this).hide(&quot;fast&quot;);</p><p>$(this).show(&quot;fast&quot;);</p><p>jQuery判断标签是否为隐藏或显示状态</p><p>if($(&quot;#a&quot;).is(&quot;:visible&quot;))</p><p>if($(&quot;#a&quot;).is(&quot;:hidden&quot;))</p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"><br/></span></p><p>jQuey AJAX模板</p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span></p><pre class="brush:js;toolbar:false">$.ajax({
+&nbsp;&nbsp;&nbsp;&nbsp;url:&nbsp;&#39;/ax/text&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;type:&nbsp;&#39;POST&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;data:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eftDateBegin:&nbsp;$(&quot;#eftDateBegin&quot;).val(),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eftDateEnd:&nbsp;$(&quot;#eftDateEnd&quot;).val()
+&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;dataType:&nbsp;&#39;json&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;timeout:&nbsp;1000,
+&nbsp;&nbsp;&nbsp;&nbsp;success:&nbsp;function(data)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$(&quot;input#showTime&quot;).val(data[0].demoData);
+&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;error:&nbsp;function(XMLHttpRequest,&nbsp;textStatus,&nbsp;errorThrown)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert();
 &nbsp;&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;});</pre><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span><br/></p><p><span style="font-size: 20px;">常用JS函数</span><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"><br/></span></p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span></p><pre class="brush:js;toolbar:false">//判断是否为空&nbsp;
+});</pre><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span><br/></p><p><span style="font-size: 20px;">常用JS函数</span><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"><br/></span></p><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span></p><pre class="brush:js;toolbar:false">//判断是否为空&nbsp;
 function&nbsp;isNull(value)&nbsp;{&nbsp;
 &nbsp;if&nbsp;((value&nbsp;==&nbsp;&quot;&quot;)&nbsp;||&nbsp;trim(value).length&nbsp;==&nbsp;0)&nbsp;return&nbsp;true;&nbsp;
 &nbsp;return&nbsp;false;&nbsp;
@@ -60,19 +60,20 @@ function&nbsp;checkNum(tt,&nbsp;viewobj)&nbsp;{&nbsp;
 &nbsp;}&nbsp;
 &nbsp;return&nbsp;true;&nbsp;
 }</pre><p><span style="font-family:&#39;Times New Roman&#39;;font-size:10.5000pt;"></span><br/></p><p><strong><span style="font-size: 20px; ">异步加载js</span></strong></p></div><pre class="brush:js;toolbar:false">//该匿名函数用于异步加载js
-(function()&nbsp;{
-function&nbsp;async_load()&nbsp;{
-var&nbsp;s&nbsp;=&nbsp;document.createElement(&#39;script&#39;);
-s.type&nbsp;=&nbsp;&#39;text/javascript&#39;;
-s.async&nbsp;=&nbsp;true;
-s.src&nbsp;=&nbsp;&#39;js/config.js&#39;;
-var&nbsp;x&nbsp;=&nbsp;document.getElementsByTagName(&#39;script&#39;)[0];
-x.parentNode.insertBefore(s,&nbsp;x);
-}
-if&nbsp;(window.attachEvent)
-window.attachEvent(&#39;onload&#39;,&nbsp;async_load);
-else
-window.addEventListener(&#39;load&#39;,&nbsp;async_load,&nbsp;false);
+(function()&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;&nbsp;async_load()&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;&nbsp;s&nbsp;&nbsp;=&nbsp;&nbsp;document.createElement(&#39;script&#39;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.type&nbsp;&nbsp;=&nbsp;&nbsp;&#39;text/javascript&#39;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.async&nbsp;&nbsp;=&nbsp;&nbsp;true;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s.src&nbsp;&nbsp;=&nbsp;&nbsp;&#39;js/config.js&#39;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;&nbsp;x&nbsp;&nbsp;=&nbsp;&nbsp;document.getElementsByTagName(&#39;script&#39;)[0];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x.parentNode.insertBefore(s,&nbsp;&nbsp;x);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;&nbsp;(window.attachEvent)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.attachEvent(&#39;onload&#39;,&nbsp;&nbsp;async_load);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;window.addEventListener(&#39;load&#39;,&nbsp;&nbsp;async_load,&nbsp;&nbsp;false);
+&nbsp;&nbsp;&nbsp;&nbsp;}
 })();</pre><p><br/></p><div><strong>JSON操作</strong>：</div><div>1、字符串<strong>转换成JSON对象</strong>：</div><div>用<strong>jQuery</strong>：</div><div>jQuery.parseJSON( data )</div><div>2、JSON<strong>对象转字符串</strong></div><div>用<strong>json2.js</strong></div><div>text = JSON.stringify( jsonObj );</div><p><br/><br/></p><div><p><strong>IE（&lt;10）下面无法往table里面插入 innerHTML</strong></p><div>例如：</div></div><div>&lt;html&gt;</div><div>&lt;head&gt;</div><div>&lt;/head&gt;</div><div>&lt;body&gt;</div><div><span style="color:#c00000;">&lt;table id=&quot;demo&quot;&gt;&lt;/table&gt;</span></div><div><span style="color:#0070c0;">&lt;P id=&quot;PP&quot;&gt;&lt;/P&gt;</span></div><div>&lt;script type=&quot;text/javascript&quot;&gt;</div><div>alert(&quot;xxxxxxxxxx&quot;);</div><div><span style="color:#0070c0;">document.getElementById(&quot;PP&quot;).innerHTML= &quot;ZZZZZZZZZZZZZZZZZZZZZ&quot;;</span></div><div><span style="color:#c00000;">document.getElementById(&#39;demo&#39;).innerHTML= &quot;&lt;tr&gt;&lt;td&gt;0000000000000000000&lt;/td&gt;&lt;/tr&gt;&quot;;</span></div><div><span style="color:#c00000;">$(&quot;#<span style="background-color:#FFFFFF;">demo</span>&quot;).html(<span style="background-color:#FFFFFF;">&quot;&lt;tr&gt;&lt;td&gt;0000000000000000000&lt;/td&gt;&lt;/tr&gt;&quot;</span>);</span></div><div>alert(&quot;ddddddddddd&quot;);</div><div>&lt;/script&gt;</div><div>&lt;/body&gt;</div><div>&lt;/html&gt;</div><p><br/></p><div>table中是无法插入的innerHTML的。</div><p><br/><br/></p><div><strong>JS函数调用时，传字符串时一定要加上&#39;&#39;(单引号)</strong></div><div>例如：</div><div>download(&#39;${task.taskNo}&#39;)，如果不加&#39;&#39;，则download函数无法执行</div><div>如果是数字时，就无需加&#39;&#39;(单引号)</div><p><br/><br/><br/></p><div><span style="font-size: 20px;"><strong>跨域访问</strong></span></div><p><br/></p><div>出
 于安全的考虑，Web 浏览器从很早之前就定下“同域安全策略”的标准，默认情况下同一域名下的页面只能向同域（包括 CNAME 域名、端口）下的 
 URL 发送所有类型的 HTTP 请求。而向不同域的地址发送非 GET 请求时，默认情况下只能返回同域安全策略错误。</div><p><br/></p><div>对此，在发起上传或下载请求的时候，七牛的服务会返回相应的支持跨域的 Header:</div><p><br/></p><div>上传(upload.qiniu.com)</div><div>Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size</div><div>Access-Control-Allow-Methods: OPTIONS, HEAD, POST</div><div>Access-Control-Allow-Origin: *</div><p><br/></p><div>&nbsp;下载(&lt;bucket&gt;.qiniudn.com)</div><div>Access-Control-Allow-Origin: *</div><p><br/></p><p><br/></p>
