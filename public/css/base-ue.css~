@@ -152,7 +152,7 @@ h4, .h4, h5, .h5 {
   color:#999999;
 }
 .pagi-list-seperator{
-  /* font-weight:bold; */
+  font-weight:bold;
 }
 .pagi-list-item a{
   padding:.2em .2em;
