@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 粘滞会话、会话保持
+category: Web服务器端开发技术
+tags: 粘滞会话
+keywords: "会话,Session"
+---
+
+<p><span style="font-size: 20px;"><strong>粘滞会话、会话保持(Sticky Sessions)</strong></span></p><p><br/></p><p><span style="line-height: 32.4px;">当我们使用反向代理做负载均衡时，用户对同一内容的多次请求，可能被转发到了不同的后端服务器，若有3台服务器进行集群，用户发出一请求被分配至服务器A，保存了一些信息在session中，该用户再次发送请求被分配到服务器B，要用之前保存的信息，</span><span style="font-weight: 700; line-height: 32.4px;">若服务器A和B之间没有session粘滞</span><span style="line-height: 32.4px;">，那么服务器B就拿不到之前的信息，这样会导致一些问题。</span></p><p><br/></p><p><span style="line-height: 32.4px;">让用户在一次会话周期内的所有请求始终转发到一台特定的后端服务器上，这种机制也称为粘滞会话（Sticky Sessions）,或者叫“会话保持”,要实现它的关键在于如何设计持续性调度算法。</span></p><p><br/></p><p>既然要让高度器可以识别用户，那么将用户的IP地址作为识别标志最为合适，一些反向代理服务器对此都有支持，比如Nginx.</p><p>对于Nginx,只需要在upstream中声明ip_hash即可，每个请求都按访问IP的hash结果分配，这样每个访客固定访问一个后端服务器。<span style="line-height: 1.8;">这样我们就已经实现了粘滞会话，但这样一来，粘滞会话可能或多或少地破坏了均衡策略，至少像权重分配这样的动态策略已经无法工作。</span></p><p><br/></p><p>其实问题关键在于，我们究竟是否要通过实现粘滞会话来迁就系统的特殊需要呢？</p><p><br/></p><p>事实上，应该尽量避免这样的设计，采用分布式Session或者用分布式缓存，这样与后端服务器分开实现<strong>多应用Session共享</strong>可以更有效的避免上述问题。</p><p><br/></p>
