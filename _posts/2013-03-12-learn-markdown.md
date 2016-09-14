@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Learn Markdown
-category: 程序员风采__技术人生
+category: 程序员风采_技术人生
 tags: Markdown
 keywords: Learn Markdown
 ---
