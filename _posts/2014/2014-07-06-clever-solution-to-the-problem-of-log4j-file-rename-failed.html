@@ -1,12 +1,12 @@
 ---
 layout: ue
 title: 巧妙地解决Log4j文件重命名失败的问题
-category: Web服务器端开发技术
+category: JavaEE技术
 tags: Log4j
 keywords: "Log4j文件重命名失败"
 ---
 
-<p><br/></p><p>一、问题描述</p><p>1、大家在用log4j时，可能会遇到下面的一个报错信息：</p><p><span style="color: rgb(255, 0, 0); ">Failed to rename [/opt/proj.log] to [/opt/proj.log.2014-03-20].</span></p><p>这个算是<strong>log4j.DailyRollingFileAppender的一个BUG</strong>，网上很多修改方案，不过我能搜到的，<strong>都不理想</strong>。</p><p><br/></p><p>2、一般性问题：文件重命名失败</p><p>详细的内容可以参见论坛的帖子：<a href="http://bbs.csdn.net/topics/330195396" target="_blank" textvalue="http://bbs.csdn.net/topics/330195396">http://bbs.csdn.net/topics/330195396</a></p><p>关键内容如下：</p><p><span style="background-color: rgb(238, 236, 225); font-size: 16px; ">我也遇到了和LZ相同的问题，也是无法重命名，但是可以先重命名，然后再执行其他操作！如果先执行其他的操作，比如读这个文件，然后再修改这个文件名字，就无法重命名了，我先把代码贴出来了，大家帮忙了啊！！</span></p><pre class="brush:java;toolbar:false">File&nbsp;file&nbsp;=&nbsp;new&nbsp;File(fileName);
+<p><br/></p><p>一、问题描述</p><p>1、大家在用log4j时，可能会遇到下面的一个报错信息：</p><p><span style="color: rgb(255, 0, 0); ">Failed to rename [/opt/proj.log] to [/opt/proj.log.2014-03-20].</span></p><p>这个算是<strong>log4j.DailyRollingFileAppender的一个BUG</strong>，网上很多修改方案，不过我能搜到的，<strong>都不理想</strong>。</p><p><br/></p><p>2、一般性问题：文件重命名失败</p><p>详细的内容可以参见论坛的帖子：<a href="http://bbs.csdn.net/topics/330195396" target="_blank">http://bbs.csdn.net/topics/330195396</a></p><p>关键内容如下：</p><p><span style="background-color: rgb(238, 236, 225); font-size: 16px; ">我也遇到了和LZ相同的问题，也是无法重命名，但是可以先重命名，然后再执行其他操作！如果先执行其他的操作，比如读这个文件，然后再修改这个文件名字，就无法重命名了，我先把代码贴出来了，大家帮忙了啊！！</span></p><pre class="brush:java;toolbar:false">File&nbsp;file&nbsp;=&nbsp;new&nbsp;File(fileName);
 File&nbsp;newFile&nbsp;=&nbsp;new&nbsp;File(fileName.replace(&quot;2008&quot;,&nbsp;&quot;2011&quot;));
 
 BufferedReader&nbsp;bReader&nbsp;=&nbsp;new&nbsp;BufferedReader(new&nbsp;FileReader(file));
