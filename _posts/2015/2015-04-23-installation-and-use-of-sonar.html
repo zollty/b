@@ -1,0 +1,23 @@
+---
+layout: ue
+title: Sonar代码质量管理平台的安装和使用
+category: 其他语言、技术和工具
+tags: Sonar,代码质量
+keywords: "代码质量,sonar,代码扫描"
+---
+
+<p>1、下在zip文件，直接解压即可。</p><p><br/></p><p>然后修改配置文件</p><p>Edit &lt;install_directory&gt;/conf/sonar.properties</p><p><br/></p><p>参见：http://docs.sonarqube.org/display/SONAR/Installing+the+Server#InstallingtheServer-installingWebServerInstallingtheWebServer</p><p><br/></p><p><span style="font-size: 20px;"><strong>启动sonar：</strong></span></p><p>进入bin目录，选择系统：</p><p>cd /opt/sonarqube-5.6/bin/linux-x86-64</p><p>sonar.sh start</p><p>即可，然后查看启动日志 logs/sonar.log</p><p><br/></p><p><strong><span style="font-size: 20px;">和maven进行集成（推荐）：</span></strong></p><p>一、Maven配置</p><p>1、 找到 maven_install_path/conf/setting.xml 文件</p><p>在 &lt;profiles&gt;标签中添加如下配置：</p><pre class="brush:xml;toolbar:false">&nbsp;&nbsp;&nbsp;&nbsp;&lt;profile&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;sonar&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;activation&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/activation&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;properties&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;sonar.host.url&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;http://172.16.1.63:9000
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/sonar.host.url&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/properties&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/profile&gt;</pre><p>2、 找到父项目（parent）的pom.xml：</p><p>在</p><p>&nbsp; &lt;build&gt;</p><p>&nbsp; &nbsp; &lt;plugins&gt;</p><p><span class="Apple-tab-span" style="white-space:pre">	</span> &nbsp;......</p><p>&nbsp; &nbsp; &lt;/plugins&gt;</p><p>&nbsp; &lt;/build&gt;</p><p>中添加下面这个plugin</p><pre class="brush:xml;toolbar:false">	&lt;plugin&gt;
+		&lt;groupId&gt;org.sonarsource.scanner.maven&lt;/groupId&gt;
+		&lt;artifactId&gt;sonar-maven-plugin&lt;/artifactId&gt;
+		&lt;version&gt;3.0.2&lt;/version&gt;
+	&lt;/plugin&gt;</pre><p><span style="line-height: 1.8;">二、运行maven命令，执行代码扫描</span></p><p>mvn sonar:sonar</p><p><br/></p><p>三、官方文档</p><p>参见：</p><p>http://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Maven</p><p><br/></p><p><strong><span style="font-size: 20px;">和gradle进行集成：</span><span style="font-size: 20px;"></span></strong></p><p>配置gradle.properties</p><p>systemProp.sonar.host.url=http://172.16.1.63:9000</p><p><br/></p><p>激活配置：build.gradle</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>plugins {</p><p><span class="Apple-tab-span" style="white-space:pre">	</span> &nbsp;id &quot;org.sonarqube&quot; version &quot;2.0.1&quot;</p><p><span class="Apple-tab-span" style="white-space:pre">	</span>}</p><p>参见：</p><p>http://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Gradle</p><p><br/></p><p><strong><span style="font-size: 20px;">和jenkins进行集成：</span></strong></p><p><span style="line-height: 1.8;">1、安装sonarqube plugins</span><br/></p><p>2、配置sonarqube server</p><p>3、配置sonar runner</p><p style="line-height: 32.4px; white-space: normal;">参见：<a href="http://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Jenkins">http://docs.sonarqube.org/display/SCAN/Analyzing+with+SonarQube+Scanner+for+Jenkins</a></p><p><br/></p><p>OK</p><p><br/></p><p><br/></p><p><br/></p>

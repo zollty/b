@@ -1,0 +1,19 @@
+---
+layout: ue
+title: 接口的作用和使用原则
+category: 系统架构和设计
+tags: 接口
+keywords: "接口"
+---
+
+<p><span style="font-size: 20px;"><strong>一、接口的作用：</strong></span></p><p><br/></p><p>1、作为一个客观的规范，是一类事物所具有的属性的总结，相当于父类。根据接口，就知道一个实例所具有的方法，是一种声明。简而言之，接口的作用是“概括和声明”。</p><p><br/></p><p>如此可知，1）接口下面可能会有多种具体的实现。2）调用接口时，会非常方便。举例：我不知道某人叫什么 我只知道他属于人类 那么我一定知道他有吃饭的行为，我就可以扔给他一个骨头</p><p>具体代码：</p><p>IPeople zhang = new Zhangsan();</p><p>zhang.Eat(&quot;骨头&quot;);</p><p><br/></p><p>2、接口的另外一个作用是构成“多态”。比如一个教师，他既是一个动物，有动物的特性，也是一个人，有人的共性，还是一个教师。换句话说，这个教师，在不同的场景下，可以当做不同的对象来使用。</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;Zhangsan&nbsp;implements&nbsp;ITeacher,IPeople,IAnimal&nbsp;{
+}
+//&nbsp;当动物使用
+IAnimal&nbsp;zhang&nbsp;=&nbsp;new&nbsp;Zhangsan();
+zhang.Eat(&quot;骨头&quot;);
+//&nbsp;当人使用
+IPeople&nbsp;zhang&nbsp;=&nbsp;new&nbsp;Zhangsan();
+zhang.GetName();
+//&nbsp;当教师使用
+ITeacher&nbsp;zhang&nbsp;=&nbsp;new&nbsp;Zhangsan();
+zhang.Teach();</pre><p><br/></p><p><span style="font-size: 20px;"><strong>二、接口使用原则</strong></span></p><p><br/></p><p>1、一般情况下，不考虑使用接口。</p><p>2、当有明确需求，可以设计接口。或者遇到实际需要时，可以将原来的实现方式改成接口的方式。</p><p>3、在下列场景下，可能需要定义接口：</p><p>1） 当某个事物，可能会用到多种形态和实现时，要定义一个接口，使用时使用接口，而不直接使用实例。</p><p>2） 当某个事物，需要制定一些规范，写程序时，要按照这些规范去实现时，需要定义接口。</p><p>3） 当某个事物比较复杂，集多种功能于一身，在不同场景下，可能只用到其中某一类功能时，需要定义接口。</p><p><br/></p><p><br/></p>
