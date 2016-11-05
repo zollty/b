@@ -1,0 +1,22 @@
+---
+layout: ue
+title: kafka shutdown停止关闭很慢问题的解决方案
+category: 中间件技术
+tags: Kafka
+keywords: "Kafka，Kafka停止关闭很慢"
+---
+
+<p><br/></p><p><span style="font-size: 20px;"><strong>kafka shutdown停止很慢问题</strong></span></p><p><br/></p><p>在数据量大的时候，consumer一次抓取数据的数据很多，进入到业务处理的数据可能有很多，</p><p>假设一次poll有1万条数据进入业务程序，而且业务程序是和poll绑定在一起线程同步执行的，假设平均每条数据，执行业务程序花费100ms，</p><p>那么poll一次的数据，至少要执行 1w*0.1s = 1000s = 16.67分钟。</p><p>所以，在数据量大的时候，停止一个线程（需要先等待业务程序处理完数据），可能要十几分钟。</p><p><span style="line-height: 1.8;">&nbsp;</span></p><p><span style="font-size: 20px;"><strong>shutdown问题解决方案</strong></span></p><p>1、改成异步处理数据，consumer取出来的数据，放到BlockQueue中，由异步线程去处理，当异步线程处理不过来时，阻塞consumer，调用consumer.pause()方法avoid group management rebalance，代码如下（来源于Spring-Kafka）：</p><pre class="brush:java;toolbar:false">//&nbsp;avoid&nbsp;group&nbsp;management&nbsp;rebalance&nbsp;due&nbsp;to&nbsp;a&nbsp;slow&nbsp;consumer
+this.consumer.pause(this.assignedPartitions.toArray(new&nbsp;TopicPartition[this.assignedPartitions.size()]));
+
+public&nbsp;void&nbsp;onPartitionsAssigned(Collection&lt;TopicPartition&gt;&nbsp;partitions)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;this.assignedPartitions&nbsp;=&nbsp;partitions;
+}</pre><p><br/></p><p>2、如果是同步执行数据处理，考虑提高业务程序 处理数据的速度。</p><p><br/></p><p>3、同步处理数据，但是改成手动提交offset，当shutdown的时候，poll的数据不需要全部处理，只需要记录处理的位置即可。代码示例如下：</p><pre class="brush:java;toolbar:false">list&nbsp;data&nbsp;=&nbsp;consumer.poll();
+for(record:&nbsp;data)&nbsp;{&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;if(shutdown)&nbsp;{&nbsp;&nbsp;//&nbsp;收到shutdown命令后立即停止，未处理的数据将丢弃
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;deal(record);
+&nbsp;&nbsp;&nbsp;saveTopicOffset(record);
+}
+submitDealtDataOffset();</pre><p><br/></p><p><br/></p><p>另外，</p><p><span style="font-size: 20px;"><strong>Kafka停不掉shutdown关闭不了问题</strong></span></p><p>原因是卡在了consumer.close()方法里面，它会提交offset信息，如果网络中断或者kafka服务器有问题导致提交不了offset，则consumer.close方法会一直卡住（不停的循环尝试提交offset，永不中断）。</p><p><br/></p><p>参见：Kafka poll一直等待的bug：</p><p>https://issues.apache.org/jira/browse/KAFKA-4189?jql=project%20%3D%20KAFKA%20AND%20resolution%20%3D%20Unresolved%20AND%20component%20%3D%20consumer%20ORDER%20BY%20priority%20DESC</p><p><br/></p><p>https://issues.apache.org/jira/browse/KAFKA-3172?jql=project%20%3D%20KAFKA%20AND%20resolution%20%3D%20Unresolved%20AND%20component%20%3D%20consumer%20ORDER%20BY%20priority%20DESC</p><p><br/></p><p><br/></p><p>解决方法：目前还没有好的办法，只能将offset的自动提交改成手动提交offset。但是，我写了一个程序可以在调用consumer.close后将线程强行杀死，作为临时解决方案。</p><p><br/></p><p><br/></p>
