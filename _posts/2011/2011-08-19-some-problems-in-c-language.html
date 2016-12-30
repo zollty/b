@@ -1,0 +1,61 @@
+---
+layout: ue
+title: C语言中的几个问题
+category: C、CPP_程序设计
+tags: C、CPP
+keywords: "C、CPP"
+---
+
+<p>1. 数组的最大长度问题</p><p>int n[1000000];这样肯定是不行的，因为这样定义的数组用的是栈内存，系统默认值为最大1Mb，一个int型占4字节这样最大可以申请1024*1024/4=264144个，如果考虑到系统自身的占用最大值约为25000个。</p><p>int *p=(int *)malloc(1000000*sizeof(int));，这样用的是堆内存，只要你内存有那么多的连续空间就可以。</p><p>例子如下：</p><pre class="brush:cpp;toolbar:false">#include&lt;stdio.h&gt;&nbsp;&nbsp;
+#include&lt;malloc.h&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;
+int&nbsp;main()&nbsp;&nbsp;
+{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;*p=(int&nbsp;*)malloc(1000000*sizeof(int));&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;//int&nbsp;p[1000000];&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i=0;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;for(;i&lt;1000000;i++)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%d\n&quot;,p[i]=i);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;free(p);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;&nbsp;&nbsp;
+}</pre><p>如果非要用数组的话，一般这样写，不能再大了：</p><p>#define MAXSIZE 250000</p><p>int a[MAXSIZE];</p><p>&nbsp;</p><p>2. fscanf和fprintf函数</p><p>将文件中的数据读出来存入指定的指针位置，例如fscanf (fp,&quot;%d&quot;, &amp;a[i]);</p><p>将数据存入文件中可以用fprintf函数，但是对于二进制文件，写成fprintf(fp, &quot;%d&quot;, a[i]);就不对，因为存入的是%d格式是十进制的，所以此时不要用fprintf，换成fwrite即可。</p><p>&nbsp;</p><p>有关二进制文件的读写参加下面一个程序：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;stdio.h&gt;&nbsp;&nbsp;
+#include&nbsp;&lt;stdlib.h&gt;&nbsp;&nbsp;
+#include&nbsp;&lt;time.h&gt;&nbsp;&nbsp;
+#define&nbsp;DATASIZE&nbsp;250000&nbsp;&nbsp;
+&nbsp;&nbsp;
+int&nbsp;main(int&nbsp;argc,&nbsp;char&nbsp;**&nbsp;argv)&nbsp;&nbsp;
+{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;const&nbsp;char&nbsp;*&nbsp;file_name&nbsp;=&nbsp;&quot;out.dat&quot;;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FILE&nbsp;*&nbsp;fp&nbsp;=&nbsp;fopen(file_name,&nbsp;&quot;wb&quot;);//必须放在其他变量的定义之前&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i,&nbsp;a,&nbsp;b[DATASIZE];&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;srand(&nbsp;time(NULL)&nbsp;);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(i=0;&nbsp;i&lt;DATASIZE;&nbsp;i++)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a=rand()%100;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fwrite(&amp;a,&nbsp;sizeof(int),&nbsp;1,&nbsp;fp);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fclose(fp);&nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fp&nbsp;=&nbsp;fopen(file_name,&nbsp;&quot;rb&quot;);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fread(&amp;b,&nbsp;sizeof(int),&nbsp;DATASIZE,&nbsp;fp);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for(i=0;&nbsp;i&lt;200;&nbsp;i++)&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%d&nbsp;&nbsp;&quot;,&nbsp;b[i]);&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;\n&quot;);&nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;&nbsp;&nbsp;
+}</pre><p>程序说明：随机生成25万个0~100的整数以二进制的形式存入文件out.dat中，然后再读取文件out.dat中的整数挨个赋值给数组b[DATASIZE]，最后打印出该数组的前200个数。</p><p>&nbsp;</p><p>&nbsp;3. 递归栈空间溢出</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 我们知道快速排序通常是用递归算法写的，虽然说号称是速度最快的（其实也不是最快的），但是我排20万个整数它就受不鸟了（貌似系统给栈空间分配的大小为2M或者8M，快速排序最坏情况下，递归深度为n，所需要的栈空间为O(n)，一个整数4位32个字节，100W*32那就有30多M了，栈空间必定溢出），排18万个整数的时候近似时间复杂度约为1.4亿，运行了0.497秒，而VC6自带库函数里面的那个qsort()要慢很多，用了1.942秒，堆排序只用了0.032秒（太给力了！），还有就是哥那个优化过的希尔排序，用了8.518秒，复杂度约为16亿，伤不起啊！</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 我把快速排序稍微改进一下，用首中尾三者取中作为基准的办法，速度肯定是提高了不少，但是可排序的元素个数锐减到了3万个，4万个元素都可能导致递归栈空间溢出，5万个元素想都别想了，所以呀这个快速排序的极限是排3万个元素。而当我用3万个元素去测试的时候，快排用了0.169秒，堆排序用了0.006秒，快慢一眼明了。</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 当待排序的数据量比较大时，你就别想用什么冒泡排序、直接选择排序、直接插入排序等，效率太低了！最好是用堆排序。</p><p>&nbsp;</p><p>补充一点：</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 递归算法的实现过程：是通过栈实现的，例如下面一个求阶乘的算法：</p><p>int Fac(n)</p><p>int n;</p><p>{</p><p>&nbsp; if( n==1 ) return 1;</p><p>&nbsp; else return n*Fac(n-1);</p><p>}</p><p>&nbsp; &nbsp; &nbsp; &nbsp;系统最初是不回去计算的，它会在内存中开辟一个栈空间，假如说n=3，那么首先3*Fac(2)入栈，占据栈底的位置，然后2*Fac(1)入栈，此时Fac(1)就不再递归了，所以没有元素再入栈了，Fac(1)返回值1，然后2*Fac(1)、3*Fac(2)依次出栈，最终出栈的是数字6，这就是3的阶乘。</p><p>&nbsp; &nbsp; &nbsp; &nbsp;由此可见，递归的函数越复杂，数据量越大，变量越多，那么占用的栈空间就越大，因为栈的每一层都要保存这些，其实很多的重复的，但是依然保存了，只有到该层出栈的时候才释放。编译器就是这样的，没有太多的优化，内存开销相当的大，所以——少用递归，慎用递归！</p><p>&nbsp;</p><p>4.变量的撤销</p><p>例如，在for语句里面定义的局部变量，在for执行完后，这个变量其实是还没有撤销的，只有等到下一个括号之后才撤销，比如下面的C++程序就能输出6：</p><p>int main()</p><p>{</p><p>&nbsp;for(int i=1; i&lt;6; i++)</p><p>&nbsp;{}</p><p>&nbsp;cout&lt;&lt;i&lt;&lt;endl;</p><p>&nbsp; &nbsp; return 0 ;</p><p>}</p><p>还比如，调用函数时，函数的局部变量，在函数调用结束后，也不一定就能立即撤销。很奇怪吧？请看：</p><pre class="brush:cpp;toolbar:false">#include&nbsp;&lt;stdlib.h&gt;
+int&nbsp;*zollty()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;p[]={2,8};
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;p;
+}
+&nbsp;
+int&nbsp;main()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;*str=NULL;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;str=zollty();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%d&nbsp;&nbsp;%d\n&quot;,str[0],str[1]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf(&quot;%d&nbsp;&nbsp;%d\n&quot;,str[0],str[1]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+}</pre><p>猜猜运行结果是什么？第一个printf居然输出了数组p的值。而如果把数组类型和函数类型改成char，那就得不到局部变量的值了。</p><p>参见我的另一篇文章：《函数调用与变量生存期》。</p><p>&nbsp;</p><p>end</p><p><br/></p>
