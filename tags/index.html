@@ -23,7 +23,6 @@ layout: base
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
 {% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
   <a href="#{{ this_word | cgi_escape | remove: "%" }}" title="{{ this_word }}" rel="{{ site.tags[this_word].size }}">{{ this_word }} <sup>
-
 {% capture mmm %}
   {% for tagPost in site.tags %}
     {% assign tagArr = tagPost | first | split:',' | sort %}
@@ -34,30 +33,18 @@ layout: base
   {% endfor %}
 {% endcapture %}
 {% assign sss = mmm | strip | remove: ' ' | strip_newlines %}
-{{ sss | size }}
-
-  </sup></a>&nbsp;&nbsp;
+{{ sss | size }}</sup></a>&nbsp;&nbsp;
 {% endunless %}{% endfor %}
 </div>
 </div>
 <div class="my-tag-wr">
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
-	{% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
-	<h4 id="{{ this_word | cgi_escape | remove: "%" }}">{{ this_word }}</h4>
-	<ul>
-
-    {% for tagPost in site.tags %}
-      {% assign kkey = tagPost | first %}
-      {% assign tagArr = kkey | split:',' | sort %}
-      {% if tagArr contains this_word %}
-
-        {% for post in site.tags[kkey] %}{% if post.title != null %}
-	<li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
-	    {% endif %}{% endfor %}
-
-      {% endif %}
-    {% endfor %}
-
+    {% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
+    <h4 id="{{ this_word | cgi_escape | remove: "%" }}">{{ this_word }}</h4>
+    <ul>
+{% for tagPost in site.tags %}{% assign kkey = tagPost | first %}{% assign tagArr = kkey | split:',' | sort %}{% if tagArr contains this_word %}
+{% for post in site.tags[kkey] %}{% if post.title != null %}<li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
+{% endif %}{% endfor %}{% endif %}{% endfor %}
     </ul>
 {% endunless %}{% endfor %}
 </div>
