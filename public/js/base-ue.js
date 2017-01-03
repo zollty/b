@@ -1,16 +1,3 @@
-$.blockUI.defaults.message = '<img src="http://ires.qiniudn.com/my/img/loading-32_32.gif" />';
-$.blockUI.defaults.css = {
-        padding:        0,
-        margin:         0,
-        width:          '32px',
-        top:            '30%',
-        left:           '45%',
-        textAlign:      'center',
-        color:          '#000',
-        border:         '0',
-        backgroundColor:'#fff',
-        cursor:         'wait'
-    };
 $(document).ready(function() {
 
   /* 控制左侧 aside 的动作 */
@@ -144,6 +131,19 @@ function loadTagCloud() {
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 }
 
+function loadBlockUI() {
+    if(document.getElementById('blockuijs')) {
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/jquery.blockUI.spe.js";//"http://ires.qiniudn.com/lib/js/jquery.tagcloud.min.js";
+    ds.charset = 'UTF-8';
+    ds.id = 'blockuijs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
 function loadUE() {
     if(document.getElementById('uepjs') && $("#inner-cont").length > 0) {
         uParse('#content',{
@@ -195,8 +195,9 @@ function contentEffects(init){
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
   if(init) {
-      loadTagCloud();
       loadUE();
+      loadTagCloud();
+      loadBlockUI();
   }
   addDuoShuo();
 }
