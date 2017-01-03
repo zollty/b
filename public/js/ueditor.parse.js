@@ -1032,3 +1032,10 @@ UE.parse.register('vedio',function(utils){
 });
 
 })();
+
+if($("#inner-cont").length > 0) {
+    uParse('#content',{
+        rootPath : '/b/public/',
+        liiconpath: '/b/public/themes/ueditor-list/'
+    });
+}

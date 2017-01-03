@@ -144,6 +144,23 @@ function loadTagCloud() {
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 }
 
+function loadUE() {
+    if(document.getElementById('uepjs') && $("#inner-cont").length > 0) {
+        uParse('#content',{
+	    rootPath : '/b/public/',
+	    liiconpath: '/b/public/themes/ueditor-list/'
+        });
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/ueditor.parse.js";//"http://ires.qiniudn.com/my/js/ueditor.parse.min.js";
+    ds.charset = 'UTF-8';
+    ds.id = 'uepjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
 function contentEffects(init){
   // 动态进入有Disqus的页面
   $('body').on('click', '.show-commend', showDisqus);
@@ -170,16 +187,16 @@ function contentEffects(init){
   //  $("#ueditor_background").remove();
   //}
 
-  uParse('#content',{
-	rootPath : '/b/public/',
-	liiconpath: '/b/public/themes/ueditor-list/'
-  });
+  if($("#inner-cont").length > 0) {
+    if(!init) loadUE();
+  }
   
   // 为图片添加bootstrap的样式……（其实没什么用）
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
   if(init) {
       loadTagCloud();
+      loadUE();
   }
   addDuoShuo();
 }
