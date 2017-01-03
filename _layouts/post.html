@@ -2,10 +2,10 @@
 layout: base
 ---
 <div class="row">
-  <div class="aside3-title">
+  <div class="at-wrapper">
     {% if page.catalog == true %}<br>{% endif %}
-    <div style="font-size:22px;padding: 10px 0;">{{ page.title }}</div>
-    <div style="padding-bottom: 10px;">{{ page.date | date:"%Y年%m月%d日" }}</div>
+    <div class="aside3-title">{{ page.title }}</div>
+    <div class="aside3-t-date">{{ page.date | date:"%Y年%m月%d日" }}</div>
   </div>
   <div class="col-md-12">
     <div id="content">
@@ -15,8 +15,8 @@ layout: base
     </div>
     <hr>
 	
-	{% include catetags.html %}
-	{% include related-posts.html %}
+    {% include catetags.html %}
+    {% include related-posts.html %}
 {% if site.comments.show == true and page.comments != false %}
     {% include disqus.html %}
     {% include duoshuo.html %}
