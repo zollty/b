@@ -25,16 +25,19 @@ $(document).ready(function() {
 	$.blockUI();
   });
   $(document).on("pjax:end", function() {
-    $('.aside3').scrollTop(0);
-	$.unblockUI();
-    contentEffects();
+      $('.aside3').scrollTop(0);
+      $.unblockUI();
+      contentEffects();
   });
   
-  $('body').on('click', '.show-commend', showDisqus);
-  
+  // 左侧tab
   $('.my-lf-tab').on('click', function() {
     $(this).addClass('active').siblings().removeClass('active');
   });
+  // 首次访问about页面
+  if( $('#about-wr').length>0 ) {
+    $('#about-tab').addClass('active').siblings().removeClass('active');
+  }
   
   contentEffects();
 });
@@ -127,42 +130,53 @@ function createCatalog() {
   }
 }
 
+function loadTagCloud() {
+    if(document.getElementById('tagcloudjs')) {
+        $.fn.tagcloud.initAllTag();
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/jquery.tagcloud.spe.js";//"http://ires.qiniudn.com/lib/js/jquery.tagcloud.min.js";
+    ds.charset = 'UTF-8';
+    ds.id = 'tagcloudjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
 function contentEffects(){
-  // change active tab
-  if( $('#about-wr').length>0 ) {
-    $('#about-tab').addClass('active').siblings().removeClass('active');
-  }
+  // 动态进入有Disqus的页面
+  $('body').on('click', '.show-commend', showDisqus);
+
+  // 动态进入标签和分类页面
   if( $('#cate-wr').length>0 ) {
     $('#cate-tab').addClass('active').siblings().removeClass('active');
+    loadTagCloud();
   }
   if( $('#my-tag-wr').length>0 ) {
     $('#tags-tab').addClass('active').siblings().removeClass('active');
+    loadTagCloud();
   }
 
   // remove the asidebar
-  $('.row-offcanvas').removeClass('active');
-  // if have catalog create it
+  // $('.row-offcanvas').removeClass('active');
+
+  // if have catalog 目录 create it
   if($("#catalog").length > 0){
     createCatalog();
   }
   
-  if($("#ueditor_background").length > 0){
-    $("#ueditor_background").remove();
-  }
+  //if($("#ueditor_background").length > 0){
+  //  $("#ueditor_background").remove();
+  //}
+
   uParse('#content',{
 	rootPath : '/b/public/',
 	liiconpath: '/b/public/themes/ueditor-list/'
   });
-	
+  
+  // 为图片添加bootstrap的样式……（其实没什么用）
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
-  
-  if( $('#my-tag-wr').length>0 ) {
-    $('#my-tag-wr a').tagcloud();
-  }
-  
-  if( $('#cate-wr').length>0 ) {
-    $('#cate-wr a').tagcloud();
-  }
   
   addDuoShuo();
 }

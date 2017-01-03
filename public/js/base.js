@@ -40,7 +40,7 @@ $(document).ready(function() {
 });
 
 function showDisqus() {
-	var ds_loaded = false;
+    var ds_loaded = false;
     window.disqus_shortname = $('.show-commend').attr('name');
     $.ajax({
       type: "GET",

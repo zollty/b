@@ -294,7 +294,9 @@ h4, .h4, h5, .h5 {
   height:45px;
   width:45px;
 }
-
+#pjax {
+  padding-bottom: 12px;
+}
 
 code, kbd, pre, samp {
   font-family: Consolas,Menlo,Monaco,"Courier New",monospace,"Heiti SC","Hiragino Sans GB",Simsun,sans-self;
