@@ -1,16 +1,3 @@
-$.blockUI.defaults.message = '<img src="http://ires.qiniudn.com/my/img/loading-32_32.gif" />';
-$.blockUI.defaults.css = {
-        padding:        0,
-        margin:         0,
-        width:          '32px',
-        top:            '30%',
-        left:           '45%',
-        textAlign:      'center',
-        color:          '#000',
-        border:         '0',
-        backgroundColor:'#fff',
-        cursor:         'wait'
-    };
 $(document).ready(function() {
 
   /* 控制左侧 aside 的动作 */
@@ -25,18 +12,21 @@ $(document).ready(function() {
 	$.blockUI();
   });
   $(document).on("pjax:end", function() {
-    $('.aside3').scrollTop(0);
-	$.unblockUI();
-    contentEffects();
+      $('.aside3').scrollTop(0);
+      $.unblockUI();
+      contentEffects();
   });
   
-  $('body').on('click', '.show-commend', showDisqus);
-  
+  // 左侧tab
   $('.my-lf-tab').on('click', function() {
     $(this).addClass('active').siblings().removeClass('active');
   });
+  // 首次访问about页面
+  if( $('#about-wr').length>0 ) {
+    $('#about-tab').addClass('active').siblings().removeClass('active');
+  }
   
-  contentEffects();
+  contentEffects(true);
 });
 
 function showDisqus() {
@@ -88,16 +78,16 @@ function nav_click() {
 }
 
 function addDuoShuo(){
-	if(document.getElementById('duosjs')) {
-		window.DUOSHUO.init();
-		return;
-	}
-	var ds = document.createElement('script');
-	ds.type = 'text/javascript';ds.async = true;
-	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-	ds.charset = 'UTF-8';
-	ds.id = 'duosjs';
-	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    if(document.getElementById('duosjs')) {
+        window.DUOSHUO.init();
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    ds.id = 'duosjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 }
 
 function catalogBtnControl(){
@@ -127,47 +117,87 @@ function createCatalog() {
   }
 }
 
-function contentEffects(){
-  // change active tab
-  if( $('#about-wr').length>0 ) {
-    $('#about-tab').addClass('active').siblings().removeClass('active');
-  }
+function loadTagCloud() {
+    if(document.getElementById('tagcloudjs')) {
+        $.fn.tagcloud.initAllTag();
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/jquery.tagcloud.spe.min.js";//"http://ires.qiniudn.com/lib/js/...";
+    ds.charset = 'UTF-8';
+    ds.id = 'tagcloudjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
+function loadBlockUI() {
+    if(document.getElementById('blockuijs')) {
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/jquery.blockUI.spe.min.js";
+    ds.charset = 'UTF-8';
+    ds.id = 'blockuijs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
+function loadUE() {
+    if(document.getElementById('uepjs') && $("#inner-cont").length > 0) {
+        uParse('#content',{
+	    rootPath : '/b/public/',
+	    liiconpath: '/b/public/themes/ueditor-list/'
+        });
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';
+    ds.async = true;
+    ds.src = "/b/public/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/...";
+    ds.charset = 'UTF-8';
+    ds.id = 'uepjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+}
+
+function contentEffects(init){
+  // 动态进入有Disqus的页面
+  $('body').on('click', '.show-commend', showDisqus);
+
+  // 动态进入标签和分类页面
   if( $('#cate-wr').length>0 ) {
     $('#cate-tab').addClass('active').siblings().removeClass('active');
+    if(!init) loadTagCloud();
   }
   if( $('#my-tag-wr').length>0 ) {
     $('#tags-tab').addClass('active').siblings().removeClass('active');
+    if(!init) loadTagCloud();
   }
 
   // remove the asidebar
-  $('.row-offcanvas').removeClass('active');
-  // if have catalog create it
+  // $('.row-offcanvas').removeClass('active');
+
+  // if have catalog 目录 create it
   if($("#catalog").length > 0){
     createCatalog();
   }
   
-  if(uParse!=undefined) {
-    if($("#ueditor_background").length > 0){
-      $("#ueditor_background").remove();
-    }
-    uParse('#content',{
-      rootPath : '/b/public/',
-      liiconpath: '/b/public/themes/ueditor-list/'
-    });
-  } else {
-    $("pre").addClass("prettyprint");
-    prettyPrint();
+  //if($("#ueditor_background").length > 0){
+  //  $("#ueditor_background").remove();
+  //}
+
+  if($("#inner-cont").length > 0) {
+    if(!init) loadUE();
   }
-	
+  
+  // 为图片添加bootstrap的样式……（其实没什么用）
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
-  if( $('#my-tag-wr').length>0 ) {
-    $('#my-tag-wr a').tagcloud();
+  if(init) {
+      loadUE();
+      loadTagCloud();
+      loadBlockUI();
   }
-  
-  if( $('#cate-wr').length>0 ) {
-    $('#cate-wr a').tagcloud();
-  }
-  
   addDuoShuo();
 }
