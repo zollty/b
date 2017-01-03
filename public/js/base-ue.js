@@ -39,7 +39,7 @@ $(document).ready(function() {
     $('#about-tab').addClass('active').siblings().removeClass('active');
   }
   
-  contentEffects();
+  contentEffects(true);
 });
 
 function showDisqus() {
@@ -91,16 +91,16 @@ function nav_click() {
 }
 
 function addDuoShuo(){
-	if(document.getElementById('duosjs')) {
-		window.DUOSHUO.init();
-		return;
-	}
-	var ds = document.createElement('script');
-	ds.type = 'text/javascript';ds.async = true;
-	ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-	ds.charset = 'UTF-8';
-	ds.id = 'duosjs';
-	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
+    if(document.getElementById('duosjs')) {
+        window.DUOSHUO.init();
+        return;
+    }
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    ds.id = 'duosjs';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 }
 
 function catalogBtnControl(){
@@ -144,18 +144,18 @@ function loadTagCloud() {
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
 }
 
-function contentEffects(){
+function contentEffects(init){
   // 动态进入有Disqus的页面
   $('body').on('click', '.show-commend', showDisqus);
 
   // 动态进入标签和分类页面
   if( $('#cate-wr').length>0 ) {
     $('#cate-tab').addClass('active').siblings().removeClass('active');
-    loadTagCloud();
+    if(!init) loadTagCloud();
   }
   if( $('#my-tag-wr').length>0 ) {
     $('#tags-tab').addClass('active').siblings().removeClass('active');
-    loadTagCloud();
+    if(!init) loadTagCloud();
   }
 
   // remove the asidebar
@@ -178,5 +178,8 @@ function contentEffects(){
   // 为图片添加bootstrap的样式……（其实没什么用）
   $('#content img').addClass('img-thumbnail').parent('p').addClass('center');
   
+  if(init) {
+      loadTagCloud();
+  }
   addDuoShuo();
 }
