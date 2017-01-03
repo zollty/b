@@ -155,7 +155,7 @@ function loadUE() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "/b/public/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/...";
+    ds.src = "http://ires.qiniudn.com/my/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/...";
     ds.charset = 'UTF-8';
     ds.id = 'uepjs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
