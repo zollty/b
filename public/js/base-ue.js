@@ -125,7 +125,7 @@ function loadTagCloud() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "/b/public/js/jquery.tagcloud.spe.min.js";//"http://ires.qiniudn.com/lib/js/jquery.tagcloud.min.js";
+    ds.src = "/b/public/js/jquery.tagcloud.spe.min.js";//"http://ires.qiniudn.com/lib/js/...";
     ds.charset = 'UTF-8';
     ds.id = 'tagcloudjs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
@@ -138,7 +138,7 @@ function loadBlockUI() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "/b/public/js/jquery.blockUI.spe.js";//"http://ires.qiniudn.com/lib/js/jquery.tagcloud.min.js";
+    ds.src = "/b/public/js/jquery.blockUI.spe.min.js";
     ds.charset = 'UTF-8';
     ds.id = 'blockuijs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
@@ -155,7 +155,7 @@ function loadUE() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "/b/public/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/ueditor.parse.min.js";
+    ds.src = "/b/public/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/...";
     ds.charset = 'UTF-8';
     ds.id = 'uepjs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
