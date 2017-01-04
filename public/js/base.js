@@ -125,7 +125,7 @@ function loadTagCloud() {
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "/b/public/js/jquery.tagcloud.spe.min.js";//"http://ires.qiniudn.com/lib/js/...";
+    ds.src = "/b/public/js/jquery.tagcloud.spe.min.js";
     ds.charset = 'UTF-8';
     ds.id = 'tagcloudjs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);
@@ -147,15 +147,15 @@ function loadBlockUI() {
 function loadUE() {
     if(document.getElementById('uepjs') && $("#inner-cont").length > 0) {
         uParse('#content',{
-	    rootPath : '/b/public/',
-	    liiconpath: '/b/public/themes/ueditor-list/'
+	    rootPath : baseurl+'/public/',
+	    liiconpath: baseurl+'/public/themes/ueditor-list/'
         });
         return;
     }
     var ds = document.createElement('script');
     ds.type = 'text/javascript';
     ds.async = true;
-    ds.src = "http://ires.qiniudn.com/my/js/ueditor.parse.min.js";//"http://ires.qiniudn.com/my/js/...";
+    ds.src = "/b/public/js/ueditor.parse.min.js";
     ds.charset = 'UTF-8';
     ds.id = 'uepjs';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ds);

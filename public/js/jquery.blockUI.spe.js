@@ -617,7 +617,7 @@
 		setup(jQuery);
 	}
 
-$.blockUI.defaults.message = '<img src="http://ires.qiniudn.com/my/img/loading-32_32.gif" />';
+$.blockUI.defaults.message = '<img src='+assets_url+'"img/loading-32_32.gif" />';
 $.blockUI.defaults.css = {
         padding:        0,
         margin:         0,

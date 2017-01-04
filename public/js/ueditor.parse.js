@@ -349,7 +349,7 @@ UE.parse.register('insertcode',function(utils){
                     href : cssurlArr[i]
                 });
             }
-            var jsurlAry = ['http://ires.qiniudn.com/lib/js/shCore.3.0.83.all.min.js'];
+            var jsurlAry = [cdn_lib_url+'js/shCore.3.0.83.all.min.js'];
             //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
             function aa(i){
                if(i<jsurlAry.length) {
@@ -1035,7 +1035,7 @@ UE.parse.register('vedio',function(utils){
 
 if($("#inner-cont").length > 0) {
     uParse('#content',{
-        rootPath : '/b/public/',
-        liiconpath: '/b/public/themes/ueditor-list/'
+        rootPath : baseurl+'/public/',
+        liiconpath: baseurl+'/public/themes/ueditor-list/'
     });
 }
