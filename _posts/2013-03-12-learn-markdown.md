@@ -6,16 +6,14 @@ tags: Markdown
 keywords: Learn Markdown
 ---
 
-<script type="text/javascript" src="{{ site.baseurl }}/public/js/tablecloth.js"></script>
-
 # 标题 Learn Markdown 标题
 Markdown 是一种方便记忆、书写的纯文本标记语言，用户可以使用这些标记符号以最小的输入代价生成极富表现力的文档
 
 Markdown 是一种方便记忆、书写的纯文本标记语言，用户可以使用这些标记符号以最小的输入代价生成极富表现力的文档
 
-{{assets_url}}
+{{site.assets_url}}
 
-{{assets_url}}
+{{site.assets_url}}
 
 ## 标题 Learn Markdown 标题
 Markdown 是一种方便记忆、书写的纯文本标记语言，用户可以使用这些标记符号以最小的输入代价生成极富表现力的文档
