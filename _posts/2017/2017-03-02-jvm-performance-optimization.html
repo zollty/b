@@ -1,0 +1,9 @@
+---
+layout: ue
+title: JVM性能调优
+category: JavaEE技术
+tags: Java,JVM,性能优化
+keywords: "JVM,性能优化,内存调优"
+---
+
+<p><br/></p><p>1、调优原则</p><p>对JVM内存的系统级的调优主要的目的是减少GC的频率和Full GC的次数，过多的GC和Full GC是会占用很多的系统资源（主要是CPU），影响系统的吞吐量。特别要关注Full GC，因为它会对整个堆进行整理，导致Full GC一般由于以下几种情况：</p><p><br/></p><p>旧生代空间不足</p><p>调优时尽量让对象在新生代GC时被回收、让对象在新生代多存活一段时间和不要创建过大的对象及数组避免直接在旧生代创建对象&nbsp;</p><p>Pemanet Generation空间不足</p><p>增大Perm Gen空间，避免太多静态对象&nbsp;</p><p>统计得到的GC后晋升到旧生代的平均大小大于旧生代剩余空间</p><p>控制好新生代和旧生代的比例&nbsp;</p><p>System.gc()被显示调用</p><p>垃圾回收不要手动触发，尽量依靠JVM自身的机制&nbsp;</p><p>调优手段主要是通过控制堆内存的各个部分的比例和GC策略来实现，下面来看看各部分比例不良设置会导致什么后果</p><p><br/></p><p>参见：</p><p><a href="http://blog.csdn.net/cutesource/article/details/5907418">http://blog.csdn.net/cutesource/article/details/5907418</a> </p><p><a href="http://blog.csdn.net/lizhitao/article/details/44677659">http://blog.csdn.net/lizhitao/article/details/44677659</a> </p><p><br/></p>
