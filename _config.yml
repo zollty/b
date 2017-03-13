@@ -1,5 +1,5 @@
-# Outputting
-permalink: /archive/:year/:month/:title.html
+# Outputting --:year/:month/
+permalink: /archive/:title.html
 paginate: 29
 paginate_path: '/index:num'
 timezone:      Asia/Shanghai
