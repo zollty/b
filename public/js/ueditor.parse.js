@@ -1,7 +1,7 @@
 /*!
  * UEditor
  * version: ueditor
- * build: Thu May 29 2014 16:47:57 GMT+0800 (中国标准时间)
+ * build: Wed Aug 10 2016 11:06:16 GMT+0800 (CST)
  */
 
 (function(){
@@ -334,59 +334,7 @@
     }
 })();
 
-UE.parse.register('insertcode',function(utils){
-    var pres = this.root.getElementsByTagName('pre');
-    if(pres.length){
-        if(typeof SyntaxHighlighter == "undefined"){
-            var cssurlArr = ['http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/styles/shCore.min.css'
-            ,'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/styles/shCoreDefault.min.css'];
-            for(var i=0; i<cssurlArr.length; i++) {
-                utils.loadFile(document,{
-                    id : "syntaxhighlighter_css"+i,
-                    tag : "link",
-                    rel : "stylesheet",
-                    type : "text/css",
-                    href : cssurlArr[i]
-                });
-            }
-            var jsurlAry = [cdn_lib_url+'js/shCore.3.0.83.all.min.js'];
-            //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
-            function aa(i){
-               if(i<jsurlAry.length) {
-               utils.loadFile(document,{
-                    id : "syntaxhighlighter_js",
-                    src : jsurlAry[i],
-                    tag : "script",
-                    type : "text/javascript",
-                    defer : "defer"
-                }, function(){
-                    aa(i+1);
-                });
-                } else {
 
-                    utils.cssRule('my-syntaxhlt','.syntaxhighlighter table td.code .line {padding: 0 4px!important;}');
-                    
-                    utils.each(pres,function(pi){
-                    if(pi && /brush/i.test(pi.className)){
-                            SyntaxHighlighter.highlight(pi);
-                        }
-                    });
-                    //SyntaxHighlighter.all();
-                }
-            }
-            aa(0);
-
-
-        }else{
-           utils.each(pres,function(pi){
-                if(pi && /brush/i.test(pi.className)){
-                    SyntaxHighlighter.highlight(pi);
-                }
-            });
-        }
-    }
-
-});
 UE.parse.register('table', function (utils) {
     var me = this,
         root = this.root,
@@ -895,7 +843,6 @@ UE.parse.register('background', function (utils) {
         styles = ci.getAttribute('data-background');
         if (styles){
             ci.parentNode.removeChild(ci);
-			break;
         }
     }
 
@@ -939,7 +886,7 @@ UE.parse.register('list',function(utils){
         customCss.push(selector +' .list-paddingleft-2{padding-left:'+ this.listDefaultPaddingLeft+'px}');
         customCss.push(selector +' .list-paddingleft-3{padding-left:'+ this.listDefaultPaddingLeft*2+'px}');
 
-        utils.cssRule('list', selector +' ol,'+selector +' ul{margin:0;padding:0;}'+selector +' li{clear:both;}'+customCss.join('\n'), document);
+        utils.cssRule('list', selector +' ol,'+selector +' ul{margin:0;padding:0;}li{clear:both;}'+customCss.join('\n'), document);
     }
     function applyStyle(nodes){
         var T = this;
@@ -1031,11 +978,69 @@ UE.parse.register('vedio',function(utils){
     }
 });
 
+UE.parse.register('insertcode',function(utils){
+    var pres = this.root.getElementsByTagName('pre');
+    if(pres.length){
+        if(typeof SyntaxHighlighter == "undefined"){
+            var shPath = 'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/';
+            var cssurlArr = [shPath+'styles/shCore.min.css', shPath+'styles/shCoreDefault.min.css'];
+            for(var i=0; i<cssurlArr.length; i++) {
+                utils.loadFile(document,{
+                    id : "syntaxhighlighter_css"+i,
+                    tag : "link",
+                    rel : "stylesheet",
+                    type : "text/css",
+                    href : cssurlArr[i]
+                });
+            }
+            var jsurlAry = [cdn_lib_url+'js/shCore.3.0.83.all.min.js'];
+            //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
+            function aa(i){
+               if(i<jsurlAry.length) {
+               utils.loadFile(document,{
+                    id : "syntaxhighlighter_js",
+                    src : jsurlAry[i],
+                    tag : "script",
+                    type : "text/javascript",
+                    defer : "defer"
+                }, function(){
+                    aa(i+1);
+                });
+                } else {
+
+                    utils.cssRule('my-syntaxhlt','.syntaxhighlighter table td.code .line {padding: 0 4px!important;}');
+                    
+                    utils.each(pres,function(pi){
+                    if(pi && /brush/i.test(pi.className)){
+                            SyntaxHighlighter.highlight(pi);
+                        }
+                    });
+                    //SyntaxHighlighter.all();
+                }
+            }
+            aa(0);
+
+
+        }else{
+           utils.each(pres,function(pi){
+                if(pi && /brush/i.test(pi.className)){
+                    SyntaxHighlighter.highlight(pi);
+                }
+            });
+        }
+    }
+
+});
+
 })();
 
-if($("#inner-cont").length > 0) {
-    uParse('#content',{
-        rootPath : baseurl+'/public/',
-        liiconpath: baseurl+'/public/themes/ueditor-list/'
-    });
+function initUE() {
+    if($("#inner-cont").length > 0) {
+        uParse('#content',{
+            rootPath : baseurl+'/public/',
+            liiconpath: baseurl+'/public/themes/ueditor-list/'
+        });
+    }   
 }
+
+initUE();
