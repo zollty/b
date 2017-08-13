@@ -978,40 +978,39 @@ UE.parse.register('vedio',function(utils){
     }
 });
 
-UE.parse.register('insertcode',function(utils){
+UE.parse.register('insertcode', function (utils) {
     var pres = this.root.getElementsByTagName('pre');
-    if(pres.length){
-        if(typeof SyntaxHighlighter == "undefined"){
+    if (pres.length) {
+        if (typeof SyntaxHighlighter == "undefined") {
             var shPath = 'http://cdn.staticfile.org/SyntaxHighlighter/3.0.83/';
-            var cssurlArr = [shPath+'styles/shCore.min.css', shPath+'styles/shCoreDefault.min.css'];
-            for(var i=0; i<cssurlArr.length; i++) {
-                utils.loadFile(document,{
-                    id : "syntaxhighlighter_css"+i,
-                    tag : "link",
-                    rel : "stylesheet",
-                    type : "text/css",
-                    href : cssurlArr[i]
+            var cssurlArr = [shPath + 'styles/shCoreDefault.min.css']; //shPath + 'styles/shCore.min.css', 
+            for (var i = 0; i < cssurlArr.length; i++) {
+                utils.loadFile(document, {
+                    id: "syntaxhighlighter_css" + i,
+                    tag: "link",
+                    rel: "stylesheet",
+                    type: "text/css",
+                    href: cssurlArr[i]
                 });
             }
-            var jsurlAry = [cdn_lib_url+'js/shCore.3.0.83.all.min.js'];
+            var jsurlAry = [cdn_lib_url + 'js/shCore.3.0.83.all.min.js'];
             //var jsurlAry = [utils.removeLastbs(this.rootPath)  + '/third-party/SyntaxHighlighter/shCore.3.0.83.all.min.js'];
-            function aa(i){
-               if(i<jsurlAry.length) {
-               utils.loadFile(document,{
-                    id : "syntaxhighlighter_js",
-                    src : jsurlAry[i],
-                    tag : "script",
-                    type : "text/javascript",
-                    defer : "defer"
-                }, function(){
-                    aa(i+1);
-                });
+            function aa(i) {
+                if (i < jsurlAry.length) {
+                    utils.loadFile(document, {
+                        id: "syntaxhighlighter_js",
+                        src: jsurlAry[i],
+                        tag: "script",
+                        type: "text/javascript",
+                        defer: "defer"
+                    }, function () {
+                        aa(i + 1);
+                    });
                 } else {
-
-                    utils.cssRule('my-syntaxhlt','.syntaxhighlighter table td.code .line {padding: 0 4px!important;}');
-                    
-                    utils.each(pres,function(pi){
-                    if(pi && /brush/i.test(pi.className)){
+                    utils.cssRule('my-syntaxhlt', '.syntaxhighlighter table td.code .line {padding: 0 4px!important;} .syntaxhighlighter.nogutter td.code .line,gutter td.code .container textarea{padding-left:4px!important} .syntaxhighlighter code,.syntaxhighlighter div,.syntaxhighlighter table,.syntaxhighlighter table caption,.syntaxhighlighter table tbody,.syntaxhighlighter table td,.syntaxhighlighter table thead,.syntaxhighlighter table tr,.syntaxhighlighter textarea{line-height:1.3em!important}');
+                    SyntaxHighlighter.defaults['gutter'] = false; // 去掉行号
+                    utils.each(pres, function (pi) {
+                        if (pi && /brush/i.test(pi.className)) {
                             SyntaxHighlighter.highlight(pi);
                         }
                     });
@@ -1021,9 +1020,9 @@ UE.parse.register('insertcode',function(utils){
             aa(0);
 
 
-        }else{
-           utils.each(pres,function(pi){
-                if(pi && /brush/i.test(pi.className)){
+        } else {
+            utils.each(pres, function (pi) {
+                if (pi && /brush/i.test(pi.className)) {
                     SyntaxHighlighter.highlight(pi);
                 }
             });
