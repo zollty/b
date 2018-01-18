@@ -15,7 +15,7 @@ function nav_click() {
         /* 显示左侧aside */
         $('.aside1')
             .addClass('visible-md visible-lg')
-            .removeClass('hidden-md hidden-lg')
+            .removeClass('hidden-md hidden-lg');
         /* 调整右侧内容 */
         $('.aside3')
             .removeClass('col-md-12 col-lg-12')
@@ -43,6 +43,7 @@ function nav_click() {
         //  .addClass('col-md-12 col-lg-12 col-md-offset-1 col-lg-offset-1');
         /* 变化按钮图标 */
         $('#nav_btn i').removeClass('fa-angle-left').addClass('fa-angle-right');
+        $('html,body').animate({scrollTop:0},500);
     }
 }
 

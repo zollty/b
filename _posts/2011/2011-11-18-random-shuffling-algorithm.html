@@ -14,29 +14,69 @@ void&nbsp;RandCard(vector&lt;int&gt;,&nbsp;int);&nbsp;&nbsp;&nbsp;&nbsp;//函数
 
 int&nbsp;main(int&nbsp;argc,&nbsp;char&nbsp;*argv[])
 {
-	vector&lt;int&gt;&nbsp;nRetCard;
-	int&nbsp;nCards=54;
-	RandCard(nRetCard,&nbsp;nCards);
-	return&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;vector&lt;int&gt;&nbsp;nRetCard;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;nCards=54;
+&nbsp;&nbsp;&nbsp;&nbsp;RandCard(nRetCard,&nbsp;nCards);
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
 }
 
 void&nbsp;RandCard(vector&lt;int&gt;&nbsp;nRetCard,&nbsp;int&nbsp;nCards)
 {
-	int&nbsp;i,&nbsp;j,&nbsp;temp;
-	for(i=0;&nbsp;i&lt;nCards;&nbsp;i++)
-	{
-		nRetCard.push_back(i+1);&nbsp;&nbsp;&nbsp;&nbsp;//顺序生成初始值
-	}
-	srand(time(NULL));
-	for(i=0,&nbsp;j=nCards;&nbsp;i&lt;nCards;&nbsp;i++,&nbsp;j--)&nbsp;&nbsp;&nbsp;&nbsp;//算法时间复杂度为O(n)
-	{
-		temp=rand()%j;&nbsp;&nbsp;&nbsp;&nbsp;//从向量中随机取一个
-		cout&lt;&lt;nRetCard[temp]&lt;&lt;&quot;&nbsp;&quot;;
-		if(&nbsp;!((i+1)%17)&nbsp;)&nbsp;cout&lt;&lt;endl;&nbsp;&nbsp;&nbsp;&nbsp;//每隔17个换行
-		nRetCard.erase(nRetCard.begin()+temp);&nbsp;&nbsp;&nbsp;&nbsp;//删除用过的元素
-	}
-}</pre><p>其思路很简单，每次从向量中随机取一个数出来，利用vevtor向量的自动调整长度，每次删除一个元素，再用新的向量长度j生成随机数：temp=rand()%j; 显然算法的时间复杂度为O(n)（不考虑vevtor向量API的情况下），即一趟for循环，不存在最坏情况。</p><p><br/></p><p>但是注意，该方法的<strong>写法虽然简单，但是调用了vevtor向量的API，所以其实效率并不是特别高，但一般情况下够用了</strong>。</p><p>&nbsp;</p><p><br/></p><p>如果是<strong>PHP语言</strong>，那么它<strong>自带了一个随机洗牌的函数，即shuffle()</strong>，它的作用是随机地对数组元素重新排序。其形式为：</p><p>void shuffle(array input_array)</p><p>考虑一个数组，其中包含扑克牌的值：</p><p>$cards = array(&quot;jh&quot;,&quot;js&quot;,&quot;jd&quot;,&quot;jc&quot;,&quot;qh&quot;,&quot;qs&quot;,&quot;qd&quot;,&quot;qc&quot;,&quot;kh&quot;,&quot;ks&quot;,&quot;kd&quot;,&quot;kc&quot;,&quot;ah&quot;,&quot;as&quot;,&quot;ad&quot;,&quot;ac&quot;);</p><p><br/></p><p>$positions=shuffle($cards);</p><p><br/></p><p>print_r($positions); &nbsp; &nbsp;//输出随机排序后的结果</p><p>另外<strong>PHP中的array_rand()函数可从数组中随机出一个或多个键</strong>，其形式为：</p><p>mixed array_rand(array array [, int num_entries] )</p><p>如果忽略可选的num_entries参数，则只返回一个随机值。可以通过设置num_entries来调整返回随机值的个数。</p><p><br/></p><p>&nbsp;<strong>如果是Java语言，可以用我下面这个算法，效率是以上探讨过的方法中最高的</strong>，当然这个算法也可以用其他语言来实现，大概思路如下：</p><p>从0~size-1中产生一个随机数j，然后将a.[j]放到最末尾去（与最后一个未使用的数交换），</p><p>然后再从0~size-2中产生一个随机数k，然后将a.[k]放到倒数第二个位置（与最后一个未使用的数交换），</p><p>以此类推……最后，整个序列都被打乱了，而且数字成排列组合状态，不会有数字重复出现。</p><pre class="brush:java;toolbar:false">public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;i,&nbsp;j,&nbsp;temp;
+&nbsp;&nbsp;&nbsp;&nbsp;for(i=0;&nbsp;i&lt;nCards;&nbsp;i++)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nRetCard.push_back(i+1);&nbsp;&nbsp;//顺序生成初始值
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;srand(time(NULL));
+&nbsp;&nbsp;&nbsp;&nbsp;for(i=0,&nbsp;j=nCards;&nbsp;i&lt;nCards;&nbsp;i++,&nbsp;j--)&nbsp;&nbsp;//算法时间复杂度为O(n)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp=rand()%j;&nbsp;&nbsp;//从向量中随机取一个
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cout&lt;&lt;nRetCard[temp]&lt;&lt;&quot;&nbsp;&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(&nbsp;!((i+1)%17)&nbsp;)&nbsp;cout&lt;&lt;endl;&nbsp;&nbsp;//每隔17个换行
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nRetCard.erase(nRetCard.begin()+temp);&nbsp;&nbsp;//删除用过的元素
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>其思路很简单，每次从向量中随机取一个数出来，利用vevtor向量的自动调整长度，每次删除一个元素，再用新的向量长度j生成随机数：temp=rand()%j; 显然算法的时间复杂度为O(n)（不考虑vevtor向量API的情况下），即一趟for循环，不存在最坏情况。</p><p><br/></p><p>但是注意，该方法的<strong>写法虽然简单，但是调用了vevtor向量的API，所以其实效率并不是特别高，但一般情况下够用了</strong>。</p><p>&nbsp;</p><p><br/></p><p>如果是<strong>PHP语言</strong>，那么它<strong>自带了一个随机洗牌的函数，即shuffle()</strong>，它的作用是随机地对数组元素重新排序。其形式为：</p><p>void shuffle(array input_array)</p><p>考虑一个数组，其中包含扑克牌的值：</p><p>$cards = array(&quot;jh&quot;,&quot;js&quot;,&quot;jd&quot;,&quot;jc&quot;,&quot;qh&quot;,&quot;qs&quot;,&quot;qd&quot;,&quot;qc&quot;,&quot;kh&quot;,&quot;ks&quot;,&quot;kd&quot;,&quot;kc&quot;,&quot;ah&quot;,&quot;as&quot;,&quot;ad&quot;,&quot;ac&quot;);</p><p><br/></p><p>$positions=shuffle($cards);</p><p><br/></p><p>print_r($positions); &nbsp; &nbsp;//输出随机排序后的结果</p><p>另外<strong>PHP中的array_rand()函数可从数组中随机出一个或多个键</strong>，其形式为：</p><p>mixed array_rand(array array [, int num_entries] )</p><p>如果忽略可选的num_entries参数，则只返回一个随机值。可以通过设置num_entries来调整返回随机值的个数。</p><p><br/></p><p>&nbsp;<strong>如果是Java语言，可以用我下面这个算法，效率是以上探讨过的方法中最高的</strong>，当然这个算法也可以用其他语言来实现，大概思路如下：</p><p>从0~size-1中产生一个随机数j，然后将a.[j]放到最末尾去（与最后一个未使用的数交换），</p><p>然后再从0~size-2中产生一个随机数k，然后将a.[k]放到倒数第二个位置（与最后一个未使用的数交换），</p><p>以此类推……最后，整个序列都被打乱了，而且数字成排列组合状态，不会有数字重复出现。</p><pre class="brush:java;toolbar:false">/**
+&nbsp;*&nbsp;将原始数组重新随机排序（=洗牌）
+&nbsp;*&nbsp;
+&nbsp;*&nbsp;@param&nbsp;orgIntArray
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例如{&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7&nbsp;}
+&nbsp;*/
+public&nbsp;static&nbsp;void&nbsp;shuffle(int[]&nbsp;orgIntArray)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;pos,&nbsp;temp;
+&nbsp;&nbsp;&nbsp;&nbsp;Random&nbsp;rand&nbsp;=&nbsp;new&nbsp;Random();
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;r&nbsp;=&nbsp;orgIntArray.length&nbsp;-&nbsp;1;&nbsp;r&nbsp;&gt;&nbsp;0;&nbsp;r--)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0&nbsp;~&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;=&nbsp;Math.abs(rand.nextInt())&nbsp;%&nbsp;(r&nbsp;+&nbsp;1);
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[pos]已使用，与最后那个未使用的交换
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp&nbsp;=&nbsp;orgIntArray[pos];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orgIntArray[pos]&nbsp;=&nbsp;orgIntArray[r];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orgIntArray[r]&nbsp;=&nbsp;temp;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+/**
+&nbsp;*&nbsp;将ArrayList里面的元素随机排序（=洗牌）
+&nbsp;*&nbsp;
+&nbsp;*&nbsp;@param&nbsp;targetList
+&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;需要排序的&quot;ArrayList&quot;
+&nbsp;*/
+public&nbsp;static&nbsp;void&nbsp;shuffle(ArrayList&nbsp;targetList)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;Object&nbsp;temp;
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;pos;
+&nbsp;&nbsp;&nbsp;&nbsp;Random&nbsp;rand&nbsp;=&nbsp;new&nbsp;Random();
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;r&nbsp;=&nbsp;targetList.size()&nbsp;-&nbsp;1;&nbsp;r&nbsp;&gt;&nbsp;0;&nbsp;r--)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;0&nbsp;~&nbsp;r
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;=&nbsp;Math.abs(rand.nextInt())&nbsp;%&nbsp;(r&nbsp;+&nbsp;1);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[pos]已使用，与最后那个未使用的交换
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp&nbsp;=&nbsp;targetList.get(pos);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetList.set(pos,&nbsp;targetList.get(r));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetList.set(r,&nbsp;temp);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+public&nbsp;static&nbsp;void&nbsp;main(String[]&nbsp;args)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;String&gt;&nbsp;pokerCards&nbsp;=&nbsp;new&nbsp;ArrayList&lt;String&gt;(5);
 &nbsp;&nbsp;&nbsp;&nbsp;pokerCards.add(&quot;A&quot;);
 &nbsp;&nbsp;&nbsp;&nbsp;pokerCards.add(&quot;B&quot;);
@@ -44,7 +84,7 @@ void&nbsp;RandCard(vector&lt;int&gt;&nbsp;nRetCard,&nbsp;int&nbsp;nCards)
 &nbsp;&nbsp;&nbsp;&nbsp;pokerCards.add(&quot;D&quot;);
 &nbsp;&nbsp;&nbsp;&nbsp;pokerCards.add(&quot;E&quot;);
 
-&nbsp;&nbsp;&nbsp;&nbsp;zolltyRandom(pokerCards);
+&nbsp;&nbsp;&nbsp;&nbsp;shuffle(pokerCards);
 &nbsp;&nbsp;&nbsp;&nbsp;printList(pokerCards);
 
 &nbsp;&nbsp;&nbsp;&nbsp;ArrayList&lt;Exception&gt;&nbsp;excList&nbsp;=&nbsp;new&nbsp;ArrayList&lt;Exception&gt;(5);
@@ -54,89 +94,25 @@ void&nbsp;RandCard(vector&lt;int&gt;&nbsp;nRetCard,&nbsp;int&nbsp;nCards)
 &nbsp;&nbsp;&nbsp;&nbsp;excList.add(new&nbsp;Exception(&quot;D&quot;));
 &nbsp;&nbsp;&nbsp;&nbsp;excList.add(new&nbsp;Exception(&quot;E&quot;));
 
-&nbsp;&nbsp;&nbsp;&nbsp;zolltyRandom(excList);
-
+&nbsp;&nbsp;&nbsp;&nbsp;shuffle(excList);
 &nbsp;&nbsp;&nbsp;&nbsp;printList(excList);
 
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;orgIntArray[]&nbsp;=&nbsp;{&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9,&nbsp;10,&nbsp;11,&nbsp;12,&nbsp;13,&nbsp;14,
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;15,&nbsp;16,&nbsp;17,&nbsp;18,&nbsp;19,&nbsp;20,&nbsp;21&nbsp;};
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;resultArray[]&nbsp;=&nbsp;zolltyRandom(orgIntArray);
-
-&nbsp;&nbsp;&nbsp;&nbsp;printArray(resultArray);
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;orgIntArray[]&nbsp;=&nbsp;{0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7};
+&nbsp;&nbsp;&nbsp;&nbsp;shuffle(orgIntArray);
+&nbsp;&nbsp;&nbsp;&nbsp;printArray(orgIntArray);
 }
 
-/**
-&nbsp;*&nbsp;将原始数组重新随机排序（=洗牌）
-&nbsp;*&nbsp;
-&nbsp;*&nbsp;@param&nbsp;orgIntArray
-&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;例如{&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7&nbsp;}
-&nbsp;*&nbsp;@return&nbsp;排列后的数组
-&nbsp;*&nbsp;@author&nbsp;zollty
-&nbsp;*/
-public&nbsp;static&nbsp;int[]&nbsp;zolltyRandom(int[]&nbsp;orgIntArray)&nbsp;{
-
-&nbsp;&nbsp;&nbsp;&nbsp;Random&nbsp;rand&nbsp;=&nbsp;new&nbsp;Random();
-
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;pos,&nbsp;temp2;
-
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;returnValue[]&nbsp;=&nbsp;new&nbsp;int[orgIntArray.length];
-
-&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0,&nbsp;r&nbsp;=&nbsp;orgIntArray.length;&nbsp;i&nbsp;&lt;&nbsp;orgIntArray.length&nbsp;-&nbsp;1;&nbsp;i++,&nbsp;r--)&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;=&nbsp;Math.abs(rand.nextInt())&nbsp;%&nbsp;r;
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;returnValue[i]&nbsp;=&nbsp;orgIntArray[pos];
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[pos]已使用，与最后那个未使用的交换
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;temp2&nbsp;=&nbsp;orgIntArray[pos];
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orgIntArray[pos]&nbsp;=&nbsp;orgIntArray[r&nbsp;-&nbsp;1];
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;orgIntArray[r&nbsp;-&nbsp;1]&nbsp;=&nbsp;temp2;
-&nbsp;&nbsp;&nbsp;&nbsp;}
-
-&nbsp;&nbsp;&nbsp;&nbsp;returnValue[orgIntArray.length&nbsp;-&nbsp;1]&nbsp;=&nbsp;orgIntArray[0];
-
-&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;returnValue;
-}
-
-/**
-&nbsp;*&nbsp;将ArrayList里面的元素随机排序（=洗牌）
-&nbsp;*&nbsp;
-&nbsp;*&nbsp;@param&nbsp;targetList
-&nbsp;*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;需要排序的&quot;ArrayList&quot;
-&nbsp;*&nbsp;@author&nbsp;zollty
-&nbsp;*/
-@SuppressWarnings(&quot;unchecked&quot;)
-public&nbsp;static&nbsp;void&nbsp;zolltyRandom(ArrayList&nbsp;targetList)&nbsp;{
-
-&nbsp;&nbsp;&nbsp;&nbsp;Random&nbsp;rand&nbsp;=&nbsp;new&nbsp;Random();
-
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;pos;
-
-&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;size&nbsp;=&nbsp;targetList.size();
-
-&nbsp;&nbsp;&nbsp;&nbsp;targetList.add(targetList.get(0));&nbsp;//&nbsp;即targetList.get(size)&nbsp;作为temp元素
-
-&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0,&nbsp;r&nbsp;=&nbsp;size;&nbsp;i&nbsp;&lt;&nbsp;size&nbsp;-&nbsp;1;&nbsp;i++,&nbsp;r--)&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pos&nbsp;=&nbsp;Math.abs(rand.nextInt())&nbsp;%&nbsp;r;
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;[pos]已使用，与最后那个未使用的交换
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetList.set(size,&nbsp;targetList.get(pos));&nbsp;//&nbsp;将[pos]的值暂时转移到[size]上
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetList.set(pos,&nbsp;targetList.get(r&nbsp;-&nbsp;1));
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetList.set(r&nbsp;-&nbsp;1,&nbsp;targetList.get(size));
-&nbsp;&nbsp;&nbsp;&nbsp;}
-
-&nbsp;&nbsp;&nbsp;&nbsp;targetList.remove(size);&nbsp;//&nbsp;移除temp元素
-}
-
-public&nbsp;static&nbsp;void&nbsp;printArray(int[]&nbsp;arry)&nbsp;{
+public&nbsp;static&nbsp;void&nbsp;printArray(final&nbsp;int[]&nbsp;arry)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;j&nbsp;=&nbsp;0;&nbsp;j&nbsp;&lt;&nbsp;arry.length;&nbsp;j++)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.print(arry[j]);
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(j&nbsp;!=&nbsp;arry.length&nbsp;-&nbsp;1)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.print(&quot;,&quot;);
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
 &nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;System.out.println();
 }
 
-public&nbsp;static&nbsp;void&nbsp;printArray(String[]&nbsp;arry)&nbsp;{
+public&nbsp;static&nbsp;void&nbsp;printArray(final&nbsp;String[]&nbsp;arry)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(int&nbsp;j&nbsp;=&nbsp;0;&nbsp;j&nbsp;&lt;&nbsp;arry.length;&nbsp;j++)&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(j&nbsp;+&nbsp;&quot;&nbsp;=&gt;&nbsp;&quot;&nbsp;+&nbsp;arry[j]);
 &nbsp;&nbsp;&nbsp;&nbsp;}

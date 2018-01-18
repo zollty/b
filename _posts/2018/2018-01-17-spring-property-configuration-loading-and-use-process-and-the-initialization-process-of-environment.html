@@ -1,0 +1,156 @@
+---
+layout: ue
+title: Spring的Property配置加载和使用过程及Environment的初始化过程
+category: JavaEE技术
+tags: Spring
+keywords: "Spring Property Environment"
+---
+
+<p><br/></p><p><strong><span style="font-size: 16px;">对于Spring加载Property配置，有如下几个类：（按层级展示）</span></strong></p><p>PropertiesLoaderSupport</p><p>&nbsp; PropertiesFactoryBean ！！！直接配置在xml里面，参见（1）</p><p>&nbsp; PropertyResourceConfigurer （implements BeanFactoryPostProcessor）</p><p>&nbsp; &nbsp; PlaceholderConfigurerSupport</p><p>&nbsp; &nbsp; &nbsp; PropertyPlaceholderConfigurer ！！！直接配置在xml里面（2）</p><p>&nbsp; &nbsp; &nbsp; PropertySourcesPlaceholderConfigurer ！！！以标签的形式配置在xml里面</p><p>例如：</p><p>（1）</p><pre class="brush:xml;toolbar:false">&lt;bean&nbsp;id=&quot;propBean&quot;&nbsp;class=&quot;org.springframework.beans.factory.config.PropertiesFactoryBean&quot;&gt;
+&nbsp;&nbsp;&lt;property&nbsp;name=&quot;locations&quot;&nbsp;value=&quot;classpath:jdbc.properties&quot;/&gt;&nbsp;&nbsp;
+&lt;/bean&gt;</pre><p>使用方式：</p><p>@Value(&quot;#{propBean[&#39;filePath&#39;]}&quot;)或者@Value(&quot;#{propBean.filePath}&quot;)</p><p><br/></p><p>（2）</p><pre class="brush:xml;toolbar:false">&lt;bean&nbsp;class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;
+&nbsp;&nbsp;&lt;property&nbsp;name=&quot;locations&quot;&nbsp;value=&quot;classpath:jdbc.properties&quot;/&gt;&nbsp;&nbsp;
+&lt;/bean&gt;</pre><p>等价于&lt;context:property-placeholder location=&quot;classpath:jdbc.properties&quot;/&gt;</p><p>（参见PropertyPlaceholderBeanDefinitionParser）</p><p>或者</p><pre class="brush:xml;toolbar:false">&lt;bean&nbsp;class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;
+&nbsp;&nbsp;&lt;property&nbsp;name=&quot;properties&quot;&nbsp;ref=&quot;propBean&quot;&nbsp;/&gt;
+&lt;/bean&gt;</pre><p>使用方式：</p><p>@Value(&quot;${filePath}&quot;)</p><p><br/></p><p><br/></p><p><strong><span style="font-size: 16px;">下面几者的关系？</span></strong></p><p>PropertySourcesPlaceholderConfigurer</p><p>PropertySource/PropertySources</p><p>PropertyResolver</p><p>AbstractEnvironment</p><p>首先，PropertySource其实就是包装的具体配置，跟Properties差不多。</p><p>而PropertyResolver，就是用于对PropertySource进行特殊处理，比如解析holder、转换值的类型等。</p><p><br/></p><p>Spring启动时，默认会new一个StandardEnvironment，这个类里面就默认添加了两个PropertySource（SystemProperties和SystemEnvironment，分别对应System.getenv和System.getProperty）</p><p>注意，可能是为了使用方便，Environment实现了PropertyResolver接口。</p><p><br/></p><p>所以说，它们的关系实际上是，Environment启动时默认添加了一些PropertySource。</p><p>启动流程是这样的（AbstractApplicationContext）：</p><pre class="brush:java;toolbar:false">@Override
+public&nbsp;void&nbsp;refresh()&nbsp;throws&nbsp;BeansException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;prepareRefresh();
+
+&nbsp;&nbsp;&nbsp;&nbsp;ConfigurableListableBeanFactory&nbsp;beanFactory&nbsp;=&nbsp;obtainFreshBeanFactory();
+
+&nbsp;&nbsp;&nbsp;&nbsp;prepareBeanFactory(beanFactory);
+
+&nbsp;&nbsp;&nbsp;&nbsp;postProcessBeanFactory(beanFactory);
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Invoke&nbsp;factory&nbsp;processors&nbsp;registered&nbsp;as&nbsp;beans&nbsp;in&nbsp;the&nbsp;context.
+&nbsp;&nbsp;&nbsp;&nbsp;invokeBeanFactoryPostProcessors(beanFactory);
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Register&nbsp;bean&nbsp;processors&nbsp;that&nbsp;intercept&nbsp;bean&nbsp;creation.
+&nbsp;&nbsp;&nbsp;&nbsp;registerBeanPostProcessors(beanFactory);
+
+&nbsp;&nbsp;&nbsp;&nbsp;initMessageSource();
+&nbsp;&nbsp;&nbsp;&nbsp;initApplicationEventMulticaster();
+
+&nbsp;&nbsp;&nbsp;&nbsp;onRefresh();
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Check&nbsp;for&nbsp;listener&nbsp;beans&nbsp;and&nbsp;register&nbsp;them.
+&nbsp;&nbsp;&nbsp;&nbsp;registerListeners();
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Instantiate&nbsp;all&nbsp;remaining&nbsp;(non-lazy-init)&nbsp;singletons.
+&nbsp;&nbsp;&nbsp;&nbsp;finishBeanFactoryInitialization(beanFactory);
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Last&nbsp;step:&nbsp;publish&nbsp;corresponding&nbsp;event.
+&nbsp;&nbsp;&nbsp;&nbsp;finishRefresh();
+}</pre><p>可以看到，AbstractApplicationContext.refresh() &gt;&gt; prepareRefresh()</p><p>然后prepareRefresh会调用createEnvironment()和initPropertySources()</p><p>这两个方法实际上是一体的，子类可以重写，其作用就是初始化Environment，并初始化Environment中的PropertySources，以AbstractRefreshableWebApplicationContext为例，相关代码如下：</p><pre class="brush:java;toolbar:false">@Override
+protected&nbsp;ConfigurableEnvironment&nbsp;createEnvironment()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;StandardServletEnvironment();
+}
+@Override
+protected&nbsp;void&nbsp;initPropertySources()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;ConfigurableEnvironment&nbsp;env&nbsp;=&nbsp;getEnvironment();
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(env&nbsp;instanceof&nbsp;ConfigurableWebEnvironment)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((ConfigurableWebEnvironment)&nbsp;env).initPropertySources(this.servletContext,&nbsp;this.servletConfig);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>这两个方法是紧挨着执行的，如果写成下面这样，也是等价的：</p><pre class="brush:java;toolbar:false">@Override
+protected&nbsp;ConfigurableEnvironment&nbsp;createEnvironment()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;StandardServletEnvironment&nbsp;env&nbsp;=&nbsp;new&nbsp;StandardServletEnvironment();
+&nbsp;&nbsp;&nbsp;&nbsp;env.initPropertySources(this.servletContext,&nbsp;this.servletConfig);
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;env;
+}
+@Override
+protected&nbsp;void&nbsp;initPropertySources()&nbsp;{
+}</pre><p>另外，前面提到了new&nbsp;StandardEnvironment()的时候，代码如下：</p><pre class="brush:java;toolbar:false">private&nbsp;final&nbsp;ConfigurablePropertyResolver&nbsp;propertyResolver&nbsp;=
+			new&nbsp;PropertySourcesPropertyResolver(this.propertySources);
+
+public&nbsp;AbstractEnvironment()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;customizePropertySources(this.propertySources);
+}
+
+@Override
+protected&nbsp;void&nbsp;customizePropertySources(MutablePropertySources&nbsp;propertySources)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;propertySources.addLast(new&nbsp;MapPropertySource(&quot;systemProperties&quot;,&nbsp;getSystemProperties()));
+&nbsp;&nbsp;&nbsp;&nbsp;propertySources.addLast(new&nbsp;SystemEnvironmentPropertySource(&quot;systemEnvironment&quot;,&nbsp;getSystemEnvironment()));
+}</pre><p>也就是说new出来的Environment默认是包含&nbsp;System.getenv和System.getProperty 的。</p><p>同时可以看到，Environment中使用的PropertyResolver正是PropertySourcesPropertyResolver，且为private final的。</p><p><br/></p><p>好了，看到这里，其实就知道了：如果要给Spring启动初始化之前添加额外的配置，最早的地方就是拿到AbstractEnvironment.propertySources，然后添加PropertySource，举例如下：</p><p>env.getPropertySources().addLast(new MapPropertySource(&quot;myProperties&quot;, myMap));</p><p>但是，要拿到env，就需要拿到 Application，通过 app.getEnvironment()获得。</p><p><br/></p><p>能不能通过配置的方式，将自定义的配置传递给Environment呢？</p><p>接下来，就要学习&nbsp;PropertyPlaceholderConfigurer 和 PropertySourcesPlaceholderConfigurer了。</p><p><br/></p><p>首先，这两个类，名字差不多，功能也类似，前者在Spring 3.1以前是标配，自从3.1以后，就换成后者了。</p><p>我找到了这个类PropertyPlaceholderBeanDefinitionParser，代码如下，它的作用是：Parser for the {@code &lt;context:property-placeholder/&gt;} element.（这个标签是在spring-context.xsd里面定义的）</p><pre class="brush:java;toolbar:false">@Override
+protected&nbsp;Class&lt;?&gt;&nbsp;getBeanClass(Element&nbsp;element)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;As&nbsp;of&nbsp;Spring&nbsp;3.1,&nbsp;the&nbsp;default&nbsp;value&nbsp;of&nbsp;system-properties-mode&nbsp;has&nbsp;changed&nbsp;from
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&#39;FALLBACK&#39;&nbsp;to&nbsp;&#39;ENVIRONMENT&#39;.&nbsp;This&nbsp;latter&nbsp;value&nbsp;indicates&nbsp;that&nbsp;resolution&nbsp;of
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;placeholders&nbsp;against&nbsp;system&nbsp;properties&nbsp;is&nbsp;a&nbsp;function&nbsp;of&nbsp;the&nbsp;Environment&nbsp;and
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;its&nbsp;current&nbsp;set&nbsp;of&nbsp;PropertySources.
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(&quot;ENVIRONMENT&quot;.equals(element.getAttribute(&quot;system-properties-mode&quot;)))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;PropertySourcesPlaceholderConfigurer.class;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;The&nbsp;user&nbsp;has&nbsp;explicitly&nbsp;specified&nbsp;a&nbsp;value&nbsp;for&nbsp;system-properties-mode:&nbsp;revert&nbsp;to
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;PropertyPlaceholderConfigurer&nbsp;to&nbsp;ensure&nbsp;backward&nbsp;compatibility&nbsp;with&nbsp;3.0&nbsp;and&nbsp;earlier.
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;PropertyPlaceholderConfigurer.class;
+}</pre><p>根据代码注释可知，从3.1以后，&lt;context:property-placeholder/&gt;标签的system-properties-mode属性默认值改成了ENVIRONMENT，</p><p>那么默认就是 new的&nbsp;PropertySourcesPlaceholderConfigurer类，而3.1以前用的是PropertyPlaceholderConfigurer。</p><p>找到spring-context.xsd，可以看到下面一句，证实了默认值。</p><p>&lt;xsd:attribute name=&quot;system-properties-mode&quot; default=&quot;ENVIRONMENT&quot;&gt;</p><p>当然，你也可以继续使用PropertyPlaceholderConfigurer，如下：</p><pre class="brush:xml;toolbar:false">&lt;bean&nbsp;class=&quot;org.springframework.beans.factory.config.PropertyPlaceholderConfigurer&quot;&gt;
+&nbsp;&nbsp;&lt;property&nbsp;name=&quot;locations&quot;&nbsp;value=&quot;classpath:jdbc.properties&quot;/&gt;&nbsp;&nbsp;
+&lt;/bean&gt;</pre><p>真正等价于：</p><pre class="brush:xml;toolbar:false">&lt;context:property-placeholder&nbsp;location=&quot;classpath:jdbc.properties&quot;&nbsp;system-properties-mode=&quot;old&quot;&nbsp;/&gt;</pre><p><br/></p><p>下面，来看看通过PropertySourcesPlaceholderConfigurer加载的配置，是如何在Spring bean初始化时使用的。</p><p>接着看上面的refresh()执行流程，</p><p>AbstractApplicationContext.invokeBeanFactoryPostProcessors() &gt;&gt;&nbsp;</p><p>&nbsp; PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors()</p><p>在这个方法中，它会找出所有BeanFactoryPostProcessor然后执行其接口方法：void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)，代码如下</p><pre class="brush:java;toolbar:false">if&nbsp;(beanFactory&nbsp;instanceof&nbsp;BeanDefinitionRegistry)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;invokeBeanFactoryPostProcessors(registryPostProcessors,&nbsp;beanFactory);
+&nbsp;&nbsp;&nbsp;&nbsp;invokeBeanFactoryPostProcessors(regularPostProcessors,&nbsp;beanFactory);
+}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;invokeBeanFactoryPostProcessors(beanFactoryPostProcessors,&nbsp;beanFactory);
+}
+
+//&nbsp;Separate&nbsp;between&nbsp;BeanDefinitionRegistryPostProcessors&nbsp;that&nbsp;implement
+//&nbsp;PriorityOrdered,&nbsp;Ordered,&nbsp;and&nbsp;the&nbsp;rest.
+String[]&nbsp;postProcessorNames&nbsp;=&nbsp;beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class,&nbsp;true,&nbsp;false);
+...
+sortPostProcessors(beanFactory,&nbsp;priorityOrderedPostProcessors);
+invokeBeanFactoryPostProcessors(priorityOrderedPostProcessors,&nbsp;beanFactory);
+invokeBeanFactoryPostProcessors(orderedPostProcessors,&nbsp;beanFactory);
+invokeBeanFactoryPostProcessors(nonOrderedPostProcessors,&nbsp;beanFactory);</pre><p>可见，执行BeanFactoryPostProcessor的过程中，是分了顺序优先级的，beanFactoryPostProcessors优先执行，beanFactoryPostProcessors是从AbstractApplicationContext里面传过来的，可以通过AbstractApplicationContext.addBeanFactoryPostProcessor来添加。</p><p>其他的BeanFactoryPostProcessor是从&nbsp;beanFactory.getBeanNamesForType(BeanDefinitionRegistryPostProcessor.class) 而来的，这就包括了</p><p>我们的PropertySourcesPlaceholderConfigurer，但是PropertyResourceConfigurer是最低优先级的，文档上说等价于&nbsp;nonOrderedPostProcessors，所以它会最后执行。</p><p><br/></p><p>如此，关系就清楚了：Spring启动时在 refresh() 的过程中 ，在invokeBeanFactoryPostProcessors的末尾，会调用&nbsp;<span style="color: rgb(192, 0, 0);"></span><span style="color: rgb(192, 0, 0);">PropertySourcesPlaceholderConfigurer</span>.postProcessBeanFactory() 对bean进行预处理。</p><p><br/></p><p>然后我们再看 PropertySourcesPlaceholderConfigurer.postProcessBeanFactory() 的内部执行过程：</p><p>postProcessBeanFactory() &gt;&gt;&nbsp;protected processProperties( beanFactory, propertyResolver) &gt;&gt;&nbsp;</p><p>&nbsp; &nbsp;PlaceholderConfigurerSupport.doProcessProperties(&nbsp;valueResolver )</p><p>这个 最终的&nbsp;valueResolver 来源于上一级的&nbsp; propertyResolver，而propertyResolver是在&nbsp;postProcessBeanFactory()方法内部 new出来的，整个方法如下所示：</p><pre class="brush:java;toolbar:false">public&nbsp;void&nbsp;postProcessBeanFactory(ConfigurableListableBeanFactory&nbsp;beanFactory)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.propertySources&nbsp;==&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.propertySources&nbsp;=&nbsp;new&nbsp;MutablePropertySources();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.environment&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.propertySources.addLast(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;PropertySource&lt;Environment&gt;(&quot;environmentProperties&quot;,&nbsp;this.environment)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getProperty(String&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.source.getProperty(key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PropertySource&lt;?&gt;&nbsp;localPropertySource&nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;PropertiesPropertySource(&quot;localProperties&quot;,&nbsp;mergeProperties());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.localOverride)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.propertySources.addFirst(localPropertySource);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.propertySources.addLast(localPropertySource);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;processProperties(beanFactory,&nbsp;new&nbsp;PropertySourcesPropertyResolver(this.propertySources));
+&nbsp;&nbsp;&nbsp;&nbsp;this.appliedPropertySources&nbsp;=&nbsp;this.propertySources;
+}</pre><p>由此可知，new&nbsp;PropertySourcesPropertyResolver，使用的PropertySources来自于this.environment，</p><p>即PropertySourcesPlaceholderConfigurer.environment，这个environment怎么来的呢，这个最终来源应该就是AbstractApplicationContext。</p><p>所以说，这个PropertySourcesPropertyResolver实际上包含了environmentProperties和localProperties，而localProperties来源于这个方法mergeProperties()，源码如下：</p><pre class="brush:java;toolbar:false">protected&nbsp;Properties&nbsp;mergeProperties()&nbsp;throws&nbsp;IOException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;Properties&nbsp;result&nbsp;=&nbsp;new&nbsp;Properties();
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.localOverride)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadProperties(result);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.localProperties&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(Properties&nbsp;localProp&nbsp;:&nbsp;this.localProperties)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CollectionUtils.mergePropertiesIntoMap(localProp,&nbsp;result);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(!this.localOverride)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Load&nbsp;properties&nbsp;from&nbsp;file&nbsp;afterwards,&nbsp;to&nbsp;let&nbsp;those&nbsp;properties&nbsp;override.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;loadProperties(result);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;
+}</pre><p><br/></p><p>如果我们想给PropertySourcesPropertyResolver加配置，就可以重新这个mergeProperties()或者loadProperties()，但是注意，这个配置的优先级，没有Environment里面的配置的优先级高，而且Spring框架内部某些优先级高的地方只用到了Environment，不过对应用层来说，重写这个mergeProperties()应该是够用了。</p><p><br/></p><p>如果是使用的老版本的PropertyPlaceholderConfigurer，它的源代码如下：</p><pre class="brush:java;toolbar:false">@Override
+public&nbsp;void&nbsp;postProcessBeanFactory(ConfigurableListableBeanFactory&nbsp;beanFactory)&nbsp;throws&nbsp;BeansException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Properties&nbsp;mergedProps&nbsp;=&nbsp;mergeProperties();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Convert&nbsp;the&nbsp;merged&nbsp;properties,&nbsp;if&nbsp;necessary.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;convertProperties(mergedProps);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Let&nbsp;the&nbsp;subclass&nbsp;process&nbsp;the&nbsp;properties.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;processProperties(beanFactory,&nbsp;mergedProps);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;catch&nbsp;(IOException&nbsp;ex)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;BeanInitializationException(&quot;Could&nbsp;not&nbsp;load&nbsp;properties&quot;,&nbsp;ex);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>大同小异，具体不再多说。<br/></p><p><br/></p><p><br/></p><p>总结：</p><p>&nbsp; &nbsp; &nbsp;经过上面的源码分析，对于<span style="color: rgb(192, 0, 0);">Spring的Property配置加载和使用过程</span>，以及<span style="color: rgb(192, 0, 0);">Spring内置的Environment的初始化和使用过程</span>，就非常清晰了。</p><p><br/></p><p><br/></p>
