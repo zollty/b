@@ -1,0 +1,9 @@
+---
+layout: ue
+title: Spring tomcat下html url找不到
+category: JavaEE技术
+tags: Spring
+keywords: "Spring"
+---
+
+<p><br/></p><p>为什么有Controller配置的：</p><p>@RequestMapping(&quot;/sys/aaa.html&quot;)</p><p>String hosdsdsdsfdme() {</p><p>&nbsp; &nbsp; return &quot;sys/main.html&quot;;</p><p>}</p><p>但是这个地址找不到？</p><p><strong>http://localhost:8080/renren-security/sys/aaa.html</strong></p><p>补充现象：<strong>只有.html后缀会找不到。换成.png，.js，.css等都没有这个问题。</strong><br/></p><p><br/></p><p><strong>解决方法：</strong></p><p>给web.xml的Spring Dispather Servlet配置去拦截*.html</p><p>&lt;servlet-mapping&gt;</p><p>&nbsp; &lt;servlet-name&gt;<strong>dispatcher</strong>&lt;/servlet-name&gt;</p><p>&nbsp; &lt;url-pattern&gt;<strong>/</strong>&lt;/url-pattern&gt;</p><p>&nbsp; <strong>&lt;!-- 解决tomcat下面*.html被默认拦截器拦截的问题 --&gt;</strong></p><p>&nbsp; <strong>&lt;url-pattern&gt;*.html&lt;/url-pattern&gt;</strong></p><p>	&lt;/servlet-mapping&gt;</p><p><strong>原因估计是Spring的Dispather Servlet优先级较低，*.html首选被tomcat容器自带的默认Servlet拦截了。</strong></p><p><br/></p>

@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 代码分支管理规范
+category: 系统架构和设计
+tags: GIT,规范
+keywords: "git,分支管理规范"
+---
+
+<p><br/></p><p><strong>代码分支管理规范：（主要基于GIT，但SVN也可借鉴）</strong></p><p><br/></p><p>核心思想：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><span style="color: rgb(192, 0, 0);">控制代码提交权限，保证主分支和tag分支都是经过测试验证的，保证测试分支不被随意更改。</span></p></li><li><p><span style="color: rgb(192, 0, 0);">另外支持对提交的代码进行审查。</span></p></li><li><p><span style="color: rgb(192, 0, 0);">支持多分支并行开发，保证版本管理严谨、不混乱。</span></p></li></ul><p><br/></p><p>从项目仓库A（称之为测试和发布仓库）中master拷贝一个分支出来，例如 branch_1.0.0</p><p>这个仓库A，包括它的master和所有分支，只有项目负责人有写权限。</p><p><br/></p><p>从仓库A克隆出分支branch_1.0.0到仓库X（称之为开发仓库），然后在开发人员在仓库X中开发。</p><p>开发和自测完成后，向A仓库发起Pull Request，请求代码审查和合并代码。</p><p><br/></p><p>项目负责人审查代码，代码合并之后，即可提交测试。测试完一轮之后，开发在仓库X中修复BUG，</p><p>然后向仓库A发起Pull Request，请求代码审查和合并代码。如此重复。</p><p><br/></p><p>最后测试完成后，就将分支branch_1.0.0拿去上线，上线过程中如果需要修改BUG，则开发继续在</p><p>仓库X中修复BUG，然后向仓库A发起Pull Request，请求代码审查和合并代码。</p><p><br/></p><p>上线完成后，由项目负责人将分支branch_1.0.0代码合并至master，同时将分支branch_1.0.0打tag。</p><p>（此时理论上master的代码和分支branch_1.0.0是完全一致的）</p><p><br/></p><p>多分支并行开发，先后测试和上线：</p><p>假设同时有版本 branch_1.0.1 和 branch_1.0.2并行开发，</p><p>1）当 branch_1.0.1开发完、测试完、上线完之后，branch_1.0.2才准备测试。此时，只需要在合并</p><p>测试版本branch_1.0.2时将master的内容一起合并即可，合并之后在进行测试。</p><p>2）当 branch_1.0.1、branch_1.0.2几乎同时开发完时，可以合并成一个版本，然后把这个版本提交到branch_1.0.2进行测试。</p><p>3）当 branch_1.0.1开发完、测试完但是还没上线时，branch_1.0.2也开发完了准备测试，这种情况同（2）。</p><p>4）当 branch_1.0.1、branch_1.0.2开发完，但是需要同时测试时（但不建议同时测试），</p><p>那么只能一个分支先测试完上线，另一个分支则需要合并上线后的master再次测试才能上线。</p><p><br/></p>

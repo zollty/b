@@ -1,0 +1,57 @@
+---
+layout: ue
+title: Spring配置加载ContextLoaderListener和DispatcherServlet的区别和关系
+category: JavaEE技术
+tags: Spring
+keywords: "ContextLoaderListener,DispatcherServlet"
+---
+
+<p><br/></p><p>在Spring应用的web.xml里面可以配置ContextLoaderListener和DispatcherServlet：<br/></p><pre class="brush:xml;toolbar:false">&lt;context-param&gt;
+&nbsp;&nbsp;&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+&nbsp;&nbsp;&lt;param-value&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;classpath:spring-main.xml
+&nbsp;&nbsp;&lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;listener&gt;
+&nbsp;&nbsp;&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;servlet&gt;
+&nbsp;&nbsp;&lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;
+&nbsp;&nbsp;&lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+&nbsp;&nbsp;&lt;init-param&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;param-value&gt;classpath:spring-servlet.xml&lt;/param-value&gt;
+&nbsp;&nbsp;&lt;/init-param&gt;
+&nbsp;&nbsp;&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;</pre><p><br/></p><p>这种配置，Spring会加载两个ApplicationContext（应用上下文），启动关键日志如下：</p><pre class="brush:plain;toolbar:false">13:44:34.759&nbsp;[localhost-startStop-1]&nbsp;INFO&nbsp;&nbsp;org.springframework.web.context.ContextLoader:304&nbsp;-&nbsp;Root&nbsp;WebApplicationContext:&nbsp;initialization&nbsp;started
+......
+13:44:35.290&nbsp;[localhost-startStop-1]&nbsp;INFO&nbsp;&nbsp;org.springframework.web.context.ContextLoader:344&nbsp;-&nbsp;Root&nbsp;WebApplicationContext:&nbsp;initialization&nbsp;completed&nbsp;in&nbsp;531&nbsp;ms
+......
+13:44:35.327&nbsp;[localhost-startStop-1]&nbsp;INFO&nbsp;&nbsp;o.springframework.web.servlet.DispatcherServlet:489&nbsp;-&nbsp;FrameworkServlet&nbsp;&#39;dispatcher&#39;:&nbsp;initialization&nbsp;started
+......
+13:44:35.717&nbsp;[localhost-startStop-1]&nbsp;INFO&nbsp;&nbsp;o.springframework.web.servlet.DispatcherServlet:508&nbsp;-&nbsp;FrameworkServlet&nbsp;&#39;dispatcher&#39;:&nbsp;initialization&nbsp;completed&nbsp;in&nbsp;390&nbsp;ms
+......</pre><p>如果把Application打印出来，结果如下：</p><p><span style="font-size: 14px;"><span style="font-size: 14px;"></span></span></p><pre class="brush:plain;toolbar:false">org.springframework.web.context.support.XmlWebApplicationContext:
+Root&nbsp;WebApplicationContext:&nbsp;startup&nbsp;date&nbsp;[Wed&nbsp;Jan&nbsp;24&nbsp;13:59:44&nbsp;CST&nbsp;2018];&nbsp;root&nbsp;of&nbsp;context&nbsp;hierarchy
+......
+org.springframework.web.context.support.XmlWebApplicationContext:
+WebApplicationContext&nbsp;for&nbsp;namespace&nbsp;&#39;dispatcher-servlet&#39;:&nbsp;startup&nbsp;date&nbsp;[Wed&nbsp;Jan&nbsp;24&nbsp;13:59:45&nbsp;CST&nbsp;2018];&nbsp;parent:&nbsp;Root&nbsp;WebApplicationContext</pre><p>可以看到，Spring启动时，加载了两次&nbsp;XmlWebApplicationContext，Context是有继承关系的，其中第二次的Context的parent为第一次的Context，获取Context的父级Context的方法是： applicationContext.getParent();<br/></p><p><br/></p><p>像上面那样，将xml配置分成两个Context加载，会引起一些意外的问题，比如：<br/></p><p><br/></p><p>1、在spring-main.xml里面配置了 properties文件，但是在第二个Context（spring-servlet.xml）加载时，是使用不了的（比如@Value(&quot;${timeout}&quot;)）。</p><p><br/></p><p>2、在spring-main.xml里面 扫描（component-scan）了Controller类，但是在第二个Context（spring-servlet.xml）加载时，是处理不了的。</p><p><br/></p><p>原因是，每个 ApplicationContext 处理时，它会new一个新的Envirement和PropertyResolver，所以说它用不了其他ApplicationContext 的Properties。其二，它只会处理 自己生成的那些bean，别的bean，它可以使用，但是不会处理，所以说 如果之前的ApplicationContext 已经处理过Controller类了，那么它就不会再进一步处理Controller类了。所以，所有Controller类必须在spring-servlet.xml里面处理，可以再spring-main.xml里面像下面那样配置：</p><pre class="brush:xml;toolbar:false">&lt;context:component-scan&nbsp;base-package=&quot;com.zollty&quot;&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;context:exclude-filter&nbsp;type=&quot;annotation&quot;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;expression=&quot;org.springframework.stereotype.Controller&quot;&nbsp;/&gt;&nbsp;&nbsp;
+&lt;/context:component-scan&gt;</pre><p><br/></p><p><span style="font-size: 20px;"><strong>总结：</strong></span><span style="color: rgb(192, 0, 0);">将Spring配置拆分成两份ApplicationContext 配置，会带来一些意想不到的副作用，<span style="text-decoration: underline;">除非对Spring源码非常熟悉，否则不建议这么配置</span>。</span></p><p><br/></p><p>最简单的配置方法如下（web.xml）：</p><pre class="brush:xml;toolbar:false">&lt;context-param&gt;
+&nbsp;&nbsp;&lt;param-name&gt;contextConfigLocation&lt;/param-name&gt;
+&nbsp;&nbsp;&lt;param-value&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;classpath:spring-main.xml,classpath:spring-servlet.xml
+&nbsp;&nbsp;&lt;/param-value&gt;
+&lt;/context-param&gt;
+
+&lt;listener&gt;
+&nbsp;&nbsp;&lt;listener-class&gt;org.springframework.web.context.ContextLoaderListener&lt;/listener-class&gt;
+&lt;/listener&gt;
+
+&lt;servlet&gt;
+&nbsp;&nbsp;&lt;servlet-name&gt;dispatcher&lt;/servlet-name&gt;
+&nbsp;&nbsp;&lt;servlet-class&gt;org.springframework.web.servlet.DispatcherServlet&lt;/servlet-class&gt;
+&nbsp;&nbsp;&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;</pre><p>即，将所有配置集中在一个ApplicationContext内，这样就避免了一些奇怪的问题。</p><p><br/></p><p>参见另一篇文章：</p><p>《<a href="http://the-problems-Spring-ContextRefreshedEvent.html" target="_self">Spring ApplicationListener ContextRefreshedEvent 多次执行问题及源码分析</a>》</p><p><br/></p>

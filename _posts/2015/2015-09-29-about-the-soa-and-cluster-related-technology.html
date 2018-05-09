@@ -1,0 +1,26 @@
+---
+layout: ue
+title: SOA集群服务相关知识
+category: 系统架构和设计
+tags: SOA,RPC
+keywords: "SOA,RPC"
+---
+
+<p><br/></p><p><span style="font-size: 24px; "><strong>一、一些概念</strong></span></p><p><strong><span style="font-size: 20px; ">1、SOA</span></strong></p><p>SOA(Service-Oriented Architecture)，即面向服务的架构。</p><p>架构就是一套构建系统的准则。通过这套准则，我们可以<strong>把一个复杂的系统划分为一套更简单的子系统的集合</strong>，这些子系统之间应该保持相互独立，并与整个系统保持一致。而且每一个子系统还可以继续细分下去，从而构成一个复杂的企业级架构。</p><p>构建企业软件系统时，要考虑架构的可用性，性能问题，容错能力，可重用性，安全性，扩展性，可管理维护性，可靠性等各个相关方面。在基于SOA架构的系统中，具体应用程序的功能是由一些<strong>松耦合并且具有统一接口</strong>定义方式的组件（也就是services）组合构建起来的。SOA和其它企业架构的不同之处就在于SOA提供的<strong>业务灵活性</strong>，能对业务变更快速和有效地进行响应。</p><p>一个基于SOA架构的系统中的所有的程序功能都被封装在一些功能模块中，我们就是利用这些<strong>已经封装好的功能模块</strong>组装构建我们所需要的程序或者系统，而这些功能模块就是SOA架构中的不同的服务（services）。</p><p>SOA系统中的服务的构建有两点需要特别注意的地方：首先是<strong>对于服务粒度的控制</strong>，另外就是<strong>对于无状态服务的设计</strong>。</p><p>通常来说，对于将暴露在整个系统外部的服务推荐使用粗粒度的接口，而相对较细粒度的服务接口通常用于企业系统架构的内部。</p><p>SOA系统架构中的具体服务应该都是独立的，也就是说服务不应该依赖于其他服务的上下文和状态，即SOA架构中的服务应该是无状态的服务。当某一个服务需要依赖时，我们最好把它定义成具体的<strong>业务流程</strong>（BPEL）。</p><p><br/></p><p>SOA的目标就是实现灵活可变的IT系统。要达到灵活性，通过三个途径来解决：<strong>标准化封装</strong>、<strong>复用</strong>、<strong>松耦合可编排</strong>。</p><p>参见：<br/></p><p><a href="http://blog.vsharing.com/fengjicheng/A1059842.html">http://blog.vsharing.com/fengjicheng/A1059842.html</a> </p><p><br/></p><p>包括<strong>如何注册服务、如何发现服务、如何包装服务的安全性和可靠性</strong>，这些就是<strong>SOA治理</strong>。SOA治理乃是将SOA这一堆元器件，进行有效组装，形成一个“产品”的关键，否则它永远是一堆器件，而无法形成一个有机整体。</p><p><br/></p><p><strong><span style="font-size: 20px; ">2、ESB</span></strong><br/></p><p>ESB全称为Enterprise Service Bus，即企业服务总线。它是传统中间件技术与XML、Web服务等技术结合的产物。企业服务总线是指由中间件基础设施产品技术实现的、通过事件驱动和基于XML消息引擎，为SOA提供的软件架构的构造物。<strong>ESB</strong><strong>提供可靠消息传输、服务接入、协议转换、数据格式转换、基于内容的路由等功能</strong>，<strong>屏蔽了服务的物理位置，协议和数据格式</strong>。在SOA基础实现的方案上，应用的业务功能能够被<strong>发布、封装</strong>和<strong>提升</strong>（Promote）成<strong>为</strong><strong>业务服务</strong>（Business Service）；业务服务的序列可以<strong>编排成为BPM</strong><strong>的流程</strong>（BPM，即Business Process Management），而<strong>流程</strong>也可以被发布和<strong>提升为复合服务</strong>（Composited Service），业务服务还可以被外部的SOA系统再次编排和组合。ESB是实现SOA治理的重要支撑平台，是SOA解决方案的核心，从某种意义上说，如果没有ESB，就不能算作严格意义上的SOA。</p><p><br/></p><p><strong><span style="font-size: 20px; ">3、企业架构</span></strong></p><p>企业架构(Enterprise Architecture，EA)，是从多个角度对组织的构件层次描述的规划蓝图，从各个层面反映组织的愿景、战略、业务、服务、人员、技术和产品及其相互之间的关系，辅以其管控和演进的规则。</p><p>一个企业架构内容包括业务架构（Business Architecture）、应用架构（Application Architecture）、信息架构（Information Architecture）、技术架构（Technology Architecture）等。</p><p><br/></p><p><strong><span style="font-size: 20px; ">4、RPC</span></strong></p><p>RPC（Remote Procedure Call Protocol），远程过程调用协议。它是一种<strong>通过网络从远程计算机程序上请求服务</strong>，而<strong>不需要了解底层网络技术</strong>的协议。它是一项广泛<strong>用于支持分布式应用程序</strong>的技术。</p><p>RPC使用client/server模型。请求程序是client，而服务提供程序则为server。就像一般的本地过程调用一样，RPC是一个同步操作，直到远程过程结果返回请求程序才可以挂起。尽管如此，使用轻质进程或线程时，它们共享同一地址空间，是允许多个RPC并发执行的。</p><p>RPC 的应用场景实质是一种可靠的请求应答消息流，和 HTTP 类似。因此选择长连接方式的 TCP 协议会更高效，与 HTTP 不同的是在协议层面我们定义了每个消息的唯一 id，因此可以更容易的复用连接。</p><p>连接是由 client 端发起建立并维持。如果 client 和 server 之间是直连的，那么连接一般不会中断（当然物理链路故障除外）。如果 client 和 server 连接经过一些负载中转设备，有可能连接一段时间不活跃时会被这些中间设备中断。为了保持连接有必要定时为每个连接发送心跳数据以维持连接不中断。心跳消息是 RPC 框架库使用的内部消息，在前文协议头结构中也有一个专门的心跳位，就是用来标记心跳消息的，它对业务应用透明。如下所示是消息的一个概念模型：</p><pre class="brush:plain;toolbar:false">--&nbsp;消息头&nbsp;--
+magic&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;协议魔数，为解码设计
+header&nbsp;size:&nbsp;协议头长度，为扩展设计
+version&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;协议版本，为兼容设计
+st&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;消息体序列化类型
+hb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;心跳消息标记，为长连接传输层心跳设计
+ow&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;单向消息标记，
+rp&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;响应消息标记，不置位默认是请求消息
+status&nbsp;code:&nbsp;响应消息状态码
+reserved&nbsp;&nbsp;&nbsp;:&nbsp;为字节对齐保留
+message&nbsp;id&nbsp;:&nbsp;消息&nbsp;id
+body&nbsp;size&nbsp;&nbsp;:&nbsp;消息体长度
+
+--&nbsp;消息体&nbsp;--
+采用序列化编码，常见有以下格式
+xml&nbsp;&nbsp;&nbsp;:&nbsp;如&nbsp;webservie&nbsp;soap
+json&nbsp;&nbsp;:&nbsp;如&nbsp;JSON-RPC
+binary:&nbsp;如&nbsp;thrift;&nbsp;hession;&nbsp;kryo&nbsp;等</pre><p>消息体，可以是xml json binary等。<br/></p><p>client stub 所做的事情仅仅是编码消息并传输给服务方，而真正调用过程发生在服务方。server stub 从前文的结构拆解中我们细分了 RpcProcessor 和 RpcInvoker 两个组件，一个负责控制调用过程，一个负责真正调用。</p><p><br/></p><p>比较下本地调用和 RPC 调用的一些差异：</p><p>1. 本地调用一定会执行，而远程调用则不一定，调用消息可能因为网络原因并未发送到服务方。</p><p>2. 本地调用只会抛出接口声明的异常，而远程调用还会跑出 RPC 框架运行时的其他异常。</p><p>3. 本地调用和远程调用的性能可能差距很大，这取决于 RPC 固有消耗所占的比重。</p><p><br/></p><p>正是这些区别决定了使用 RPC 时需要更多考量。当调用远程接口抛出异常时，异常可能是一个业务异常，也可能是 RPC 框架抛出的运行时异常（如：网络中断等）。业务异常表明服务方已经执行了调用，可能因为某些原因导致未能正常执行，而 RPC 运行时异常则有可能服务方根本没有执行，对调用方而言的异常处理策略自然需要区分。</p><p>由于 RPC 固有的消耗相对本地调用高出几个数量级，本地调用的固有消耗是纳秒级，而 RPC 的固有消耗是在毫秒级。那么对于过于轻量的计算任务就并不合适导出远程接口由独立的进程提供服务，只有花在计算任务上时间远远高于 RPC 的固有消耗才值得导出为远程接口提供服务。</p><p><br/></p><p><br/></p><p><br/></p><p><br/></p>

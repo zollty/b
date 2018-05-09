@@ -1,0 +1,46 @@
+---
+layout: ue
+title: 使用 PowerShell 发起 HTTP REST请求
+category: 其他语言、技术和工具
+tags: PowerShell
+keywords: "PowerShell"
+---
+
+<p><br/></p><p>1、方法一，使用PowerShell&nbsp;自带的命令&nbsp;Invoke-WebRequest</p><p>例如：</p><p><span style="background-color: rgb(146, 205, 220);">Invoke-WebRequest&nbsp;http://localhost:8088/login&nbsp;-Method&nbsp;POST&nbsp;-ContentType&nbsp;&quot;application/json&quot;&nbsp;-Body&nbsp;&#39;{&quot;account&quot;:&quot;ElasticSearch&quot;,&quot;password&quot;:&quot;123456&quot;}&#39;</span></p><p>详细手册参考：</p><p><a href="https://msdn.microsoft.com/powershell/reference/5.1/microsoft.powershell.utility/Invoke-RestMethod#example-2-perform-a-post-request">https://msdn.microsoft.com/powershell/reference/5.1/microsoft.powershell.utility/Invoke-RestMethod#example-2-perform-a-post-request</a> </p><p><br/></p><p>2、方法二，编写PowerShell&nbsp;脚本</p><p>利用&nbsp;System.Net.WebRequest，脚本示例如下：</p><pre class="brush:bash;toolbar:false;">##&nbsp;文件名：http.ps1
+##&nbsp;先设置：set-ExecutionPolicy&nbsp;RemoteSigned
+##&nbsp;然后执行：.\http.ps1&nbsp;-target&nbsp;&quot;http://127.0.0.1:8088/login&quot;&nbsp;-verb&nbsp;&quot;POST&quot;&nbsp;-content&nbsp;&#39;{&quot;account&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;123456&quot;}&#39;
+[CmdletBinding()]
+Param(
+&nbsp;&nbsp;&nbsp;&nbsp;[Parameter(Mandatory=$True,Position=1)]
+&nbsp;&nbsp;&nbsp;&nbsp;[string]&nbsp;$target,
+&nbsp;&nbsp;&nbsp;&nbsp;[Parameter(Mandatory=$True,Position=2)]
+&nbsp;&nbsp;&nbsp;&nbsp;[string]&nbsp;$verb,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;[Parameter(Mandatory=$False,Position=3)]
+&nbsp;&nbsp;&nbsp;&nbsp;[string]&nbsp;$content
+)
+write-host&nbsp;&quot;Http&nbsp;Url:&nbsp;$target&quot;
+write-host&nbsp;&quot;Http&nbsp;Verb:&nbsp;$verb&quot;
+write-host&nbsp;&quot;Http&nbsp;Content:&nbsp;$content&quot;
+$webRequest&nbsp;=&nbsp;[System.Net.WebRequest]::Create($target)
+$encodedContent&nbsp;=&nbsp;[System.Text.Encoding]::UTF8.GetBytes($content)
+$webRequest.Method&nbsp;=&nbsp;$verb
+write-host&nbsp;&quot;UTF8&nbsp;Encoded&nbsp;Http&nbsp;Content:&nbsp;$content&quot;
+if($encodedContent.length&nbsp;-gt&nbsp;0)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;$webRequest.ContentType&nbsp;=&nbsp;&quot;application/json&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;$webRequest.ContentLength&nbsp;=&nbsp;$encodedContent.length
+&nbsp;&nbsp;&nbsp;&nbsp;$requestStream&nbsp;=&nbsp;$webRequest.GetRequestStream()
+&nbsp;&nbsp;&nbsp;&nbsp;$requestStream.Write($encodedContent,&nbsp;0,&nbsp;$encodedContent.length)
+&nbsp;&nbsp;&nbsp;&nbsp;$requestStream.Close()
+}
+[System.Net.WebResponse]&nbsp;$resp&nbsp;=&nbsp;$webRequest.GetResponse();
+if($resp&nbsp;-ne&nbsp;$null)&nbsp;
+{
+&nbsp;&nbsp;&nbsp;&nbsp;$rs&nbsp;=&nbsp;$resp.GetResponseStream();
+&nbsp;&nbsp;&nbsp;&nbsp;[System.IO.StreamReader]&nbsp;$sr&nbsp;=&nbsp;New-Object&nbsp;System.IO.StreamReader&nbsp;-argumentList&nbsp;$rs;
+&nbsp;&nbsp;&nbsp;&nbsp;[string]&nbsp;$results&nbsp;=&nbsp;$sr.ReadToEnd();
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;$results
+}
+else
+{
+&nbsp;&nbsp;&nbsp;&nbsp;exit&nbsp;&#39;&#39;
+}</pre><p>保存文件：http.ps1</p><p>然后运行：<span style="background-color: rgb(146, 205, 220);">.\http.ps1&nbsp;-target&nbsp;&quot;http://127.0.0.1:8088/login&quot;&nbsp;-verb&nbsp;&quot;POST&quot;&nbsp;-content&nbsp;&#39;{&quot;account&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;123456&quot;}&#39;</span></p><p>注意，在Powershell直接脚本时会出现：</p><p>无法加载文件&nbsp;******.ps1，因为在此系统中禁止执行脚本。有关详细信息，请参阅&nbsp;&quot;get-help&nbsp;about_signing&quot;。&nbsp;</p><p>解决方案如下：</p><p>命令窗口输入：<span style="background-color: rgb(146, 205, 220);">set-ExecutionPolicy&nbsp;RemoteSigned</span></p><p>参见：<a href="http://www.jb51.net/article/95022.htm" style="background-color: rgb(245, 245, 213);">http://www.jb51.net/article/95022.htm</a></p><p>详细参考微软.NET的手册：<a href="https://msdn.microsoft.com/zh-cn/library/system.net.webrequest_methods(v=vs.110).aspx">https://msdn.microsoft.com/zh-cn/library/system.net.webrequest_methods(v=vs.110).aspx</a> </p><p><br/></p><p><br/></p>

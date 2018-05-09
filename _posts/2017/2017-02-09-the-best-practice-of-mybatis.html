@@ -1,0 +1,9 @@
+---
+layout: ue
+title: mybatis最佳实践
+category: JavaEE技术
+tags: Mybatis
+keywords: "Mybatis最佳实践"
+---
+
+<p><br/></p><p>原则：</p><p>1. sql和代码分离，sql易于维护和 检查评审。</p><p>2. 高度的自动化和封装，减少开发工作量。</p><p><br/></p><p>从原则上讲：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>要避免像hibernate那样过度封装，形成很多新的语法（HSQL），</p></li><li><p>也不能像jdbc那样，SQL和代码混写，不方便检查和审核。</p></li><li><p>Mybatis的Example用法，其实不过是sql拼接的语法糖，和sql与代码混写没多少区别，故不推荐使用，</p></li><li><p>同样，类似于hibernate那样的对象操作方式，其实也是sql拼接的语法糖，不建议使用。</p></li></ul><p>我们建议的是，直接写sql，但是确保sql与代码分离，这样比较纯粹，就是直接通过sql去取数据，借助Mybatis完成数据的自动封装和自动生成基础代码罢了。</p><p><br/></p><p>另外，进一步增强mybatis的<strong>代码生成和自动封装</strong>功能：（<a href="https://gitee.com/free/Mapper" target="_blank">通用Mapper</a>是一个榜样）</p><p>目前标准mapper有11个方法，除掉前面所说的Example，是否够用，是否还能再添加一些常用的接口？这是一个改进方向。另外，标准的mapper都是独立的，没有一个统一的父类，不方便在某些动态注入mapper的场景下使用，这一点局限性很大，是一个改进方向。</p><p>还有，加入通用分页方法，PageHelper这种方法很好用，让sql只专注于业务，分页交给框架去处理。</p><p>另外，id自动生成，insert和update部分数据没设置值时自动填充(比如 updateTime createTime)。</p><p><br/></p><p>补充：列是否为null的原则</p><p>如果列不会用于查询，那么默认为null没关系，</p><p>反之，如果列有可能会用于查询，那么最好是not null 大不了为了方面在设一个默认值。</p><p><br/></p>
