@@ -1,0 +1,15 @@
+---
+layout: ue
+title: Spring ImportBeanDefinitionRegistrar的用法
+category: Spring专题
+tags: Spring
+keywords: "Spring"
+---
+
+<p><br/></p><p>以org.mybatis.spring.annotation.MapperScan为例，来说明ImportBeanDefinitionRegistrar的用法</p><p><br/></p><p>这个注解源代码如下：</p><pre class="brush:java;toolbar:false">@Target(ElementType.TYPE)
+@Import(MapperScannerRegistrar.class)
+public&nbsp;@interface&nbsp;MapperScan&nbsp;{
+&nbsp;&nbsp;String[]&nbsp;value()&nbsp;default&nbsp;{};
+&nbsp;&nbsp;String[]&nbsp;basePackages()&nbsp;default&nbsp;{};
+...
+}</pre><p><br/></p><p>注意，这个类实现了ImportBeanDefinitionRegistrar接口，这个接口的作用是：<br/></p><p><span style="color: rgb(192, 0, 0);">Register additional bean definitions when processing @Configuration classes.</span></p><p><span style="color: rgb(192, 0, 0);">Useful when operating at the bean definition level (as opposed to @Bean method/instance level) is desired or necessary.</span></p><p>就是说，它通常和@Configuration配合使用，在@Configuration之前已注册的Bean，可以由ImportBeanDefinitionRegistrar接口</p><p>来处理，这个接口提供了如下一个方法：</p><p><span style="color: rgb(192, 0, 0);">void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span></p><p>这个方法可以拿到@Import的这个class的<span style="color: rgb(192, 0, 0);">Annotation Metadata</span>，以及此时的BeanDefinitionRegistry对象，通过<span style="color: rgb(192, 0, 0);">BeanDefinitionRegistry</span></p><p>就可以拿到目前所有注册的BeanDefinition，然后可以<strong>对这些BeanDefinition进行额外的修改或增强</strong>。</p><p><br/></p>
