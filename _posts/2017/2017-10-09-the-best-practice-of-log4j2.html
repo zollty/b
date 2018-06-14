@@ -1,0 +1,80 @@
+---
+layout: ue
+title: Log4j2配置及与Logback对比
+category: Java框架和组件
+tags: log4j2
+keywords: "log4j2"
+---
+
+<p><strong style="font-size: 20px;">Log4j2 相比 Logback&nbsp;</strong><br/></p><p><br/></p><p><span style="font-size: 16px;"><strong>1、劣势：</strong></span></p><p>Log4j2用户较少，网上的资料较少，许多问题是找不到资料的</p><p><br/></p><p>Log4j2无法很好的与SpringBoot集成，而SpringBoot原生支持Logback、无缝集成</p><p><br/></p><p>Log4j2的XML配置不支持表达式语言，不支持判断</p><p><br/></p><p>Log4j2引入外部配置文件只支持xInclude，不能满足某些需求</p><p><br/></p><p>Log4j2不支持Listener，不能满足某些需求</p><p><br/></p><p><strong>2、优势：</strong></p><p>根据log4j2的官方介绍，log4j2的性能要比logback高一点点，但据我对log4j1和Logback源码的熟悉，知道logback的作者几乎是个完美主义者，性能优化也做得非常好。所以，不要盲目相信log4j2的性能测试，所谓“王婆卖瓜，自卖自夸”，真实情况是：即便log4j2性能更好，那也只是<span style="text-decoration: underline;">在特定条件下或理论层面的</span>，实际使用上，两者性能差不多。</p><p><br/></p><p><strong>3、题外话：</strong></p><p>log4j2推出时间晚，但是有严重的模仿logback的嫌疑，甚至可以说，log4j2很多设计是照抄logback的，但这种设计<span style="text-decoration: underline;">并没有得到 logback的作者以及开源社区的认可</span>，即便它是Apache官方的项目，Spring等很多项目仍然没有把它纳入主流。</p><p><br/></p><p>一、Maven配置<br/></p><p><br/></p><p>1、与SpringBoot集成</p><pre class="brush:xml;toolbar:false">&lt;!--&nbsp;====================log&nbsp;related&nbsp;--&gt;&nbsp;&nbsp;
+&lt;dependency&gt;&nbsp;&lt;!--&nbsp;exclude掉spring-boot的默认log配置&nbsp;--&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;exclusions&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;exclusion&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;spring-boot-starter-logging&lt;/artifactId&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/exclusion&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/exclusions&gt;&nbsp;
+&lt;/dependency&gt;&nbsp;&nbsp;
+&lt;dependency&gt;&nbsp;&lt;!--&nbsp;引入log4j2依赖&nbsp;--&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;spring-boot-starter-log4j2&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;!--&nbsp;===================end&nbsp;of&nbsp;log&nbsp;related&nbsp;--&gt;</pre><p><br/></p><p>二、log4j2.xml日志配置</p><p>简单配置如下：<br/></p><pre class="brush:xml;toolbar:false">&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;
+&lt;!--&nbsp;status:&nbsp;用于设置log4j2自身内部的信息输出，当设置成trace时，你会看到log4j2内部各种详细输出--&gt;
+&lt;!--&nbsp;monitorInterval：Log4j能够自动检测修改配置&nbsp;文件和重新配置本身，设置间隔秒数--&gt;
+&lt;configuration&nbsp;status=&quot;WARN&quot;&nbsp;monitorInterval=&quot;30&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Appenders&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Console&nbsp;name=&quot;Console&quot;&nbsp;target=&quot;SYSTEM_OUT&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;PatternLayout&nbsp;pattern=&quot;%d&nbsp;[%t]&nbsp;%-5p&nbsp;[%c]&nbsp;-&nbsp;%m%n&quot;&nbsp;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Console&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Appenders&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;Loggers&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;logger&nbsp;name=&quot;org.thymeleaf&quot;&nbsp;level=&quot;warn&quot;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;Root&nbsp;level=&quot;info&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;AppenderRef&nbsp;ref=&quot;Console&quot;&nbsp;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Root&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/Loggers&gt;
+&lt;/Configuration&gt;</pre><p><strong><span style="font-size: 16px;">1、PatternLayout&nbsp;配置</span></strong></p><p>示例如下：</p><pre class="brush:plain;toolbar:false;">%d{HH:mm:ss.SSS}&nbsp;[%thread]&nbsp;%-5level&nbsp;%logger:%line&nbsp;-&nbsp;%msg%n
+等价于
+%d{HH:mm:ss.SSS}&nbsp;[%t]&nbsp;%-5p&nbsp;%c:%L&nbsp;-&nbsp;%m%n
+正式环境参考配置：
+%d&nbsp;[%thread]&nbsp;%-5level&nbsp;%logger&nbsp;-&nbsp;%msg%n
+开发环境参考配置：
+%d{HH:mm:ss.SSS}&nbsp;[%thread]&nbsp;%-5level&nbsp;%C{9.1.1.9.}:%line&nbsp;-&nbsp;%msg%n
+
+常用配置如下：
+%d{yyyy-MM-dd&nbsp;HH:mm:ss,&nbsp;SSS}&nbsp;:&nbsp;日志生产时间,输出到毫秒的时间
+%-5level&nbsp;:&nbsp;输出日志级别，-5表示左对齐并且固定输出5个字符，如果不足在右边补0
+%c&nbsp;:&nbsp;logger的名称(%logger)
+%t&nbsp;:&nbsp;输出当前线程名称
+%p&nbsp;:&nbsp;日志输出格式
+%m&nbsp;:&nbsp;日志内容，即&nbsp;logger.info(&quot;message&quot;)
+%n&nbsp;:&nbsp;换行符
+%C&nbsp;:&nbsp;Java类名(%F)
+%L&nbsp;:&nbsp;行号
+%M&nbsp;:&nbsp;方法名
+%l&nbsp;:&nbsp;输出语句所在的行数,&nbsp;包括类名、方法名、文件名、行数
+hostName&nbsp;:&nbsp;本地机器名
+hostAddress&nbsp;:&nbsp;本地ip地址
+
+其他参见配置（供参考）：
+%d&nbsp;%p&nbsp;%C{1.}&nbsp;[%t]&nbsp;%m%n
+%d&nbsp;[%t]&nbsp;%-5p&nbsp;[%c]&nbsp;-&nbsp;%m%n
+%C{1}.%M&nbsp;%m&nbsp;%ex%n
+[%date{HH:mm:ss.SSS}][%thread][%level][%class][%line]:%message%n
+%-d&nbsp;[%t:%r]&nbsp;[%F:%L]&nbsp;-&nbsp;[%p]&nbsp;%m%n
+%d&nbsp;[%t]&nbsp;%-5level&nbsp;%logger{36}&nbsp;-&nbsp;%msg%n
+%d&nbsp;[%t]&nbsp;&nbsp;%F&nbsp;%M&nbsp;%l-&nbsp;%-5level&nbsp;%logger{36}&nbsp;%msg%n
+%d&nbsp;%5p&nbsp;---&nbsp;[%t]&nbsp;%-40.40c{1.}&nbsp;:&nbsp;%m%n%xwEx
+%d&nbsp;[%t]&nbsp;%-5level&nbsp;%logger{36}&nbsp;-&nbsp;%msg%n
+%d{yyyy-MM-dd&nbsp;&#39;at&#39;&nbsp;HH:mm:ss&nbsp;z}&nbsp;%-5level&nbsp;%class{36}&nbsp;%L&nbsp;%M&nbsp;-&nbsp;%msg%xEx%n</pre><p>详细配置参见官方文档：<a href="http://logging.apache.org/log4j/2.x/manual/layouts.html">http://logging.apache.org/log4j/2.x/manual/layouts.html</a></p><p><br/></p><p><strong><span style="font-size: 16px;">2、Appenders配置</span></strong></p><p>详见官方文档：</p><p><a href="http://logging.apache.org/log4j/2.x/manual/appenders.html">http://logging.apache.org/log4j/2.x/manual/appenders.html</a></p><p><br/></p><p><span style="font-weight: 700;"><span style="font-size: 16px;">3、Filter配置</span></span></p><p><strong>3.1 自定义Filter</strong></p><p>编写一个自定义Filter，可以参考 org.apache.logging.log4j.core.filter.ThresholdFilter</p><p>例如&nbsp;AppThresholdFilter，主要重写了下面一段，定义了一个&nbsp;prefix&nbsp;属性：<br/></p><pre class="brush:java;toolbar:false">@PluginFactory
+public&nbsp;static&nbsp;AppThresholdFilter&nbsp;createFilter(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@PluginAttribute(&quot;level&quot;)&nbsp;final&nbsp;Level&nbsp;level,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@PluginAttribute(&quot;prefix&quot;)&nbsp;final&nbsp;String&nbsp;prefix)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;final&nbsp;Level&nbsp;actualLevel&nbsp;=&nbsp;level&nbsp;==&nbsp;null&nbsp;?&nbsp;Level.ERROR&nbsp;:&nbsp;level;
+&nbsp;&nbsp;&nbsp;&nbsp;final&nbsp;Result&nbsp;onMatch&nbsp;=&nbsp;Result.NEUTRAL;
+&nbsp;&nbsp;&nbsp;&nbsp;final&nbsp;Result&nbsp;onMismatch&nbsp;=&nbsp;Result.DENY;
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;AppThresholdFilter(actualLevel,&nbsp;onMatch,&nbsp;onMismatch,&nbsp;prefix);
+}</pre><p>然后在log4j2.xml的根节点配置自定义Filter的包路径，例如：</p><p>&lt;<strong>Configuration </strong>status=&quot;info&quot; <strong>packages=&quot;com.zollty&quot;</strong>&gt;</p><p>然后就可以使用了，使用方法示例如下：</p><p>&lt;<strong>AppThresholdFilter</strong> level=&quot;INFO&quot; <strong>prefix</strong>=&quot;com.zollty&quot; /&gt;</p><p><br/></p><p>在比较深入的使用过程中，有两点明显的感受：</p><p>1、log4j2灵活性不够，体现在设计思路上，没logback那么贴合实践。</p><p>2、log4j2使用不够广泛，资料不多，深度使用的话，会遇到很多问题网上搜不到答案。</p><p><br/></p><p>个人结论：&nbsp;注重灵活可扩展性和成熟稳定就采用Logback，简单使用又注重性能可以使用Log4j 2尝鲜。</p><p><br/></p>

@@ -1,0 +1,17 @@
+---
+layout: ue
+title: Maven Archetype笔记
+category: 技术/开发工具
+tags: Maven
+keywords: "Maven,Archetype"
+---
+
+<p><br/></p><p><strong><span style="font-size: 18px;">1、使用Archetype生成工程代码</span></strong></p><p><br/></p><p>主要命令：mvn archetype:generate</p><p><br/></p><p>示例：mvn archetype:generate -DarchetypeCatalog=local</p><p><br/></p><p>archetypeCatalog参数，用来指定maven-archetype-plugin读取archetype-catalog.xml文件的位置，</p><p>位置有以下几种类型：</p><p>internal——maven-archetype-plugin内置的</p><p>local——本地的，位置为~/.m2/archetype-catalog.xml</p><p>remote——指向Maven远程仓库的Catalog</p><p>远程仓库Catalog示例：</p><p>http://192.2.10.22:8081/nexus/content/groups/public/archetype-catalog.xml</p><p>http://192.2.10.22:8081/nexus/service/local/repositories/snapshots/content/archetype-catalog.xml（只获取snapshots的）</p><p><br/></p><p><strong><span style="font-size: 18px;">2、创建自己的Archetype模板</span></strong></p><p>主要命令为：archetype:create-from-project</p><p>注意，创建之后，Archetype工程在本地，需要 mvn install 到本地仓库，或者 mvn deploy 到远程仓库才能使用。</p><p>bat脚本示例如下：</p><pre class="brush:bash;toolbar:false">echo&nbsp;&quot;====&nbsp;starting&nbsp;to&nbsp;create&nbsp;archetype&nbsp;====&quot;
+
+call&nbsp;mvn&nbsp;clean&nbsp;archetype:create-from-project&nbsp;-Darchetype.properties=./archetype.properties
+
+cd&nbsp;target/generated-sources/archetype
+echo&nbsp;&quot;====&nbsp;starting&nbsp;to&nbsp;deploy&nbsp;archetype&nbsp;====&quot;
+call&nbsp;mvn&nbsp;deploy
+
+cd&nbsp;../../../</pre><p><br/></p><p><strong><span style="font-size: 18px;">3、IDE使用说明</span></strong></p><p><br/></p><p>【步骤一】、为 IDE 的maven插件 添加Archetypes</p><p>首先，以Eclipse为例，</p><p>打开配置菜单 window -&gt; preferences 找到 Maven目录</p><p>找到 Archetypes 配置，里面有一个 add remote catalog</p><p><br/></p><p>输入下面地址保存：</p><p>Catalog file：</p><p>http://192.2.10.22:8081/nexus/service/local/repositories/snapshots/content/archetype-catalog.xml</p><p>Description：</p><p>my-nexus-archetype</p><p><br/></p><p><br/></p><p><span style="color: rgb(192, 0, 0);"><strong>Idea</strong></span>需要首先安装Maven Archetype Catalogs插件，操作步骤如下：</p><p>File-&gt;Settings-&gt;Plugins</p><p>安装：Maven Archetype Catalogs</p><p>而后点击：&quot;Build,Execution,Deployment&quot;-&gt;&quot;Build Tools&quot;-&gt;&quot;Maven Archetype Catalogs&quot;，右侧&quot;+&quot;，新增catalog地址即可。</p><p><br/></p><p>【步骤二】、使用Archetypes创建Maven项目</p><p>打开菜单 File -&gt; new -&gt; Maven Project 然后next</p><p>在 archetype-catalog 的界面 ，catalog选择 my-nexus-archetype</p><p>勾选上 Include snapshot archetype</p><p><br/></p>

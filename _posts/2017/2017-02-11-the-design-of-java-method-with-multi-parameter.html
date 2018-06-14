@@ -1,0 +1,71 @@
+---
+layout: ue
+title: 关于Java多参数方法的设计
+category: Java编程与JVM
+tags: Java
+keywords: "多参数,java方法"
+---
+
+<p><br/></p><p>先来看问题，</p><p>&nbsp;【问题】有些方法，内容都差不多，只是参数的个数或者类型不一样。此时，到底是写多个方法呢，还是写一个方法涵盖所有功能（根据传入的标识去执行不同的步骤）？</p><p style="white-space: normal;">举例1：</p><p style="white-space: normal;">changeCode(String orgStr, String charSet);</p><p style="white-space: normal;">changeCode(String orgStr); // 默认charSet为null</p><p style="white-space: normal;">其实方法2，就是调用的方法1，但之所以再写一个方法2，是为了方便使用，charSet参数不是必须的，可以省略（如果省略，会用策略）。</p><p style="white-space: normal;"><br/></p><p>举例2：</p><p>下面的6个方法，每个方法都有区别，要么参数个数不同，要么参数类型不同。</p><p>比如方法3和方法4，允许传入String或者byte[]类型的参数，而他们最终会调用方法1，但是方法1又最终调用的是方法2。</p><p>之所以有这种情况，是为了方便 使用方，使用方 允许传入不同类型的参数，方法内部自动进行参数转换。</p><pre class="brush:java;toolbar:false">Result&nbsp;shaWithRsa(CodeData&lt;?&gt;&nbsp;data,&nbsp;CodeData&lt;?&gt;&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;shaWithRsa(data,&nbsp;key,&nbsp;&quot;SHA256WithRSA&quot;);
+}
+
+Result&nbsp;shaWithRsa(CodeData&lt;?&gt;&nbsp;data,&nbsp;CodeData&lt;?&gt;&nbsp;key,&nbsp;String&nbsp;algorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;省略
+}
+
+Result&nbsp;shaWithRsa(String&nbsp;data,&nbsp;CodeData&lt;?&gt;&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;shaWithRsa(new&nbsp;Utf8Data(data),&nbsp;key);
+}
+Result&nbsp;shaWithRsa(byte[]&nbsp;data,&nbsp;CodeData&lt;?&gt;&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;shaWithRsa(new&nbsp;PlainData(data),&nbsp;key);
+}
+Result&nbsp;shaWithRsa(String&nbsp;data,&nbsp;byte[]&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;shaWithRsa(new&nbsp;Utf8Data(data),&nbsp;new&nbsp;PlainData(key));
+}
+Result&nbsp;shaWithRsa(byte[]&nbsp;data,&nbsp;String&nbsp;key)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;shaWithRsa(new&nbsp;PlainData(data),&nbsp;new&nbsp;Utf8Data(key));
+}</pre><p><br/></p><p>想做一个优秀的API （接口或者工具方法）的设计，必须要严谨，因为一旦公布大家使用，后期很难再去改API了。<br/></p><p><br/></p><p>所以，本文专门来讨论这个问题，<span style="font-size: 16px; color: rgb(192, 0, 0);">多参数的接口，该如何设计</span>？</p><p><br/></p><p><span style="font-size: 18px;">两种不同的观念</span><br/></p><p>A、写多个方法，每个方法参数不同</p><p>优点：</p><p>&nbsp; &nbsp; 每个方法参数清晰，见名知义，使用方便，调用也简单。</p><p>&nbsp; &nbsp; 每个方法内部的处理逻辑清晰，很符合面向对象的多态思维。</p><p>缺点：</p><p>&nbsp; &nbsp; 多个方法，有很多代码是冗余的，而且修改起来很麻烦。</p><p>&nbsp; &nbsp; 方法太多，虽然各有各的用处，但是容易让调用者眼花缭乱。</p><p><br/></p><p>B、写一个方法，涵盖所有参数</p><p>优点：</p><p>&nbsp; &nbsp; 只需要编写和维护一套代码；</p><p>&nbsp; &nbsp; 接口个数少，不会给用户造成选择困扰。</p><p>缺点：</p><p>&nbsp; &nbsp; 调用时需要明确指定所有参数，即使有些参数不需要，也要传null代替。</p><p>&nbsp; &nbsp; 使用时不够清晰，对于需要传哪些参数、需要传什么类型的参数，都有疑惑。</p><p>&nbsp; &nbsp; 方法内部要处理多种情况，逻辑要稍微复杂，性能稍微低一点（可以忽略）。</p><p>&nbsp; &nbsp;&nbsp;</p><p>&nbsp; 按照这个方案，前面的案例1，只保留下面一个方法：</p><p>changeCode(String orgStr, String charSet);</p><p>&nbsp; 案例2，只保留：</p><p>Result shaWithRsa(CodeData&lt;?&gt; data, CodeData&lt;?&gt; key, String algorithm);</p><p>&nbsp; 很明显，方法个数变少了，但是使用难度也增加了。</p><p><br/></p><p><span style="font-size: 16px;">如上所述，<span style="font-size: 16px; color: rgb(192, 0, 0);">其实二者各有优劣，我都纠结了好几年</span>，<span style="font-size: 16px;">但是</span><span style="font-size: 16px; color: rgb(192, 0, 0);">最近，我找到了一个完美的结合点，方法如下：</span></span></p><p><br/></p><p><strong><span style="font-size: 16px;">1、</span></strong><span style="font-size: 16px;">对于</span><span style="font-size: 16px; color: rgb(192, 0, 0);">多参数的情况，且<span style="color: rgb(192, 0, 0); font-size: 16px;">（参数个数有3种以上不同组合的情况）</span></span><span style="font-size: 16px;">，我建议使用上面的方案B，因为：</span></p><p><span style="font-size: 16px;">对于调用者而言，只有一个方法供选择，那么他必须显式的指定所有参数，但对调用者而言，使用是透明的。哪些需要，哪些不需要，调用者可以自行决定，不需要的，传入null即可。</span></p><p>对于写方法的人而言，注意到，他应该检查参数的合法性，不管使用者传入了什么参数，方法内部都应该做检查，某些参数本身就支持传入null。</p><p><br/></p><p><strong>2、</strong>对于<span style="color: rgb(192, 0, 0);">有多类型参数的情况，且参数类型有3种以上不同组合的情况</span>，我建议使用<span style="font-size: 16px;">上面的方案A，同时将参数定义为一个Bean对象。</span></p><p><span style="font-size: 16px;">如下所示：</span></p><pre class="brush:java;toolbar:false">Result&nbsp;shaWithRsa(RsaEncryptReq&nbsp;req);
+
+public&nbsp;class&nbsp;RsaEncryptReq&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;CodeData&lt;?&gt;&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;CodeData&lt;?&gt;&nbsp;key;
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;RsaEncryptReq(byte[]&nbsp;data,&nbsp;byte[]&nbsp;key,&nbsp;String&nbsp;algorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;new&nbsp;PlainData(data);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.key&nbsp;=&nbsp;new&nbsp;PlainData(key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.algorithm&nbsp;=&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;RsaEncryptReq(String&nbsp;data,&nbsp;CodeData&lt;?&gt;&nbsp;key,&nbsp;String&nbsp;algorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;Utf8.data(data);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.key&nbsp;=&nbsp;key;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.algorithm&nbsp;=&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;RsaEncryptReq(byte[]&nbsp;data,&nbsp;String&nbsp;key,&nbsp;String&nbsp;algorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;new&nbsp;PlainData(data);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.key&nbsp;=&nbsp;Utf8.data(key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.algorithm&nbsp;=&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;RsaEncryptReq(String&nbsp;data,&nbsp;byte[]&nbsp;key,&nbsp;String&nbsp;algorithm)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;Utf8.data(data);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.key&nbsp;=&nbsp;new&nbsp;PlainData(key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.algorithm&nbsp;=&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;CodeData&lt;?&gt;&nbsp;getData()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;CodeData&lt;?&gt;&nbsp;getkey()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;key;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;String&nbsp;getAlgorithm()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;algorithm;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>这个方案的兼具方法A和B的优点，</p><p>首先，只保留了一个方法，使得API的定义非常清晰，而且API兼容性好，定义好之后就无需更改。</p><p>其次，通过Bean的构造函数来传入不同类型的参数，非常方便扩展，也很方便使用。</p><p><br/></p><p><br/></p><p><strong>3、</strong>对于<span style="color: rgb(192, 0, 0);">参数比较少的情况（参数的组合小于等于3），并且某些参数又比较常用</span>，则可以采用A方案。</p><p><br/></p>

@@ -1,0 +1,9 @@
+---
+layout: ue
+title: VPN权限问题（ping不通，Maven连接超时）
+category: 计算机网络技术
+tags: VPN,Maven
+keywords: "VPN,Maven连接超时,ping不通"
+---
+
+<p>用了VPN上网，&nbsp;<br/></p><p>Maven报错如下：</p><p>Connection to http://10.2.10.22:8081 refused: Connection timed out: connect</p><p><br/></p><p>最终查到原因是由于，VPN做了权限限制，只允许HTTP协议，导致ping不通，Maven也连接超时。</p><p><br/></p><p>将VPN权限放开，设置为&nbsp;允许 HTTP、ICMP、UDP等协议就行了。</p><p><br/></p><p>ping不通，可能是因为 ICMP协议被限制了。</p><p><br/></p><p>ICMP是（Internet Control Message Protocol）Internet控制报文协议。它是TCP/IP协议族的一个子协议，用于在IP主机、路由器之间传递控制消息。控制消息是指网络通不通、主机是否可达、路由是否可用等网络本身的消息。这些控制消息虽然并不传输用户数据，但是对于用户数据的传递起着重要的作用。</p><p><br/></p>

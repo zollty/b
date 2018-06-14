@@ -73,7 +73,7 @@ table&nbsp;tr.firstRow&nbsp;th&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;arr.push(node.data);
 }</pre><p><br/></p><p><strong><span style="font-size: 18px;">七、与bootstrap整合</span></strong></p><p>注释掉预设的pre样式（采用bootstrap自带的样式），修改ueditor.all.js，找到insertcode，大概在13124行，注释掉：</p><pre class="brush:js;toolbar:false">//&nbsp;&nbsp;&nbsp;&nbsp;me.ready(function(){
 //&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;utils.cssRule(&#39;pre&#39;,&#39;pre{margin:.5em&nbsp;0;padding:.4em&nbsp;.6em;border-radius:8px;background:#f8f8f8;}&#39;,me.document)
-//&nbsp;&nbsp;&nbsp;&nbsp;});</pre><p>给编辑器引入boostrap的css和js，修改ueditor.all.js，搜索 &#39;<a _src="http://www.w3.org/1999/xhtml'" href="http://www.w3.org/1999/xhtml'">http://www.w3.org/1999/xhtml&#39;</a>&nbsp; 找到大概6898行的位置，加上bootstrap的css和js。修改如下：</p><pre class="brush:js;toolbar:false">(&nbsp;options.iframeCssUrl&nbsp;?&nbsp;&#39;&lt;link&nbsp;rel=\&#39;stylesheet\&#39;&nbsp;href=\&#39;http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css\&#39;&gt;&#39;&nbsp;+
+//&nbsp;&nbsp;&nbsp;&nbsp;});</pre><p>给编辑器引入boostrap的css和js，修改ueditor.all.js，搜索 &#39;<a href="http://www.w3.org/1999/xhtml'">http://www.w3.org/1999/xhtml&#39;</a>&nbsp; 找到大概6898行的位置，加上bootstrap的css和js。修改如下：</p><pre class="brush:js;toolbar:false">(&nbsp;options.iframeCssUrl&nbsp;?&nbsp;&#39;&lt;link&nbsp;rel=\&#39;stylesheet\&#39;&nbsp;href=\&#39;http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css\&#39;&gt;&#39;&nbsp;+
 &#39;&lt;link&nbsp;rel=\&#39;stylesheet\&#39;&nbsp;href=\&#39;http://cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.min.css\&#39;&gt;&#39;&nbsp;+
 &#39;&lt;link&nbsp;rel=\&#39;stylesheet\&#39;&nbsp;href=\&#39;../themes/base.css\&#39;&gt;&#39;&nbsp;+
 &#39;&lt;link&nbsp;rel=\&#39;stylesheet\&#39;&nbsp;type=\&#39;text/css\&#39;&nbsp;href=\&#39;&#39;&nbsp;+&nbsp;utils....&#39;
@@ -103,4 +103,22 @@ table&nbsp;tr.firstRow&nbsp;th&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//case&nbsp;&#39;i&#39;:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;&nbsp;&nbsp;&nbsp;node.tagName&nbsp;=&nbsp;&#39;em&#39;;
 &nbsp;&nbsp;&nbsp;&nbsp;}
-});</pre><p><br/></p>
+});</pre><p><br/></p><p><span style="font-weight: 700;">十、解决粘贴word文档图片上传问题</span></p><p><br/></p><p>现象：</p><p>&nbsp; &nbsp; chrome浏览器下，ueditor粘贴word文档，自动上传word文档中的图片报错：</p><p>Not allowed to load local resource</p><p><br/></p><p>&nbsp; &nbsp; 文档中的图片路径全部被替换成：</p><p>themes/default/images/spacer.gif</p><p>&nbsp; &nbsp; 实际路径类似于：</p><p>&lt;img width=&quot;554&quot; height=&quot;269&quot; src=&quot;file:///C:/Users/zollty/AppData/Local/Temp/msohtmlclip1/01/clip_image038.jpg&quot;/&gt;</p><p><br/></p><p>解决方法为：<br/></p><p>&nbsp; 1、避免图片路径被替换成themes/default/images/spacer.gif，</p><p>&nbsp; &nbsp; 在 ueditor.all.js 中搜索：wordimage，将如下代码注释掉：</p><pre class="brush:js;toolbar:false">inputRule&nbsp;:&nbsp;function&nbsp;(root)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;utils.each(root.getNodesByTagName(&#39;img&#39;),&nbsp;function&nbsp;(img)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;attrs&nbsp;=&nbsp;img.attrs,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;flag&nbsp;=&nbsp;parseInt(attrs.width)&nbsp;&lt;&nbsp;128&nbsp;||&nbsp;parseInt(attrs.height)&nbsp;&lt;&nbsp;43,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;opt&nbsp;=&nbsp;me.options,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src&nbsp;=&nbsp;opt.UEDITOR_HOME_URL&nbsp;+&nbsp;&#39;themes/default/images/spacer.gif&#39;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(attrs[&#39;src&#39;]&nbsp;&amp;&amp;&nbsp;/^(?:(file:\/+))/.test(attrs[&#39;src&#39;]))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img.setAttr({
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;width:attrs.width,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;height:attrs.height,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alt:attrs.alt,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;word_img:&nbsp;attrs.src,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src:src,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#39;style&#39;:&#39;background:url(&#39;&nbsp;+&nbsp;(&nbsp;flag&nbsp;?&nbsp;opt.themePath&nbsp;+&nbsp;opt.theme&nbsp;+&nbsp;&#39;/images/word.gif&#39;&nbsp;:&nbsp;opt.langPath&nbsp;+&nbsp;opt.lang&nbsp;+&nbsp;&#39;/images/localimage.png&#39;)&nbsp;+&nbsp;&#39;)&nbsp;no-repeat&nbsp;center&nbsp;center;border:1px&nbsp;solid&nbsp;#ddd&#39;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;})
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;})&nbsp;*/
+}</pre><p>&nbsp; 2、手动将图片上传到网站 image目录，然后手动全局替换 粘贴文章html格式里面的image src，</p><p>&nbsp; &nbsp; 替换前：</p><p>&lt;img width=&quot;554&quot; height=&quot;269&quot; src=&quot;file:///C:/Users/zollty/AppData/Local/Temp/msohtmlclip1/01/clip_image038.jpg&quot;/&gt;</p><p>&nbsp; &nbsp;替换后：</p><p>&lt;img width=&quot;554&quot; height=&quot;269&quot; src=&quot;{{site.assets_url}}img/apollo-portal-usage/clip_image038.jpg&quot;/&gt;</p><p><br/></p><p>如此，虽然麻烦一点，但问题很快解决。<br/><br/></p><p><span style="font-weight: 700;">十一、解决粘贴文档中html的id属性消失的问题</span></p><p><br/></p><p>&nbsp; 原因是，ueditor对粘贴的文档进行了xss过滤处理。可以配置哪些属性是白名单（不需要处理），</p><p>&nbsp; 在ueditor.config.js 里面，搜索xss，找到如下所示：</p><pre class="brush:js;toolbar:false">,whitList:&nbsp;{
+	a:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&#39;target&#39;,&nbsp;&#39;href&#39;,&nbsp;&#39;title&#39;,&nbsp;&#39;class&#39;,&nbsp;&#39;style&#39;],</pre><p>在上述whitList里面，为 a 标签，添加一个 id 属性即可。<br/></p><p><br/></p><p><br/></p><p><br/></p>

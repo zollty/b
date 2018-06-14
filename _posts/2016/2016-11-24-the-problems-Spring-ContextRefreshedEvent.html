@@ -1,0 +1,27 @@
+---
+layout: ue
+title: Spring ApplicationListener ContextRefreshedEvent 多次执行问题及源码分析
+category: Spring专题
+tags: Spring
+keywords: "Spring,ApplicationListener,ContextRefreshedEvent"
+---
+
+<p><br/></p><p>我们可能会使用到如下方法，来在Spring初始化完成后，执行某些程序：</p><pre class="brush:java;toolbar:false;">@Component
+public&nbsp;class&nbsp;SpringContextRefreshedListener&nbsp;implements&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationListener&lt;ContextRefreshedEvent&gt;&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onApplicationEvent(ContextRefreshedEvent&nbsp;event)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;ContextRefreshedListener&nbsp;execute......&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(event.toString());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(event.getTimestamp());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplicationContext&nbsp;application&nbsp;=&nbsp;event.getApplicationContext();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.....&nbsp;do&nbsp;something&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}</pre><p><br/></p><p>但是，这个方法可能会执行多次！！</p><p><br/></p><p>具体来说， 每加载完一次context，就会执行一次ContextRefreshedEvent</p><p>&nbsp;* 而且每次执行，都会再执行一次parent的ContextRefreshedEvent</p><p>&nbsp;* 也就是说，如果web.xml里面配置了两个Context，</p><p>&nbsp;* 且两个Context都配置了ContextRefreshedEvent Listener，那么ContextRefreshedEvent会执行3次！</p><p>&nbsp;* 而且更郁闷的是，后一个Context执行的两次ContextRefreshedEvent是一样的。</p><p><br/></p><p>&nbsp;具体源码分析：AbstractApplicationContext.publishEvent</p><pre class="brush:java;toolbar:false">if&nbsp;(this.parent&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.parent&nbsp;instanceof&nbsp;AbstractApplicationContext)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((AbstractApplicationContext)&nbsp;this.parent).publishEvent(event,&nbsp;eventType);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.parent.publishEvent(event);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>parent的publishEvent，跟儿子的是一样的，所以两次事件效果一模一样。</p><p><br/></p><p>网上很多人都遇到这个问题，但是解决方法都是 if (this.parent == null) {}，治标不治本。</p><p><br/></p><p>为了避免这种情况，<strong>根本的解决方法，就是&nbsp;&nbsp;ApplicationListener&lt;ContextRefreshedEvent&gt; 应该和 ApplicationContext 一对一</strong>。如果有两个&nbsp;ApplicationContext ，且两个ApplicationContext 都配置了ApplicationListener&lt;ContextRefreshedEvent&gt;，那么就应该执行两次。</p><p><br/></p><p><strong>如果想&nbsp;ApplicationListener&lt;ContextRefreshedEvent&gt; 只执行一次，那就只应该把它配置在 其中一个ApplicationContext 中，另外一个ApplicationContext 不配置</strong>。<strong>也就是说，使ApplicationListener&lt;ContextRefreshedEvent&gt;的实现类，只被其中一个ApplicationContext&nbsp;加载到。</strong></p><p>假如说是只给第二个ApplicationContext 配置了ApplicationListener&lt;ContextRefreshedEvent&gt;，名字叫MyApplicationListener，那么它会执行自己的ContextRefreshedEvent，此时MyApplicationListener被调用，也会调用parent，但是由于parent没有配置ApplicationListener&lt;ContextRefreshedEvent&gt;，所以不会有效果。那么最终就只有MyApplicationListener被调用了一次。这才是正确的解决方案。</p><p><br/></p><p>参见另一篇文章：</p><p>《<a href="http://The-difference-and-relationship-between-ContextLoaderListener-and-DispatcherServlet.html" target="_self">Spring配置加载ContextLoaderListener和DispatcherServlet的区别和关系</a>》</p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p><p><br/></p>

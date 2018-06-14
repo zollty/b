@@ -1,7 +1,7 @@
 ---
 layout: ue
 title: 我的Maven笔记
-category: JavaEE技术
+category: 技术/开发工具
 tags: Maven
 keywords: "Maven"
 ---
@@ -152,4 +152,110 @@ keywords: "Maven"
 &nbsp;&nbsp;&nbsp;&nbsp;&lt;/profile&gt;
 &nbsp;&nbsp;&lt;/profiles&gt;
 &nbsp;&nbsp;
-&lt;/settings&gt;</pre><p></p>
+&lt;/settings&gt;</pre><p><br/></p><p><strong><span style="font-size: 18px;">Maven选择模块构建</span></strong></p><p>例如：</p><p>mvn install <strong>-pl</strong> apollo-client&nbsp; &nbsp;表示<span style="text-decoration: underline;">手动选择需要构建的项目</span>，项目间以逗号分隔。&nbsp;</p><p>mvn install <strong>-pl</strong> apollo-client <strong>–am&nbsp; &nbsp;</strong>表示<span style="text-decoration: underline;">同时构建所列模块依赖的其他模块</span>（与-pl连用）&nbsp;</p><p>只构建当前项目，不构建子mudule</p><p>（mvn -N --non-recursive 仅在当前项目模块执行命令,不构建子模块）</p><p>mvn install -N</p><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">Maven 指定构建时的 setting.xml 文件</span></strong></p><p>mvn install --settings C:\user\settings.xml<br/>或者：<br/></p><p>mvn -s C:\user\settings.xml</p><p><br/></p><p><strong><span style="font-size: 18px;">Maven&nbsp;the difference between the dependency scope &quot;provided&quot; versus &quot;optional&quot;</span></strong></p><p>唯一区别在于，例如 一个 war项目，provided的jar 不会被打进war包，而 optional 的jar 会打进war包。</p><p>而它们的传递性是一样的，都不会传递。</p><p><span style="text-decoration: underline;">从概念上、本质上来说</span>，provided的包是确实需要的，如果第三方用到它，则需要第三方提供，如果没有，就会出错。</p><p>而optional的本意是，这个包是可选的，无论有没有，都不会出错。</p><p><br/></p><p><br/></p><p>配置统一的spring版本号：</p><p>使用maven的如下配置：</p><pre class="brush:xml;toolbar:false">&lt;dependency&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.springframework&lt;/groupId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;spring-framework-bom&lt;/artifactId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;${org.springframework.version}&lt;/version&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;type&gt;pom&lt;/type&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;scope&gt;import&lt;/scope&gt;
+&lt;/dependency&gt;</pre><p><br/></p><p>将依赖打入source包：</p><pre class="brush:xml;toolbar:false">&lt;plugin&gt;
+&nbsp;&nbsp;&lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;
+&nbsp;&nbsp;&lt;configuration&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;attach&gt;true&lt;/attach&gt;
+&nbsp;&nbsp;&lt;/configuration&gt;
+&nbsp;&nbsp;&lt;executions&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;execution&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;phase&gt;package&lt;/phase&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goal&gt;aggregate&lt;/goal&gt;&lt;!--&nbsp;将依赖打入source包&nbsp;--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/execution&gt;
+&nbsp;&nbsp;&lt;/executions&gt;
+&lt;/plugin&gt;</pre><p><br/></p><p>合并打包：</p><pre class="brush:xml;toolbar:false">&lt;plugin&gt;
+&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;
+&lt;version&gt;2.3&lt;/version&gt;
+&lt;executions&gt;
+&nbsp;&nbsp;&lt;execution&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;phase&gt;package&lt;/phase&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goal&gt;shade&lt;/goal&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;--&gt;&lt;!--
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;shadedArtifactAttached&gt;true&lt;/shadedArtifactAttached&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;shadedClassifierName&gt;ALL&lt;/shadedClassifierName&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;--&gt;&lt;!--
+&nbsp;&nbsp;&lt;/execution&gt;
+&lt;/executions&gt;
+&lt;/plugin&gt;</pre><p><br/></p><p>排除Jar包的解决方案：</p><p>用maven-enforcer-plugin检查，当发现有依赖的jar包则构建失败</p><pre class="brush:xml;toolbar:false">&lt;plugin&gt;
+&lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+&lt;artifactId&gt;maven-enforcer-plugin&lt;/artifactId&gt;
+&lt;executions&gt;
+&nbsp;&nbsp;&lt;!--&nbsp;&lt;execution&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;enforce-versions&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goal&gt;enforce&lt;/goal&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;rules&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;requireMavenVersion&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;2.1.0&lt;/version&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/requireMavenVersion&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;requireJavaVersion&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;1.6&lt;/version&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/requireJavaVersion&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/rules&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;
+&nbsp;&nbsp;&lt;/execution&gt;&nbsp;--&gt;
+&nbsp;&nbsp;&lt;execution&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;enforce-banned-dependencies&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goal&gt;enforce&lt;/goal&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;configuration&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;rules&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bannedDependencies&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;excludes&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;&lt;exclude&gt;junit:junit&lt;/exclude&gt;&nbsp;--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;exclude&gt;org.slf4j:slf4j-api&lt;/exclude&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;exclude&gt;commons-logging:commons-logging&lt;/exclude&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/excludes&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;&lt;includes&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;include&gt;junit:junit:4.8.2:jar:test&lt;/include&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;include&gt;cglib:cglib-nodep:jar:2.2&lt;/include&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/includes&gt;&nbsp;--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/bannedDependencies&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/rules&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;fail&gt;true&lt;/fail&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/configuration&gt;
+&nbsp;&nbsp;&lt;/execution&gt;
+&lt;/executions&gt;
+&lt;/plugin&gt;</pre><p><br/></p><p><br/></p><p>maven下载单个源码包</p><p>&lt;dependency&gt;&nbsp;</p><p>&nbsp; &lt;groupId&gt;javax.mail&lt;/groupId&gt;</p><p>&nbsp; &lt;artifactId&gt;mail&lt;/artifactId&gt;</p><p>&nbsp; &lt;version&gt;1.4&lt;/version&gt;&nbsp;</p><p>&lt;/dependency&gt;</p><p>命令如下：</p><p>mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:get -Dartifact=javax.mail:mail:1.1:jar:sources&nbsp;</p><p><br/></p><p><br/></p><p>maven运行命令mybatis-generator:generate提示找不到数据库驱动问题</p><p>mybatis-generator classNotFoundException: com.mysql.jdbc.Driver</p><p>Caused by: java.lang.ClassNotFoundException: com.mysql.jdbc.Driver</p><p>	at org.codehaus.plexus.classworlds.strategy.SelfFirstStrategy.loadClass(SelfFirstStrategy.java:50)</p><p>	at org.codehaus.plexus.classworlds.realm.ClassRealm.loadClass(ClassRealm.java:244)</p><p>答案：</p><p>把驱动文件放在这个文件夹里 \Java\jdk1.6.0_02\jre\lib\ext</p><p><br/></p><p><br/></p><p>给war包添加静态资源路径</p><pre class="brush:xml;toolbar:false">&lt;!--&nbsp;打war包&nbsp;--&gt;
+&lt;plugin&gt;
+&lt;artifactId&gt;maven-war-plugin&lt;/artifactId&gt;
+&lt;version&gt;2.1.1&lt;/version&gt;
+&lt;executions&gt;
+&nbsp;&nbsp;&lt;execution&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;default-war&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;phase&gt;package&lt;/phase&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;goals&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;goal&gt;war&lt;/goal&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/goals&gt;
+&nbsp;&nbsp;&lt;/execution&gt;
+&lt;/executions&gt;
+&lt;configuration&gt;
+&nbsp;&nbsp;&lt;!--&nbsp;把war里面的class当成附件打成一个jar包&nbsp;--&gt;
+&nbsp;&nbsp;&lt;attachClasses&gt;true&lt;/attachClasses&gt;
+&nbsp;&nbsp;&lt;webResources&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;包含对应配置文件&nbsp;--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;resource&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;local&nbsp;test&nbsp;production&nbsp;--&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;directory&gt;${basedir}/related-resources/project/webapp/local-system&lt;/directory&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/resource&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;resource&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;directory&gt;D:/C/dev-solft/tomcat-7.0.70-test/backup/zoa&lt;/directory&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/resource&gt;
+&nbsp;&nbsp;&lt;/webResources&gt;
+&lt;/configuration&gt;
+&lt;/plugin&gt;</pre><p><br/></p><p><br/></p>

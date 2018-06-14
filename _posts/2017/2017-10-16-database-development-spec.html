@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 数据库开发规范-通用版
+category: 数据库技术_综合
+tags: 数据库,规范
+keywords: "数据库,规范,SQL"
+---
+
+<p style="white-space: normal;">尽量不使用数据库自带的函数，把逻辑实现在应用程序里。</p><p style="white-space: normal;">不建议使用整表count。</p><p>WHERE条件中参数与参数值使用的类型应当匹配，避免MySQL进行隐式类型转化；</p><p>建议在SELECT语句中只获取实际需要的字段；</p><p>SELECT、INSERT语句应显式的指明字段名称，不使用SELECT *，不使用INSERT INTO table()；</p><p>执行模糊查询时，%只能出现在关键字的尾部，例如LIKE ‘jun%’，特殊情况需要单独说明；</p><p>不建议在WHERE条件中使用非等值条件（&lt;&gt;），建议改造为in或not exists；</p><p>执行批量INSERT插入，建议使用batch提交；</p><p>避免单条大SQL，应在写法等价的情况下拆解成多条小SQL，以充分利用多核CPU的处理能力；</p><p>禁止在mysql中使用几个大表进行JOIN，且JOIN的时候又没有where过滤掉大量数据；</p><p>禁止通过order by rand()方式获利返回数据(除非该表记录量不超过10W行)，对于需要随机返回一批数据的情况，可以通过基于主键查询，使主键值大于或小于某个随机生成数值的方式；</p><p><br/></p><p>控制sql的in列表值小于50个。</p><p>where语句中必须使用合适的数据类型，避免mysql进行隐式类型转换。</p><p>禁止使用select&nbsp; *，select只获取需要的字段。</p><p>insert必须显示指明字段名称，如：不能使用insert into table values();必须使用insert into addressbook(fname,lname,phone,fax,email) values(&#39;Rob&#39;,Rabbit,&#39;674 1536&#39;,&#39;382 8364&#39;,&#39;rob@somedomain&#39;);这种方式。</p><p>避免使用不等于条件，where条件中的不等于不能使用索引。</p><p>合理使用分页提高分页效率，避免使用大的偏移量分页，如select id from user&nbsp; limit 1000,10;</p><p>统计表中记录使用count(*)，不适用count(primary_key)和count(1)。</p><p>禁止oa提交的任何sql脚本包含drop语句，如果上线确实需要drop表，请找dba单独说明。</p><p>所有生产环境的sql都需要提oa申请，然后再执行。</p><p>线上统计性质sql，left join表数量不能超过3个。</p><p><br/></p><p><br/></p>
