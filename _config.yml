@@ -12,8 +12,12 @@ markdown: rdiscount
 # Serving
 baseurl: /b # does not include hostname
 # http://ires.qiniudn.com/
-assets_url: http://7ktsnb.com1.z0.glb.clouddn.com/my/
-cdn_lib_url: http://7ktsnb.com1.z0.glb.clouddn.com/lib/
+assets_url: http://s.h230.cn/my/
+cdn_lib_url: http://s.h230.cn/lib/
+
+# gavatar头像及Favicon
+gavatar: http://s.h230.cn/my/img/avatar-80-80.jpg
+favicon: http://s.h230.cn/my/img/favicon.ico
 
 # 站点信息
 title: "Zollty's Blog"
@@ -23,10 +27,6 @@ url: http://blog.zollty.com/b
 # 相对于baseurl
 atom_path: /atom.xml
 rss_path: /rss.xml
-
-# gavatar头像及Favicon
-gavatar: http://ires.qiniudn.com/my/img/avatar-80-80.jpg
-favicon: http://ires.qiniudn.com/my/img/favicon.ico
 
 # 作者信息
 author:
