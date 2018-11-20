@@ -11,7 +11,8 @@ markdown: rdiscount
 
 # Serving
 baseurl: /b # does not include hostname
-# http://ires.qiniudn.com/
+# cdn base url
+cdn_base_url:  http://s.h230.cn
 assets_url: http://s.h230.cn/my/
 cdn_lib_url: http://s.h230.cn/lib/
 
