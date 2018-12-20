@@ -1,0 +1,24 @@
+---
+layout: ue
+title: 关于Spring DeferredResult的作用和Servlet 3的异步处理请求
+category: Spring专题
+tags: Spring, Servlet
+keywords: "DeferredResult, Servlet 3异步, AsyncContext"
+---
+
+<p><br/></p><p>关于用法和源代码，很简单，网上一大堆，这里不再多说。</p><p><br/></p><p>但是异步处理请求、DeferredResult有什么好处？是否可以无脑使用？还是说，只适用于特定场景？</p><p><br/></p><p>我的看法如下：</p><p><br/></p><p>首先普及一点：</p><p>这个Servlet 3的异步处理请求，跟“线程的异步执行” 概念不一样，是两回事，大家不要搞混淆了。</p><p>&gt;&gt; async servlet和普通的servlet不一样的，async servlet只会占连接，不会占tomcat线程，可以看一下：</p><p><a href="https://docs.oracle.com/javaee/7/tutorial/servlets012.htm" target="_blank">Asynchronous Processing</a></p><p><a href="http://www.iteye.com/problems/101332" target="_blank">Servlet3中的AsyncContext异步和多线程异步有什么区别</a></p><p><br/></p><p>实际上Servlet 3的异步请求处理，只保持TCP连接不关闭，但是不占用容器线程，也就是说容器线程被直接释放了（注意不是线程的wait，而是执行完后线程直接回归到线程池去，可以继续使用），原来客户端的请求信息会被保存起来（但是不会中断），保存在AsyncContext中，等待其他线程的处理完成后，就会重新从容器线程池中获取新的线程，继续完成该请求的响应。</p><p><br/></p><p>这样的好处是，Servlet容器压力更小，可以设置更多的线程，从而去处理更多的请求。具体来说是什么意思呢？</p><p>默认tomcat的maxThreads=200，acceptCount=100，</p><p>也就是说，只支持300个并发连接（其中有100个会等待线程）。如果200个线程都处于忙的状态（即running状态），那显然CPU压力很大，处理效率非常低（别说200个线程了，就算是20个线程，对于2核的CPU来说压力都大）。所以，tomcat这个默认配置，在通常情况下，是合理的。</p><p><br/></p><p>但是如果200个线程，几乎99%的时间都处于wait状态，那么对CPU来说就轻松应对了，别说200个了，就算2000个都能扛得住。所以可以做如下设置：maxThreads=2000，acceptCount=1000，此时，针对这种情况，tomcat就能支持3000的并发连接了。当然，这是在所有线程“99%的时间都处于wait状态”这一前提下。</p><p><br/></p><p>经过试验，我确定了一点：从线程池取到的线程wait阻塞后，是不会从线程池释放的，也就是说，wait到期或者被唤醒时，仍然是原来那个线程获得资源继续执行。线程wait之后，不会回归到线程池被被再次使用，wait结束后也不会换其他线程来继续执行任务。</p><p><br/></p><p>注意到一个案例，我查了一下携程的开源配置中心Apollo就是设置的acceptCount=5000，据测试4C8G的虚拟机可以支持10000个连接。</p><p><br/></p><p>它是这样设计的，每个请求来了之后，都调用DeferredResult异步处理，所有请求的DeferredResult都会放到一个list容器中，一旦有配置变更，就会触发去取list容器中的DeferredResult，并触发DeferredResult返回结果。假设一直都没有配置变更，那么DeferredResult到了超时时间（设置为1分钟）后，就会返回，然后从list中移除。</p><p><br/></p><p>那么acceptCount参数的作用是什么呢，我查了一下，这个参数实际上是socket中的backlog参数，是用来控制tcp的完全连接数量。也就是说，只要没超过这个数，那么tcp连接就会建立（处于ESTABLISHED状态），超过这个数的请求无法建立连接（处于SYN_SENT-请求连接状态）。</p><p>另外，tomcat还有一个参数maxConnections表示最大连接数，它先于acceptCount来控制是否接收tcp请求。tomcat的处理代码大概如下：</p><pre class="brush:java;toolbar:false">while&nbsp;(running)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;//if&nbsp;we&nbsp;have&nbsp;reached&nbsp;max&nbsp;connections,&nbsp;wait
+&nbsp;&nbsp;&nbsp;&nbsp;countUpOrAwaitConnection();&nbsp;//计数+1，达到最大值则等待
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Accept&nbsp;the&nbsp;next&nbsp;incoming&nbsp;connection&nbsp;from&nbsp;the&nbsp;server&nbsp;socket
+&nbsp;&nbsp;&nbsp;&nbsp;socket&nbsp;=&nbsp;serverSock.accept();
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;processSocket(socket);&nbsp;//&nbsp;线程异步处理
+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;countDownConnection();&nbsp;//计数-1
+&nbsp;&nbsp;&nbsp;&nbsp;closeSocket(socket);
+}</pre><p>但是这个参数的默认值已经足够大，BIO模式下默认最大连接数是它的最大线程数(缺省是200)，NIO模式下默认是10000，APR模式则是8192(windows上则是低于或等于maxConnections的1024的倍数)。如果设置为-1则表示不限制。</p><p><br/></p><p>默认maxThreads=200，意味着，容器有200个线程可以工作，为什么携程的Apollo配置中心不把这个参数设置得更大一些，比如2000呢？</p><p><br/></p><p>在携程Apollo的程序中，被容器接收的请求都会按照Spring的DeferredResult来处理，实际上就是Sevlet 3的异步AsyncServlet来处理。这样处理过程交给异步线程去处理，容器线程被释放出来。由于大部分时间没有配置变更，那么大部分时间，这些异步线程会wait 60秒后返回。即便有8000个请求过来，容器的200个线程很快就处理完了，交给异步线程去处理，而异步线程处于wait状态，几乎不占用CPU资源，那么同时保持8000个wait状态的线程又有何难。所以，Apollo的这个设置是没毛病的——maxThreads=200足够了。</p><p><br/></p><p>关于tomcat的请求处理，参见这篇文章的描述：</p><p>Tomcat-connector的微调：<a href="https://blog.csdn.net/yanli1979/article/details/52086734" style="background-color: rgb(245, 245, 213);">https://blog.csdn.net/yanli1979/article/details/52086734</a></p><p><br/></p><p>另外，关于AsyncServlet如何工作的，如何能够从线程池中释放请求线程，然后处理完之后又继续完成响应，</p><p>具体可以查看源码：org.apache.catalina.core.AsyncContextImpl 和 org.apache.coyote.http11.Http11Processor</p>

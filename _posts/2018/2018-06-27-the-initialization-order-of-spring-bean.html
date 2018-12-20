@@ -1,0 +1,26 @@
+---
+layout: ue
+title: spring bean的初始化顺序与BeanPostProcessor
+category: Spring专题
+tags: Spring
+keywords: "bean初始化,BeanPostProcessor"
+---
+
+<p>一、问题提出<br/></p><p>如下代码：</p><pre class="brush:java;toolbar:false">@Configuration
+public&nbsp;class&nbsp;ShiroConfig&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;定义bean
+&nbsp;&nbsp;&nbsp;&nbsp;@Bean
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;ShiroFilterFactoryBean&nbsp;shirFilter(){
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+//&nbsp;注意：ShiroFilterFactoryBean&nbsp;实现了&nbsp;FactoryBean,&nbsp;BeanPostProcessor
+//&nbsp;有一个postProcessBeforeInitialization()方法的执行优先级很高
+
+@Configuration
+public&nbsp;class&nbsp;ShiroFilterConfig&nbsp;{
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;构造函数，注入ShiroFilterFactoryBean
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;ShiroFilterConfig(ShiroFilterFactoryBean&nbsp;shiroFilter)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+}</pre><p>问题：发现在ShiroFilterConfig的构造函数执行之前，ShiroFilterFactoryBean的postProcessBeforeInitialization()方法就执行了。这样就会造成后面对ShiroFilterFactoryBean的配置，都不会生效。</p><p><br/></p><p>目标：要在ShiroFilterConfig初始化之后，再执行ShiroFilterFactoryBean的postProcessBeforeInitialization()方法。</p><p><br/></p><p>解决方案：让ShiroFilterConfig也<strong>implement&nbsp;BeanPostProcessor</strong>。</p><p><br/></p>

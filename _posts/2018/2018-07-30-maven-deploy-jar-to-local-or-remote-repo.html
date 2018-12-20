@@ -1,0 +1,109 @@
+---
+layout: ue
+title: Maven发布deploy install jar到本地仓库、远程仓库、FTP等
+category: 技术/开发工具
+tags: Maven
+keywords: "mvn deploy,deploy-file"
+---
+
+<p><br/></p><p><strong>一、无源码，直接以文件的形式发布jar包（deploy-file）</strong></p><p><br/></p><p>情况一：前提，有项目的pom文件（如果没有pom文件，可以从jar包中提取出来），自动出pom文件读取groupId等信息</p><p>（如果没有pom文件，可以看下面的情况二）</p><p><br/></p><p>我已经写成了标准脚本，并经常使用，分享出来：</p><p>1、deploy-jar.bat</p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
+
+echo&nbsp;&quot;===&nbsp;start&nbsp;to&nbsp;deploy&nbsp;jar...&nbsp;===&quot;
+
+call&nbsp;mvn&nbsp;deploy:3.0.0-M1:deploy-file&nbsp;-X&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Durl=file:///D:/0sync-local/git/repository&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-DrepositoryId=git-repo&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Dfile=./apollo-client-0.10.3-SNAPSHOT.jar&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-DpomFile=./apollo-client-0.10.3-SNAPSHOT.pom&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Dsources=./apollo-client-0.10.3-SNAPSHOT-sources.jar
+::&nbsp;&nbsp;&nbsp;&nbsp;-Djavadoc=./apollo-client-0.10.3-SNAPSHOT-javadoc.jar
+
+echo&nbsp;&quot;===&nbsp;deploy&nbsp;jar&nbsp;finished&nbsp;...&nbsp;===&quot;
+
+pause</pre><p>如果是远程仓库的话，将上面的url替换成远程仓库地址即可，例如</p><p>-Durl=http://10.2.10.22:8081/nexus/content/repositories/releases/</p><p><br/></p><p>2、deploy-pom.bat</p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
+echo&nbsp;&quot;===&nbsp;start&nbsp;to&nbsp;deploy&nbsp;pom...&nbsp;===&quot;
+
+call&nbsp;mvn&nbsp;deploy:deploy-file&nbsp;-X&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Durl=file:///D:/0sync-local/git/repository&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-DrepositoryId=git-repo&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Dfile=./apollo-0.10.3-SNAPSHOT.pom&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-DpomFile=./apollo-0.10.3-SNAPSHOT.pom&nbsp;^
+&nbsp;&nbsp;&nbsp;&nbsp;-Dpackaging=pom
+
+echo&nbsp;&quot;===&nbsp;deploy&nbsp;pom&nbsp;finished&nbsp;...&nbsp;===&quot;
+
+pause</pre><p><br/></p><p>具体用法可以参见官方文档：</p><p><a href="http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html">http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html</a> </p><p><br/></p><p><br/></p><p>情况二：有无pom文件都可以，手动指定groupId等信息</p><p>deploy-jar.bat<br/></p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
+::&nbsp;****************************************************************************
+::&nbsp;Title&nbsp;:&nbsp;&nbsp;deploy&nbsp;jar&nbsp;to&nbsp;maven&nbsp;repositories&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;Usage&nbsp;:&nbsp;&nbsp;根据需要自己修改&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;Notes&nbsp;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;1.&nbsp;参数pomFile、sources、javadoc为可选，但是建议都有
+::&nbsp;&nbsp;&nbsp;2.&nbsp;区分SNAPSHOT版本和RELEASE版本,repository和url不一样
+::&nbsp;&nbsp;&nbsp;3.&nbsp;参见官方文档：http://maven.apache.org/plugins/maven-deploy-plugin/deploy-file-mojo.html
+::&nbsp;&nbsp;&nbsp;4.&nbsp;建议使用&nbsp;deploy-jar-func-version.bat&nbsp;，更加方便。&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;Requires:&nbsp;Maven&nbsp;&gt;&nbsp;mvn&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+::&nbsp;Returns:&nbsp;&nbsp;
+::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+::&nbsp;Author:&nbsp;&nbsp;&nbsp;Zollty&nbsp;Tsou&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+::&nbsp;Version:&nbsp;&nbsp;1.0.0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+::&nbsp;Date:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;03/05/2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+::&nbsp;Link:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;https://github.com/zollty/tool-libs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+::&nbsp;****************************************************************************
+
+echo&nbsp;&quot;===&nbsp;Start&nbsp;to&nbsp;deploy&nbsp;jars...&nbsp;===&quot;
+
+set&nbsp;&nbsp;&nbsp;releasesRepoId=pre-nexus-releases
+set&nbsp;&nbsp;releasesRepoUrl=http://10.2.10.22:8081/nexus/content/repositories/releases/
+
+set&nbsp;&nbsp;snapshotsRepoId=pre-nexus-snapshots
+set&nbsp;snapshotsRepoUrl=http://10.2.10.22:8081/nexus/content/repositories/snapshots/
+
+set&nbsp;base_dir=C:/Users/zollty/lib
+
+call&nbsp;mvn&nbsp;deploy:deploy-file&nbsp;^
+-DartifactId=api-base&nbsp;^
+-Dversion=1.1&nbsp;^
+-DgroupId=org.zollty&nbsp;^
+-Dfile=%base_dir%/api-base-1.1.jar&nbsp;^
+-DpomFile=%base_dir%/pom.xml&nbsp;^
+-Dsources=%base_dir%/api-base-1.1-sources.jar&nbsp;^
+-Djavadoc=%base_dir%/api-base-1.1-javadoc.jar&nbsp;^
+-DrepositoryId=%releasesRepoId%&nbsp;-Durl=%releasesRepoUrl%
+
+call&nbsp;mvn&nbsp;deploy:deploy-file&nbsp;^
+-DartifactId=jretty-log&nbsp;^
+-Dversion=1.2-SNAPSHOT&nbsp;^
+-DgroupId=org.jretty&nbsp;^
+-Dfile=C:/Users/zollty/jretty-log-1.2-SNAPSHOT.jar&nbsp;^
+-DpomFile=%base_dir%/pom.xml&nbsp;^
+-Dsources=%base_dir%/jretty-log-1.2-SNAPSHOT-sources.jar&nbsp;^
+-Djavadoc=%base_dir%/jretty-log-1.2-SNAPSHOT-javadoc.jar&nbsp;^
+-DrepositoryId=%snapshotsRepoId%&nbsp;-Durl=%snapshotsRepoUrl%
+
+
+echo&nbsp;&quot;===&nbsp;deploy&nbsp;jars&nbsp;finished&nbsp;...&nbsp;===&quot;
+
+pause</pre><p><br/></p><p><strong>二、以源码的方式打包并发布</strong></p><p>方法1：配置如下pom.xml，然后直接运行 mvn deploy<br/></p><pre class="brush:xml;toolbar:false">&lt;distributionManagement&gt;
+&nbsp;&nbsp;&lt;repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;git-repo&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;file:///D:/0sync-local/git/repository&lt;/url&gt;
+&nbsp;&nbsp;&lt;/repository&gt;
+&lt;/distributionManagement&gt;</pre><p>方法2：不配置xml，直接在命令行配置仓库地址，如下：<br/></p><pre class="brush:bash;toolbar:false">mvn&nbsp;deploy&nbsp;-DaltDeploymentRepository=my-git-repo::default::file:///D:/0sync-local/git/repository</pre><p>同上，如果是远程仓库的话，将上面的url替换成远程仓库地址即可，例如</p><p>-Durl=http://10.2.10.22:8081/nexus/content/repositories/releases/</p><p><br/></p><p><strong>三、如果要通过ssh或者ftp发布</strong></p><p>只需要将上面的“file://”协议改一下，并引入额外的maven插件即可。</p><p>参见官方文档：<a href="http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploy-ftp.html">http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploy-ftp.html</a> </p><p><br/></p><p><br/></p><p><strong>四、利用git或者其他http服务搭建maven远程仓库</strong></p><p>上面已经说了如何将jar包发布到本地目录，只需要把文件同步到git仓库即可。然后在pom.xml配置git仓库地址即可，例如：</p><pre class="brush:xml;toolbar:false">&lt;repositories&gt;
+&nbsp;&nbsp;&lt;repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;zollty-git-repo&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;https://raw.githubusercontent.com/zollty/maven-repo/master&lt;/url&gt;
+&nbsp;&nbsp;&lt;/repository&gt;
+&lt;/repositories&gt;</pre><p>还可以，建一个snapshots、releases的分支来分别存放snapshots、releases类型的jar包。</p><p>推荐这种用法，例如：<br/></p><pre class="brush:xml;toolbar:false">&lt;repositories&gt;
+&nbsp;&nbsp;&lt;repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;git-maven-repo-snapshots&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;https://gitee.com/maven-repo/repository/raw/snapshots&lt;/url&gt;
+&nbsp;&nbsp;&lt;/repository&gt;
+&nbsp;&nbsp;&lt;repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;git-maven-repo-releases&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;https://gitee.com/maven-repo/repository/raw/releases&lt;/url&gt;
+&nbsp;&nbsp;&lt;/repository&gt;
+&lt;/repositories&gt;</pre><p><br/></p>

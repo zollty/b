@@ -1,0 +1,55 @@
+---
+layout: ue
+title: Java框架(Spring+Mybatis+Druid)多数据源方案
+category: Java框架和组件
+tags: 多数据源
+keywords: "多数据源,动态数据源"
+---
+
+<p><br/></p><p><span style="font-size: 20px;"><strong>可选方案</strong></span></p><p>1.基于Spring的<span style="color: rgb(192, 0, 0);">AbstractRoutingDataSource</span>并用<span style="color: rgb(192, 0, 0);">AOP</span>动态切换</p><p>2.基于Mybatis<span style="color: rgb(192, 0, 0);">多SqlSession实例</span>分开扫描各自Mapper</p><p><br/></p><p><strong>1、基于Spring的AbstractRoutingDataSource并用AOP动态切换</strong></p><p>优点：能灵活的控制多数据源，支持读写分离。</p><p>缺点：</p><p>1）AOP表达式需要自己配置，切换需要写对应的注解。</p><p>2）开启事务时，需要注意AOP顺序（ 数据库事务的注解 要在 数据源切换的注解 之后）。</p><p>3）数据源动态切换，会有一定性能开销。</p><p><br/></p><p><strong>2、基于Mybatis多SqlSession实例分开扫描各自Mapper</strong></p><p>优点：使用简单，配置后就和单数据源使用一样。性能好，不存在AOP那样的性能开销。</p><p>缺点：不支持读写分离。</p><p><br/></p><p><strong>3、结合方案一和方案二</strong><br/></p><p>方案一和方案二，并不冲突，可以结合使用。</p><p><br/></p><p><span style="font-size: 20px;"><strong>应用场景和常见问题</strong></span></p><p>1.多个独立数据源，每个数据源一套代码，独立使用。</p><p>2.读写分离，一套代码，根据不同方法，使用不同的数据源。</p><p>3.一套代码，同样的方法，根据传入的参数，使用不同的目标数据源。</p><p><br/></p><p><strong>1、多个独立数据源，每个数据源一套代码，独立使用</strong></p><p>这个场景，方案一和方案二都可以解决，但是方案二更好。</p><p><br/></p><p><strong>2、读写分离，一套代码，根据不同方法，使用不同的数据源</strong></p><p>&nbsp; &nbsp; 考虑项目使用了一个可写数据源和多个只读数据源（ 一主多从 模式），为了减少数据库压力，使用轮循的方式选择只读数据源。但是应当避免在同一个 Service 方法中写入后立即查询，因为此时可能 从库 数据还未同步，如果必须在执行写入操作后立即读取（有这种情况吗？），应该强制读取使用主数据源，即，一些实时性要求很高的select语句，可能需要放到master上执行，因为slave上可能存在延时。（为了解决这个问题，可以在查询的方法上加上数据源AOP注解，指定读取主库）</p><p><strong>问题：数据库事务@Transactional应该放在Service层还是Dao层？它和数据源AOP注解，哪个在前，哪个在后？</strong></p><p>&nbsp; &nbsp; 开启事务时，肯定就要操作数据源了，DataSource此时必然做出选择，如果此时还没有使用AOP注解选择数据源，那将直接使用默认数据源。如果开启了事务后，又遇到了AOP注解切换数据源，那么势必造成数据源错乱。所以，<span style="color: rgb(192, 0, 0);">数据源AOP必须在事务注解之前，如果数据源AOP注解在Dao方法上，那么事务注解也必须在Dao方法上，不能在Service层</span>，另外，建议把@Transactional 注解加在方法上，不要加在类上。</p><p>&nbsp; &nbsp; 这样就要考虑，Dao方法调用Dao方法的情况，每个Dao方法都有AOP切面，要保证 层层调用后，数据源不改变，不丢失。举个例子，UserDao.foo() 方法，调用了同源的MenuDao.bar() 方法、UserDao.insert() 方法 和 不同数据源的RemoteDao.query() 方法，如下所示：</p><pre class="brush:java;toolbar:false">@Transactional
+UserDao.foo()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;MenuDao.bar();
+&nbsp;&nbsp;&nbsp;&nbsp;RemoteDao.query();
+&nbsp;&nbsp;&nbsp;&nbsp;UserDao.insert();
+&nbsp;&nbsp;&nbsp;&nbsp;....
+}</pre><p>进入UserDao.foo()时，数据源会切换成 testDB，</p><p>进入MenuDao.bar() 时，又切换成 testDB，退出 MenuDao.bar() 时，数据源被清空，</p><p>再进入RemoteDao.query() 方法，数据源被切换成 remoteDB，退出RemoteDao.query() 方法时，数据源被清空，</p><p>再进入UserDao.insert() 方法，数据源被切换成 testDB，退出时，数据源被清空，</p><p>最后，退出UserDao.foo()，数据源被清空。(注意，上面说的退出，包括了异常退出，切面的@After能捕获异常的退出)</p><p><br/></p><p>但是这个方案存在以下问题或疑问：</p><p><strong>&nbsp; &nbsp; 问题</strong>：当调用UserDao.insert() 方法时，由于和 外层的UserDao.foo() 方法处于同一个类中，就直接调用，AOP不会起作用，所以此时insert方法的数据源不能正常切换。为了解决这个问题，foo方法，不能放在UserDao中，必须得单独建一个类，建议放到Service中，然后在Service层就先切换好数据源。如下：</p><pre class="brush:java;toolbar:false" style="line-height: 1.42857;">@Transactional
+@SelectDB(&quot;testDB&quot;)
+UserService.foo()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;MenuDao.bar();
+&nbsp;&nbsp;&nbsp;&nbsp;RemoteDao.query();
+&nbsp;&nbsp;&nbsp;&nbsp;UserDao.insert();
+&nbsp;&nbsp;&nbsp;&nbsp;....
+}</pre><p>&nbsp; &nbsp; 这样一来，首先切换了testDB数据源并开启基于testDB事务，然后执行bar、query、insert，每一个AOP都会切换一次数据源，执行完后又清空，最后退出 foo()，事务提交，清空数据源。</p><p style="white-space: normal;"><strong>&nbsp; &nbsp; 疑问</strong>：如果UserDao.insert() 之后执行过程中报异常，要回滚insert，那么此时数据源被清空了，能否回滚？答案：能回滚，因为事务的开启和提交都是基于Connection连接的，而不是基于DataSource，如下所示：</p><pre class="brush:java;toolbar:false" style="line-height: 1.42857;">public&nbsp;void&nbsp;transferAccounts(double&nbsp;money)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;Connection&nbsp;conn&nbsp;=&nbsp;null;
+&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn&nbsp;=&nbsp;JdbcUtils.getConnection();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn.setAutoCommit(false);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;someDao.update(con,&nbsp;-money);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;someDao.update(con,&nbsp;+money);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;提交事务
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn.commit();
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(Exception&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;回滚
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;conn.rollback();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p style="white-space: normal;">&nbsp; &nbsp; 开启事务时就保留了数据源连接，执行完之后，就可以在原数据源连接的基础上进行提交或者回滚。所以即使数据源丢失了，但是原来的连接Connection不变，故不会影响提交或回滚。详细分析如下：</p><p style="white-space: normal;">&nbsp; &nbsp; 由于外层开启了事务，那么方法内在同一个数据源下的所有连接，执行完成后，理论上都不会提交（只有外层方法执行完后，所有连接才能提交），或者说在事务内同一个数据源下只会开启一个连接，所有操作共用一个连接，那么Spring的Transaction机制到达是怎么实现的呢？翻看源码才能解答！</p><pre class="brush:java;toolbar:false">public&nbsp;void&nbsp;create(String&nbsp;name,&nbsp;Integer&nbsp;age,&nbsp;Integer&nbsp;marks,&nbsp;Integer&nbsp;year)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;TransactionDefinition&nbsp;def&nbsp;=&nbsp;new&nbsp;DefaultTransactionDefinition();
+&nbsp;&nbsp;&nbsp;&nbsp;TransactionStatus&nbsp;status&nbsp;=&nbsp;transactionManager.getTransaction(def);
+&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;SQL1&nbsp;=&nbsp;&quot;insert&nbsp;into&nbsp;Student&nbsp;(name,&nbsp;age)&nbsp;values&nbsp;(?,&nbsp;?)&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jdbcTemplate.update(&nbsp;SQL1,&nbsp;name,&nbsp;age);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;SQL2&nbsp;=&nbsp;&quot;select&nbsp;max(id)&nbsp;from&nbsp;Student&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;sid&nbsp;=&nbsp;jdbcTemplate.queryForInt(&nbsp;SQL2&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;SQL3&nbsp;=&nbsp;&quot;insert&nbsp;into&nbsp;Marks(sid,&nbsp;marks,&nbsp;year)&nbsp;values&nbsp;(?,&nbsp;?,&nbsp;?)&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jdbcTemplate.update(&nbsp;SQL3,&nbsp;sid,&nbsp;marks,&nbsp;year);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;Created&nbsp;Name&nbsp;=&nbsp;&quot;&nbsp;+&nbsp;name&nbsp;+&nbsp;&quot;,&nbsp;Age&nbsp;=&nbsp;&quot;&nbsp;+&nbsp;age);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transactionManager.commit(status);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(DataAccessException&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(&quot;Error&nbsp;in&nbsp;creating&nbsp;record,&nbsp;rolling&nbsp;back&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transactionManager.rollback(status);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;e;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p style="white-space: normal;">&nbsp; &nbsp; 从这段代码可以看出，jdbc的连接，在最后才提交，那么一共开启了多少个连接，最后是怎么提交的呢？得看看JdbcTemplate源码和transactionManager.commit(status)。从JdbcTemplate源码可以查到，它getConnection是通过TransactionSynchronizationManager.getResource(dataSource)，而这个方法最终会从下面的Map获取：</p><p style="white-space: normal;">&nbsp; &nbsp; ThreadLocal&lt;Map&lt;Object, Object&gt;&gt; resources = new NamedThreadLocal&lt;&gt;(&quot;Transactional resources&quot;);</p><p style="white-space: normal;">&nbsp; &nbsp; 和我的预期一样，说明Spring的Transaction会保留所有的连接，就拿以上示例的方法为例，它在一个事务里面，执行了3个SQL，这3次数据库操作都是在同一个Connection下的，而这个Connection在TransactionManager的掌握之中，最终可以进行commit或者rollback。就拿jdbcTemplate.update() 来分析，它执行完后会调用releaseConnection，但是是否真的关闭连接，还是TransactionManager说了算，下面一段代码为证：</p><p>void doReleaseConnection(Connection con, DataSource dataSource) {</p><p>&nbsp; &nbsp;&nbsp;ConnectionHolder conHolder = TransactionSynchronizationManager.getResource(dataSource);</p><p>&nbsp; &nbsp; if (conHolder != null &amp;&amp; connectionEquals(conHolder, con)) {</p><p>&nbsp; &nbsp; &nbsp; &nbsp; <span style="color: rgb(192, 0, 0);">// It&#39;s the transactional Connection: <strong>Don&#39;t close it.</strong></span></p><p>&nbsp; &nbsp; &nbsp; &nbsp; conHolder.released();</p><p>&nbsp; &nbsp; &nbsp; &nbsp; return;</p><p>&nbsp; &nbsp; } else {</p><p>&nbsp; &nbsp; &nbsp; &nbsp; logger.debug(&quot;Returning JDBC Connection to DataSource&quot;);</p><p>&nbsp; &nbsp; &nbsp; &nbsp; doCloseConnection(con, dataSource);</p><p>&nbsp; &nbsp; }</p><p>&nbsp; &nbsp; 同时，也可以看到，是根据DataSource来获取连接的，所以如果不是当前的DataSource，连接就会交给JDBC去close。</p><p>&nbsp; &nbsp; 注意到foo()方法连接了一个其他数据源，对这个数据源，执行完成后就会立即提交，无法进行统一的事务控制。需要用到分布式事务，可以考虑结合Atomikos来处理。</p><p style="white-space: normal;">&nbsp; &nbsp; 现在，再回到上面的问题，最外层foo()方法针对于testDB开启了事务，内部insert也是基于testDB数据源的，所以它执行完后不会提交，当foo()结束后才会提交或回滚。</p><p><br/></p><p><strong>3、一套代码，同样的方法，根据传入的参数，使用不同的目标数据源</strong></p><p>对于这个场景，可以将数据源参数，在入口（Controller）传入ThreadLocal，然后执行数据源选择时，根据当前Thread的key来决定数据源目标。这样，就能和场景2公用一套解决方案。</p><p><br/></p><p><br/></p><p>参考资料：</p><p>1.基于Mybatis多SqlSession实例分开扫描各自Mapper</p><p><a href="https://blog.csdn.net/isea533/article/details/46815385">https://blog.csdn.net/isea533/article/details/46815385</a></p><p><a href="http://www.cnblogs.com/ityouknow/p/6102399.html">http://www.cnblogs.com/ityouknow/p/6102399.html</a></p><p><a href="https://blog.csdn.net/maoyeqiu/article/details/74011626">https://blog.csdn.net/maoyeqiu/article/details/74011626</a></p><p><a href="https://blog.csdn.net/neosmith/article/details/61202084">https://blog.csdn.net/neosmith/article/details/61202084</a></p><p><a href="https://www.cnblogs.com/Alandre/p/6611813.html">https://www.cnblogs.com/Alandre/p/6611813.html</a></p><p><br/></p><p>2.动态AOP数据源</p><p><a href="https://github.com/helloworlde/SpringBoot-DynamicDataSource/blob/roundrobin/src/main/java/cn/com/hellowood/dynamicdatasource/configuration/DynamicDataSourceContextHolder.java">https://github.com/helloworlde/SpringBoot-DynamicDataSource/blob/roundrobin/src/main/java/cn/com/hellowood/dynamicdatasource/configuration/DynamicDataSourceContextHolder.java</a></p><p><a href="https://github.com/baomidou/dynamic-datasource-spring-boot-starter/tree/master/src/main/java/com/baomidou/dynamic/datasource">https://github.com/baomidou/dynamic-datasource-spring-boot-starter/tree/master/src/main/java/com/baomidou/dynamic/datasource</a></p><p><br/></p><p>3.另外一种思路：</p><p><a href="https://github.com/hs-web/hsweb-framework/blob/master/hsweb-commons/hsweb-commons-dao/hsweb-commons-dao-mybatis/src/main/java/org/hswebframework/web/dao/mybatis/dynamic/DynamicSqlSessionFactory.java">https://github.com/hs-web/hsweb-framework/blob/master/hsweb-commons/hsweb-commons-dao/hsweb-commons-dao-mybatis/src/main/java/org/hswebframework/web/dao/mybatis/dynamic/DynamicSqlSessionFactory.java</a> </p><p><br/></p>

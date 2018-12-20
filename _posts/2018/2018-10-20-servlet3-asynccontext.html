@@ -1,0 +1,44 @@
+---
+layout: ue
+title: 关于Servlet3中的AsyncContext
+category: Java框架和组件
+tags: Servlet
+keywords: "AsyncContext"
+---
+
+<p>Servlet3中的AsyncContext异步和多线程异步有什么区别？AsyncContext该如何使用？</p><p><br/></p><p>AsyncContext不是让你异步输出，而是让你同步输出，但是解放服务器端的线程使用，使用AsyncContext的时候，对于浏览器来说，他们是同步在等待输出的，但是对于服务器端来说，处理此请求的线程并没有卡在那里等待，则是把当前的处理转为线程池处理了，关键就在于线程池，服务器端会起一个线程池去服务那些需要异步处理的请求，而如果你自己每次请求去起一个线程处理的话，这就有可能会耗大量的线程。&nbsp;</p><p><br/></p><p>AsyncContext使用方法：</p><pre class="brush:java;toolbar:false">final&nbsp;AsyncContext&nbsp;asyncContext&nbsp;=&nbsp;request.getAsyncContext();&nbsp;&nbsp;
+
+//添加监听器监听异步的执行结果&nbsp;&nbsp;
+asyncContext.addListener(new&nbsp;AsyncListener()&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onComplete(AsyncEvent&nbsp;event)&nbsp;throws&nbsp;IOException&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//在这里处理正常结束的逻辑&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onTimeout(AsyncEvent&nbsp;event)&nbsp;throws&nbsp;IOException&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//在这里处理超时的逻辑&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onError(AsyncEvent&nbsp;event)&nbsp;throws&nbsp;IOException&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//在这里处理出错的逻辑&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;onStartAsync(AsyncEvent&nbsp;event)&nbsp;throws&nbsp;IOException&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//在这里处理开始异步线程的逻辑&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+});&nbsp;
+
+//设置超时的时间，到了时间以后，会回调onTimeout的方法&nbsp;&nbsp;
+asyncContext.setTimeout(10000L);&nbsp;&nbsp;
+
+//在这里启动，传入一个Runnable对象，服务器会把此Runnable对象放在线程池里面执行&nbsp;&nbsp;
+asyncContext.start(new&nbsp;Runnable()&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;run()&nbsp;{&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//在这里做耗时的操作，如果做完，则调用complete方法通知回调，异步处理结束了&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;asyncContext.complete();&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;
+});</pre><p><br/></p><p><br/></p>

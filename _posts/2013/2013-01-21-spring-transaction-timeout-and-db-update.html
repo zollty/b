@@ -1,0 +1,14 @@
+---
+layout: ue
+title: 设置事务超时时间的问题及数据库update和锁
+category: 系统架构和设计
+tags: 事务
+keywords: "事务和锁, Spring事务超时"
+---
+
+<p><span style="white-space: pre;">	</span>Oracle的update语句问题：<br/></p><p>update config t set t.value =1 where t.key=&#39;DB_ KEY&#39;</p><p><span style="white-space:pre">	</span>或者：</p><p>select * from config t where t.key=&#39;DB_KEY&#39; for update</p><p><span style="white-space:pre">	</span>这个update会试图为where条件指定的那些数据加上行级锁，但如果此时这些数据已经被其他事务加锁了，则会一直等待，直到锁被释放，然后再去竞争这些数据的锁。</p><p><span style="white-space:pre">	</span>问题是，我不想让它一直等待，如果加不上锁就立即返回失败信息。对于select ... for update语句，可以用如下方式：</p><p>select ... for update nowait（加锁失败则立即报错）</p><p>select ... for update wait 3（最多等待3秒）</p><p><span style="white-space:pre">	</span>但仅限于select ... for update语句，update语句没有这个功能。而且，这是Oracle数据库所特有的功能。</p><p><br/></p><p><span style="white-space:pre">	</span>我在设计多服务器、多线程数据库同步操作时，最开始是采用的如下方式：</p><pre class="brush:java;toolbar:false">//&nbsp;如果更新成功了，则i=1，否则i=0
+int&nbsp;i&nbsp;=&nbsp;&quot;update&nbsp;config&nbsp;t&nbsp;set&nbsp;t.flag&nbsp;=1&nbsp;where&nbsp;t.key=&#39;DB_KEY&#39;&nbsp;and&nbsp;t.flag=0&quot;;&nbsp;
+//&nbsp;当i=1时才允许去做查询和更新数据
+if(i==1)&nbsp;do&nbsp;query&nbsp;&amp;&nbsp;update&nbsp;DATA;&nbsp;
+//&nbsp;查询完之后将DB_KEY的flag改回原来的值
+update&nbsp;config&nbsp;t&nbsp;set&nbsp;t.flag&nbsp;=0&nbsp;where&nbsp;t.key=&#39;DB_KEY&#39;&nbsp;and&nbsp;t.flag=1</pre><p><span style="white-space:pre">	</span>从中可见，t.key=&#39;DB_KEY&#39;这条数据就好似一把锁，谁成功的将flag置为1就意味着谁打开了这把锁，只有打开了锁才能操作真正的数据，避免了多服务器、多线程查询出同样的数据。</p><p><span style="white-space:pre">	</span>但是啊，上面的方法有个致命的缺点：如果一个线程将锁打开了，而因为意外死亡（停机、重启等原因）未能将锁锁上，那么这意味着什么？意味着这把锁永远处于打开状态，其他线程都没有机会再次获取它了。所以我想到了利用事务来控制，起初开启事务，然后再update KEY，如果成功了，再query &amp; update DATA，然后再update KEY归还钥匙。如果线程意外停止了，那么未提交的事务会立即回滚，锁回归未使用状态。</p><p><span style="white-space:pre">	</span>我是这样做的，设置事务的超时时间：开启事务——update——doSomething比如query——关闭事务。事务超时时间设置为5秒。如果update等待超过这个时间，则会抛出异常，报错终止。</p><p><span style="white-space:pre">	</span>为什么要设置一个超时时间呢，因为完整的这一套事务控制需要一定时间，比如4秒，如果DB_KEY已经被加锁，则其他update KEY将会处于等待状态，等待多久，这个时间是不可控的，所以我想要自己来控制这个等待的timeout时间。</p><p><span style="white-space:pre">	</span>但是我测试时发现的是，超时后，update处没有报错，后面的query依然执行，query时才报错（事务超时异常）。这是个比较难看透的问题，我想了很久才想通，原因是update时可能已经等待了4.99秒，然后update成功了，接着执行query，但是此时时间已经超过5秒了，所以query报事务超时异常（正所谓，好不容易等到update成功了，但是却没有足够的时间留给后面的query）。因此，update和query的时间差不能太大，否则的话有可能update成功了而query失败（从设计上讲，我不太希望有这种情况出现，当然，即使出现了，也只是浪费了一次事务罢了）。</p><p><span style="white-space:pre">	</span>分析清楚了这个问题之后，现在有两种合理的设计方案：</p><p>1）不用事务，直接走update KEY——query &amp; update DATA——update KEY路线，但是在update KEY时要记录update date，并启动一个线程循环不断的去检查KEY是否处于flag=1且now - update date &gt; 30秒的状态，如果处于这种状态，则占用KEY的时间过长，因而断定获取KEY的那个线程出现了异常，没有能力将KEY还原，此时这个Check线程就帮忙把KEY重置为未使用状态。</p><p>2）使用事务，为update KEY——query &amp; update DATA——update KEY期间加上事务控制，如果线程挂掉，则事务回滚。也可以设置一个超时时间，但是有可能会因为timeout限制而误杀正常的流程。因此超时时间不能太短——越短，误杀正常流程的几率越大。</p><p><br/></p>

@@ -1,0 +1,29 @@
+---
+layout: ue
+title: 整合Shiro Session和JWT登录
+category: 系统架构和设计
+tags: JWT,Session
+keywords: "JWT,Session,登录"
+---
+
+<p><br/></p><p style="white-space: normal;">关于JWT原理和相关问题，一定要先阅读我的另一篇文章《<a href="http://blog.zollty.com/b/archive/jwt-technology-a-token-auth-mechanism.html" target="_blank" style="background-color: rgb(245, 245, 213);">JWT技术——基于token的鉴权机制</a>》</p><p style="white-space: normal;">根据文中的论述，JWT存在许多安全隐患，建议使用HTTPS。<br/></p><p style="white-space: normal;">但是本文以实现JWT方案为主，不考虑安全性——JWT方案是可以扩展的，为了提高安全性，可以在后期的设计中去加强。</p><p style="white-space: normal;"><br/></p><p>JWT登录的原理：</p><p>-&gt; 客户端 携带认证名和密码&nbsp; 发起登录请求&nbsp;</p><p>-&gt; 服务器端验证成功，返回 token 给客户端</p><p>-&gt; 客户端保存 token（通常是保存在Cookie或者LocalStorage中）</p><p>-&gt; 客户端以后每次请求，都在Header中 携带该Token</p><p>-&gt; 服务器端，每次接收非登录请求，都验证Header中是否有token</p><p>注意：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>服务端要支持CORS(跨来源资源共享)策略，以便接收其他不同客户端的请求。</p></li><li><p>平滑的处理token过期，如果用户一直在活动，需要刷新token，客户端要配合。</p></li></ol><p><br/></p><p style="white-space: normal;">Session登录的原理：</p><p style="white-space: normal;">-&gt; 客户端 携带认证名和密码&nbsp; 发起登录请求&nbsp;</p><p style="white-space: normal;">-&gt; 服务器端验证成功，将用户信息存储下来，生成一个 sessionId， 返回给客户端，并通知客户端将sessionId set到cookie中</p><p style="white-space: normal;">-&gt; 客户端自动执行服务器端将sessionId set到cookie中的命令，sessionId被自动保存在cookie中</p><p style="white-space: normal;">-&gt; 客户端以后每次请求，都会自动将cookie中的sessionId发送给服务器端</p><p style="white-space: normal;">-&gt; 服务器端，每次接收请求，都从cookie中取出sessionId，根据这个id找到存储的用户信息，如果有，说明登录，否则说明未登录或者已过期。</p><p><br/></p><p>两者是非常相似的，不同之处在于：</p><p>1、Session登录方式，sessionId是自动保存到cookie中的，且发送请求时，浏览器是自动附加上cookie信息的，这一切的前提是：前后端处于同一域下面，如果不是相同的域，cookie信息是不会自动提交给后端的。</p><p>2、Session登录方式，服务器端缓存了登录用户的信息，而JWT方式，服务器端可以不存储任何信息，只要验证Token通过即可，不一定要知道用户信息，实际上JWT方式，JWT的Token本身存储了一些关键数据（比如用户名，过期时间），token是根据密码学算法生成的，无法更改token里面的内容。</p><p>3、Session登录方式，缓存的过期时间是由服务器端设定的，而JWT方式，token信息中自带过期时间（服务器端生成token的时候就设定好了过期时间），过期之后token验证失败。</p><p>4、Session登录方式，优点是不存在CORS跨域问题，且服务器端处理登录过期很简单、自然。但不支持跨域访问在某些情况下是硬伤！！(比如APP登录)</p><p>5、Session登录方式，sessionId是自动保存和发送的，而JWT方案，客户端需要写代码实现token的保存，并配置AJAX的header实现token的发送。</p><p><br/></p><p>Session和JWT登录 整合方案：<br/></p><p>1、用类似于JWT的token作为SessionId，客户端采用JWT模式来保存和发送这个sessionId，保存在cookie或localStorage中，发送时用header；</p><p>2、为了接收非同源客户端的AJAX请求，服务器端需要启用 CORS（Cross-Origin Resource Sharing） 跨域访问，为指定域名的客户端开通白名单；</p><p>3、服务器端采用session的处理方式，保存session信息，并根据请求来更新过期时间，同时，服务器端兼容从cookie或者header中取得sessionId。<br/></p><p><br/></p><p>具体在 Shiro 框架中，实现起来也简单，重写DefaultWebSessionManager的getSessionId方法，加入从header中获取的策略即可，</p><p>代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;HeaderBasedWebSessionManager&nbsp;extends&nbsp;DefaultWebSessionManager&nbsp;implements&nbsp;WebSessionManager&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;Serializable&nbsp;getSessionId(ServletRequest&nbsp;request,&nbsp;ServletResponse&nbsp;response)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Serializable&nbsp;id&nbsp;=&nbsp;super.getSessionId(request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(id&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;id;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;=&nbsp;getSessionIdFromHeader((HttpServletRequest)&nbsp;request);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(id&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID,&nbsp;id);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.setAttribute(ShiroHttpServletRequest.REFERENCED_SESSION_ID_IS_VALID,&nbsp;Boolean.TRUE);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;id;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;Serializable&nbsp;getSessionIdFromHeader(HttpServletRequest&nbsp;request)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;request.getHeader(getSessionIdName());&nbsp;//&nbsp;JSESSIONID
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+}</pre><p><br/></p><p><br/></p>

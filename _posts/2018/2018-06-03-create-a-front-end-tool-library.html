@@ -1,0 +1,124 @@
+---
+layout: ue
+title: 打造一个类似于lodash的前端工具库
+category: 前端技术_JS、CSS等
+tags: 前端工具库
+keywords: "前端工具库,lodash,rollup"
+---
+
+<p><strong>一、分析借鉴目前最主流的前端工具库</strong><br/></p><p>我分析了github上多个前端工具库的设计，以lodash为例说明：<br/></p><p>lodash的工程，有master、npm、npm-package、amd分支，以及 多种类型的tag：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>4.17.10（umd）</p></li><li><p>4.17.10-npm</p></li><li><p>4.17.10-es</p></li><li><p>4.17.10-amd</p></li></ul><p>这 4个分支 + 4个tag 的代码甚至工程结构，都不太一样。</p><p>我目前还看不明白它这么多套代码，是分开维护的，还是只维护一套，其他都是自动生成的？</p><p>因为所有8个分支的配置我都检查过了，并没有发现自动生成多份代码的相关配置。</p><p>而且lodash工程里面并没有babel的配置，难道lodash各个版本的代码是分开维护的？<br/></p><p><br/></p><p>本来想模仿lodash的工程脚手架，无奈看了半天看不懂。但是它的功能我基本清楚了：</p><p>1、umd模块，分为 lodash-core.js 和 lodash.js 、lodash-fp.js 三部分，提供了 未压缩包和压缩包（貌似没有看到source map）。</p><p>&nbsp; <a href="https://github.com/lodash/lodash/wiki/FP-Guide" target="_blank">lodash-fp</a> 即 （Functional Programming）函数式编程，对于_.map等部分方法，lodash提供了<a href="https://github.com/lodash/lodash/wiki/FP-Guide" target="_blank">FP版本</a>。</p><p>2、npm模块（也是CommonJS版），有各个主功能模块(比如array)，都是require和module.export形式，除了lodash.js提供了min压缩版，其他都是源码无压缩。</p><p>3、AMD版，全部都是源码无压缩，有主功能模块(比如array)，都是define引入/导出模式，但是没有lodash.js统一入口模块。</p><p>4、es模块，全部都是源码无压缩，主功能模块全部提供了 default引入形式（例如array.default.js）以便支持 import array from &#39;lodash/array&#39;。</p><p>5、npm模块，分成很多子项目，每一个函数都可以单独install。</p><p><br/></p><p>除了lodash，我还分析了vue和react的工程构建方式，并学习了rollup、jest等。<br/></p><p><br/></p><p><strong>二、设计自己的前端工具库</strong></p><p><br/></p><p><strong>我想达到的目的：</strong></p><p>1、要支持 es6、node-cjs 和 浏览器 script直接引入，暂时不单独考虑支持amd；</p><p>2、只维护一套代码，其他均有工具自动生成；</p><p>3、浏览器版本的，支持source map，其他版本都是源码形式提供；</p><p>4、cjs、es6版本，支持按函数和主功能模块(例如array、date)引入，es6版本还提供对import xxx 这种形式的支持；</p><p>5、浏览器版本的，暂时不分模块，只能支持全部引入，后面根据情况可以提供core等精简版本。</p><p><br/></p><p><strong>关于源码的书写和维护：</strong></p><p>目前大多数工具库，都是用的es6语法，我看vue源码是用的带type类型的es6（好像叫flow），lodash源码好像是es6(master分支)，而react用的好像也是自家的flow，只有谷歌的angular2用的typescript。</p><p>所以我考虑采用 es6来编写，但不排除以后换成flow或者ts。</p><p><br/></p><p>具体做法：</p><p><br/></p><p>使用es6语法来编写工具类，并把源代码原原本本提供出去，同时生成一份umd格式的，包含源码、压缩包和source map。</p><p>整个target(dist)内容示例如下：</p><pre class="brush:plain;toolbar:false">//&nbsp;所有函数
+toMapKey.js
+toMapValue.js
+...
+collection.js&nbsp;//&nbsp;主功能模块
+collection.default.js&nbsp;//&nbsp;xxx.default.js用于支持es6的直接import
+...
+zollty-util.esm.js&nbsp;//&nbsp;主模块es源码，相当于&nbsp;index.js、main.js
+zollty-util.esm.default.js&nbsp;//&nbsp;xxx.default.js用于支持es6的直接import&nbsp;xxx&nbsp;from&nbsp;&#39;xxx.js&#39;，并且用它来生成umd版本
+zollty-util.js&nbsp;//&nbsp;umd版本的源码，根据zollty-util.esm.default.js自动生成
+zollty-util.min.js&nbsp;//&nbsp;umd版本压缩后的代码
+zollty-util.min.map&nbsp;//&nbsp;umd版本压缩代码的source&nbsp;map</pre><p><br/></p><p><strong>xxx.default.js 说明</strong></p><p>以collection.js为例：</p><p>collection.default.js代码如下：</p><pre class="brush:js;toolbar:false">import&nbsp;toMapKey&nbsp;from&nbsp;&#39;./toMapKey.js&#39;;
+import&nbsp;toMapValue&nbsp;from&nbsp;&#39;./toMapValue.js&#39;;
+//&nbsp;支持单个引入&nbsp;import&nbsp;{&nbsp;toMapKey,&nbsp;toMapValue&nbsp;}&nbsp;from&nbsp;&#39;collection.default&#39;
+//&nbsp;也可以像这样全部引入&nbsp;import&nbsp;*&nbsp;as&nbsp;coll&nbsp;from&nbsp;&#39;collection.default&#39;;
+export&nbsp;default&nbsp;{
+toMapKey,
+toMapValue,
+}</pre><p>collection.js代码如下：</p><pre class="brush:js;toolbar:false">//&nbsp;支持单个引入&nbsp;import&nbsp;{&nbsp;toMapKey,&nbsp;toMapValue&nbsp;}&nbsp;from&nbsp;&#39;collection&#39;
+export&nbsp;{&nbsp;default&nbsp;as&nbsp;toMapKey&nbsp;}&nbsp;from&nbsp;&#39;./toMapKey.js&#39;;
+export&nbsp;{&nbsp;default&nbsp;as&nbsp;toMapValue&nbsp;}&nbsp;from&nbsp;&#39;./toMapValue.js&#39;;
+
+//&nbsp;支持default（默认）引入&nbsp;import&nbsp;coll&nbsp;from&nbsp;&#39;collection&#39;
+export&nbsp;{&nbsp;default&nbsp;}&nbsp;from&nbsp;&#39;./collection.default.js&#39;;</pre><p>即&nbsp;collection.default.js 只是供&nbsp;collection.js 来引入的，其作用是为它<span style="text-decoration: underline;">提供 export default 的功能</span>，以支持能直接&nbsp;import coll from &#39;collection&#39;。</p><p><br/></p><p>上面是target(dist)的目录，那么源码src目录应该是怎样呢？</p><p>维护源码的时候，应该分模块，比如 集合相关的工具函数，放到 src/collection/ 目录下</p><p>src /&nbsp;</p><p>|--collection /&nbsp;</p><p>|&nbsp; |--- toMapValue.js</p><p>|&nbsp; |--- toMapKey.js</p><p>|&nbsp; |---&nbsp; ......</p><p>|--array /&nbsp;</p><p>|-- .....</p><p>|--zollty-util.js</p><p>|_______________</p><p>构建的时候，将所有模块都拷贝到target(dist)目录下，同时自动生成各模块的主module和总module。</p><p><br/></p><p><strong>关于构建工具</strong></p><p>经我广泛的研究，结论如下：</p><p>1、应用类的工程，用webpack来打包；</p><p>2、工具类的工程，用rollup来打包，例如vue和react，都是用的rollup来打包。</p><p><br/></p><p>所以，这个工程，决定用<strong>rollup</strong>来打包，而不是webpack。<br/></p><p>rollup打包出来，代码更干净，就像自己写的代码一样，而webpack打包出来，会添加很多其他的代码。</p><p><br/></p><p><strong>其他功能</strong></p><p>1、单元测试</p><p>使用jest来做单元测试。</p><p><br/></p><p>2、持续集成</p><p>使用 travis。</p><p><br/></p><p>git代码地址：<a href="https://github.com/zollty-org/zollty-util.js">https://github.com/zollty-org/zollty-util.js</a></p><p>npm仓库地址：<a href="https://www.npmjs.com/package/@zollty/zollty-util">https://www.npmjs.com/package/@zollty/zollty-util</a> </p><p><br/></p><p><strong><span style="font-size: 20px;">三、架构和技术说明</span></strong></p><p><br/></p><p>技术列表如下：</p><p><br/></p><p>核心技术：</p><pre class="brush:plain;toolbar:false">babel
+rollup
+jest
+terser
+eslint</pre><p><br/></p><p>辅助技术</p><pre class="brush:plain;toolbar:false">cross-env
+commitlint&nbsp;//&nbsp;检查git&nbsp;commit，要求其符合规范
+semantic-release
+husky&nbsp;//&nbsp;拦截不符合规范的git&nbsp;commit和push
+travis-deploy-once
+
+codecov
+jshint
+editorconfig
+browserslist</pre><p><br/></p><p>技术说明：</p><p><br/></p><p><strong>使用<span style="color: rgb(192, 0, 0);">rollup</span>构建</strong></p><p>配置在根目录下面的&nbsp;rollup.config.js&nbsp;</p><p><br/></p><p><strong>在使用 rollup 构建之前，会先准备打包文件，会执行node build/prepare</strong></p><p>build/prepare.js的基本作用是 把 src 下面的文件拷贝 到 tmp 目录，同时生成 子模块的js，例如 zollty-util.esm.js、collection.js、collection.default.js</p><p>同时，会修正js中import的路径。</p><p><br/></p><p>需要说明的是，rollup.config.js配置中的</p><p>globals(),</p><p>builtins(),</p><p>localResolve(),</p><p>resolve()</p><p>commonjs()</p><p>这些应该暂时还没用到。</p><p>export出的配置，是一个数组，不同的input文件，输出配置不一样，</p><p>例如 对于 tmp/main.js （实际上为zollty-util.esm.js）文件，输出了 umd、iife、cjs 三种格式，<br/></p><p>同时，在zollty-util.esm.js的基础上，再次转换成&nbsp;&nbsp;zollty-util.es.js （es6 module的es5语法的文件），之所以要转换成 es5语法，其初衷是想它被其他模块引入时，不需要babel转换也能直接使用，zollty-util.es.js会被当做本js库的package.json的main入口。（其实，我也不确定这样做到底有多少意义），具体参见这篇文章的描述：<a href="https://loveky.github.io/2018/02/26/tree-shaking-and-pkg.module/">https://loveky.github.io/2018/02/26/tree-shaking-and-pkg.module/</a> </p><p><br/></p><p>其配置文档，参见：</p><p><a href="https://www.cnblogs.com/tugenhua0707/p/8179686.html" target="_blank">深入学习rollup来进行打包</a></p><p><a href="https://segmentfault.com/a/1190000010628352" target="_blank">JS打包工具rollup——完全入门指南</a></p><p><a href="https://segmentfault.com/a/1190000015221988#articleHeader2" target="_blank">使用模块化工具打包自己开发的JS库</a></p><p><a href="https://rollupjs.org/guide/zh#npm-packages">https://rollupjs.org/guide/zh#npm-packages</a></p><p><a href="https://github.com/rollup/rollup">https://github.com/rollup/rollup</a> </p><p><br/></p><p><strong>使用<span style="color: rgb(192, 0, 0);">terser</span>压缩es6语法的 js</strong><br/></p><p>terser是uglify-es6的增强版，因为uglify不支持es6，而uglify-es6又停止更新了，故推出了terser</p><p>terser支持和rollup集成，但是我在rollup打包过程不包含js压缩，为更灵活的控制 js压缩，我单独写了个脚本 ，执行node build/minify来处理压缩。</p><p><br/></p><p>我是用的terser默认的配置，只是添加了 sourcemap的生成。<br/></p><p><br/></p><p>terser使用文档如下：</p><p><a href="https://github.com/terser-js/terser">https://github.com/terser-js/terser</a> </p><p><br/></p><p><span style="color: rgb(192, 0, 0);"><strong>babel </strong></span><strong>及 <span style="color: rgb(192, 0, 0);">browserslist </span>配置</strong></p><p>rollup构建时，引入了&nbsp; rollup-plugin-babel 插件，会调用 babel 对js进行处理。</p><p>babel的配置文件为：.babelrc.js</p><p>我使用 的是 babel 7（@babel/core@7.2.0），其配置和 babel 6有很大的不一样。<br/></p><p>目前，只配置了一个babel-preset-env，其说明参见：</p><p><a href="https://babeljs.io/docs/en/babel-preset-env/#how-it-works" style="background-color: rgb(245, 245, 213);">https://babeljs.io/docs/en/babel-preset-env/#how-it-works</a></p><p><a href="https://www.babeljs.cn/docs/setup#installation">https://www.babeljs.cn/docs/setup#installation</a></p><p>另外，babel 默认使用 .browserslistrc 的配置，其内容如下：</p><pre class="brush:plain;toolbar:false">&gt;&nbsp;5%
+current&nbsp;node
+not&nbsp;dead</pre><p>等价于&nbsp;在package.json中配置 [ &quot;browserslist&quot;: &quot;&gt; 5%, current node, not dead&quot; ]</p><p>对于browserslist的使用，参见其说明文档：<a href="https://github.com/browserslist/browserslist">https://github.com/browserslist/browserslist</a> </p><p><br/></p><p><strong><span style="color: rgb(192, 0, 0);">jest </span>单元测试配置</strong><br/></p><p>配置放在&nbsp;jest.config.js 文件中</p><p>主要设置了&nbsp;&quot;verbose&quot;: true 以报告每个测试的执行情况，显示执行时间。</p><p>其配置文档参见：<a href="https://jestjs.io/docs/zh-Hans/configuration">https://jestjs.io/docs/zh-Hans/configuration</a> </p><p><br/></p><p>注意，jest 需要依赖 babel-jest，要依赖babel 6，需要安装 babel 6 和 babel 7的桥接。</p><p>babel-jest，文档：<a href="https://www.npmjs.com/package/babel-jest">https://www.npmjs.com/package/babel-jest</a></p><p>文档中说，如果使用babel 7的话，需要安装babel 6~7的桥接版本&#39;babel-core@^7.0.0-bridge&#39;</p><p><br/></p><p>单元测试的代码，统一放在了 __test__ 目录下，这个是 jest 默认扫描的目录之一（该目录下面的js文件都会执行），无需配置。</p><p><br/></p><p>注意，jest 测试代码，我也用的是 es6语法。</p><p><br/></p><p><span style="font-weight: 700;">IDE（VS Code）使用 <span style="font-weight: 700; color: rgb(192, 0, 0);">eslint </span>插件检查和自动更正 js 代码</span></p><p><br/></p><p>我在 vs code 编辑器中 安装了 eslint 插件，</p><p>并在IDE中配置了如下（setting.json）：</p><pre class="brush:js;toolbar:false">{
+&nbsp;&nbsp;&quot;editor.formatOnSave&quot;:&nbsp;true,
+&nbsp;&nbsp;&quot;terminal.integrated.shell.windows&quot;:&nbsp;&quot;D:\\C\\Program&nbsp;Files\\Git\\bin\\bash.exe&quot;,
+&nbsp;&nbsp;&quot;eslint.autoFixOnSave&quot;:&nbsp;true,
+&nbsp;&nbsp;&quot;eslint.options&quot;:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;plugins&quot;:&nbsp;[&quot;html&quot;],
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;extensions&quot;:&nbsp;[&quot;.js&quot;,&nbsp;&quot;.vue&quot;]
+&nbsp;&nbsp;},
+&nbsp;&nbsp;&quot;eslint.validate&quot;:&nbsp;[
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;javascript&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;javascriptreact&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;language&quot;:&nbsp;&quot;vue&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;autoFix&quot;:&nbsp;true
+&nbsp;&nbsp;&nbsp;&nbsp;},
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;language&quot;:&nbsp;&quot;html&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;autoFix&quot;:&nbsp;true
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;],
+&nbsp;&nbsp;&quot;vue-peek.supportedLanguages&quot;:&nbsp;[&quot;vue&quot;],
+&nbsp;&nbsp;&quot;vue-peek.targetFileExtensions&quot;:&nbsp;[&quot;.vue&quot;,&nbsp;&quot;.js&quot;],
+&nbsp;&nbsp;&quot;prettier.singleQuote&quot;:&nbsp;true,
+&nbsp;&nbsp;&quot;prettier.semi&quot;:&nbsp;false,
+&nbsp;&nbsp;&quot;vetur.format.defaultFormatter.html&quot;:&nbsp;&quot;js-beautify-html&quot;,
+&nbsp;&nbsp;&quot;explorer.autoReveal&quot;:&nbsp;false,
+&nbsp;&nbsp;&quot;workbench.editor.enablePreview&quot;:&nbsp;false,
+&nbsp;&nbsp;&quot;terminal.integrated.scrollback&quot;:&nbsp;10000,
+&nbsp;&nbsp;&quot;javascript.updateImportsOnFileMove.enabled&quot;:&nbsp;&quot;always&quot;,
+&nbsp;&nbsp;&quot;files.associations&quot;:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;.jshintrc&quot;:&nbsp;&quot;jsonc&quot;,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;.eslintrc&quot;:&nbsp;&quot;jsonc&quot;
+&nbsp;&nbsp;}
+}</pre><p>注意到上面的，files.associations 这个配置是为了 在json中支持注释。</p><p><br/></p><p>另外，我配置了&nbsp;.eslintignore，用来排除 部分目录和代码，不进行eslint 校验。</p><p><br/></p><p>另外，我安装了jshint插件（本工程无需这个插件），需要在工程根目录 新建 .jshintrc 文件，内容如下;</p><pre class="brush:plain;toolbar:false">{
+&nbsp;&quot;undef&quot;:&nbsp;true,
+&nbsp;&quot;unused&quot;:&nbsp;true,
+&nbsp;&quot;esversion&quot;:&nbsp;6,
+&nbsp;&quot;asi&quot;:&nbsp;true
+}</pre><p>jshint详细配置参见：<a href="https://jshint.com/docs/options/">https://jshint.com/docs/options/</a> </p><p><br/></p><p style="white-space: normal;"><span style="font-weight: 700;">命令行使用 <span style="font-weight: 700; color: rgb(192, 0, 0);">eslint </span>检查 js 代码</span></p><p style="white-space: normal;">运行&nbsp;eslint --ext .js ./src 即可检查 js 源码是否符合规范。</p><p style="white-space: normal;">eslint的配置文件为&nbsp;.eslintrc，内容如下：</p><pre class="brush:plain;toolbar:false">{
+&nbsp;&nbsp;&quot;extends&quot;:&nbsp;&quot;airbnb-base&quot;,
+&nbsp;&nbsp;&quot;env&quot;:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;jest&quot;:&nbsp;true,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;browser&quot;:&nbsp;true,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;node&quot;:&nbsp;true,
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;es6&quot;:&nbsp;true
+&nbsp;&nbsp;},
+&nbsp;&nbsp;&quot;rules&quot;:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;semi&quot;:&nbsp;[0,&nbsp;&quot;never&quot;],
+&nbsp;&nbsp;&nbsp;&nbsp;&quot;semi-spacing&quot;:&nbsp;[2,&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;before&quot;:&nbsp;false,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;after&quot;:&nbsp;true
+&nbsp;&nbsp;&nbsp;&nbsp;}]
+&nbsp;&nbsp;}
+}</pre><p>semi&quot;: [0, &quot;never&quot;] 代表，js无 分号结尾，0代表有分号结尾也不报错。</p><p>其配置说明参见：<br/></p><p><a href="https://eslint.org/docs/rules/">https://eslint.org/docs/rules/</a> </p><p><a href="https://blog.csdn.net/helpzp2008/article/details/51507428">https://blog.csdn.net/helpzp2008/article/details/51507428</a> </p><p><br/></p><p><strong>使用&nbsp;<span style="color: rgb(192, 0, 0);">commitlint </span>检查 git commit规范</strong></p><p>使用的@commitlint这个插件，其配置文件commitlint.config.js 如下：</p><pre class="brush:js;toolbar:false">module.exports&nbsp;=&nbsp;{
+&nbsp;&nbsp;extends:&nbsp;[&#39;@commitlint/config-angular&#39;]
+};</pre><p>其允许的注释前缀如下：<br/></p><pre class="brush:plain;toolbar:false">[&#39;build&#39;,
+&nbsp;&nbsp;&#39;ci&#39;,
+&nbsp;&nbsp;&#39;docs&#39;,
+&nbsp;&nbsp;&#39;feat&#39;,
+&nbsp;&nbsp;&#39;fix&#39;,
+&nbsp;&nbsp;&#39;perf&#39;,
+&nbsp;&nbsp;&#39;refactor&#39;,
+&nbsp;&nbsp;&#39;revert&#39;,
+&nbsp;&nbsp;&#39;style&#39;,
+&nbsp;&nbsp;&#39;test&#39;
+]</pre><p>例如&nbsp;git commit -a -m &#39;build: refactor&#39; 是合格的注释。</p><p><br/></p><p>具体参见：</p><p><a href="https://www.npmjs.com/package/@commitlint/config-angular" style="background-color: rgb(245, 245, 213);">https://www.npmjs.com/package/@commitlint/config-angular</a><br/></p><p><a href="https://github.com/webpack-contrib/terser-webpack-plugin/blob/master/commitlint.config.js">https://github.com/webpack-contrib/terser-webpack-plugin/blob/master/commitlint.config.js</a> </p><p><br/></p><p><strong>使用 IDE 的 <span style="color: rgb(192, 0, 0);">EditorConfig </span>插件规范 文件文本格式</strong></p><p>vscode 请安装插件：CTRL+SHIFT+X 搜索 EditorConfig 并安装，</p><p>然后在项目中新建 .editorconfig 文件，内容如下：</p><pre class="brush:plain;toolbar:false">root&nbsp;=&nbsp;true
+
+[*]
+charset&nbsp;=&nbsp;utf-8
+indent_style&nbsp;=&nbsp;space
+indent_size&nbsp;=&nbsp;2
+end_of_line&nbsp;=&nbsp;lf
+insert_final_newline&nbsp;=&nbsp;true
+trim_trailing_whitespace&nbsp;=&nbsp;true
+
+[*.md]
+insert_final_newline&nbsp;=&nbsp;false
+trim_trailing_whitespace&nbsp;=&nbsp;false</pre><p>这个工具的一个重要作用是，将新建文件和保存的文件，自动更正 为 lf 换行符。（不然的话，windows默认的换行符是 crlf）</p><p><br/></p><p>具体说明参见：<a href="http://editorconfig.org">http://editorconfig.org</a> </p><p><br/></p>

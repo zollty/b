@@ -1,0 +1,9 @@
+---
+layout: ue
+title: Git报错git error: unable to create file : Invalid argument
+category: 技术/开发工具
+tags: GIT
+keywords: "GIT报错"
+---
+
+<p><br/></p><p>解决方案，参见：<a href="https://stackoverflow.com/questions/26097568/git-pull-error-unable-to-create-file-invalid-argument">https://stackoverflow.com/questions/26097568/git-pull-error-unable-to-create-file-invalid-argument</a> </p><p><br/></p><p>I ran into the same problem, but wasn&#39;t willing to rename or delete these files. So here&#39;s a workaround in case you can live without accessing those files using a sparse-checkout:</p><p><br/></p><p>Go to the .git folder in your repo and open the file config. (You can also edit your configuration using tortoise-git, but I havn&#39;t got it installed here.) In the [core]section add the line</p><p><br/></p><p><strong>sparsecheckout = true</strong></p><p>then go to the folder .git/info and create the file <strong>sparse-checkout</strong>. Add something like</p><p><strong>*</strong></p><p><strong>!kickstarter/parsers/data/kickstarter/campaigndetails/*</strong></p><p><br/></p><p>The first line includes everything, while the second excludes all files in kickstarter/parsers/data/kickstarter/campaigndetails/. You should now be able to checkout the repo. Using wild-cards you can probably do more sophisticated excludes.</p><p>（!开头的为排除，可以设置多行、多个排除）</p><p><br/></p>
