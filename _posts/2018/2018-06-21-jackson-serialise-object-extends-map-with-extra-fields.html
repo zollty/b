@@ -1,0 +1,44 @@
+---
+layout: ue
+title: 解决JSON序列化继承Map的自定义对象时拿不到field属性值
+category: Java框架和组件
+tags: Jackson
+keywords: "Jackson"
+---
+
+<p>如题，该问题在国外论坛上已有人提出来：<a href="https://stackoverflow.com/search?q=jackson+extends+map" target="_blank">https://stackoverflow.com/search?q=jackson+extends+map</a> </p><p>但是并没有满意答案，都说要使用jackson的@JsonAnySetter注解：<a href="https://stackoverflow.com/questions/31320983/jackson-serialise-map-with-extra-fields" target="_blank">https://stackoverflow.com/questions/31320983/jackson-serialise-map-with-extra-fields</a>，但是这样一来就和Jackson绑定死了，换成Gson或者FastJSON就不灵了。</p><p><br/></p><p>现在，我把问题，清楚的描述一遍，直接上代码：</p><pre class="brush:java;toolbar:false">class&nbsp;Foo&lt;T&gt;&nbsp;extends&nbsp;HashMap&lt;Object,&nbsp;Object&gt;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Foo()&nbsp;{}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Foo(T&nbsp;data)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put(&quot;AAAA&quot;,&nbsp;data);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getData()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setData(T&nbsp;data)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>Foo类继承了HashMap，而且有一个私有的属性 data，经过json序列化后，data属性丢失，被放到了map中，</p><p>当反序列化时，data属性就为null了。测试代码如下：<br/></p><pre class="brush:java;toolbar:false">Foo&nbsp;foo&nbsp;=&nbsp;new&nbsp;Foo(&quot;XXXXXXXXXXXXX&quot;);
+String&nbsp;json&nbsp;=&nbsp;Json.toJSONString(foo);//UT.Json.
+System.out.println(json);
+//json&nbsp;=&nbsp;&quot;{\&quot;data\&quot;:&nbsp;\&quot;xxxxxxxxx\&quot;,&nbsp;\&quot;AAAA\&quot;:\&quot;XXXXXXXXXXXXX\&quot;}&quot;;
+foo&nbsp;=&nbsp;Json.parseObject(json,&nbsp;Foo.class);
+System.out.println(foo);
+System.out.println(foo.getData());&nbsp;//&nbsp;为null</pre><p>Jackson和Fastjson都是如此，究其原因，是因为序列化和反序列化时，Foo类被当做Map处理了。<br/></p><p><br/></p><p>前面说了，国外论坛上那些解决方案都不好，我想到了一个简单有效的方案，就是修改get方法：</p><pre class="brush:java;toolbar:false" style="line-height: 1.42857;">class&nbsp;Foo&lt;T&gt;&nbsp;extends&nbsp;HashMap&lt;Object,&nbsp;Object&gt;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;T&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Foo()&nbsp;{}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Foo(T&nbsp;data)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put(&quot;AAAA&quot;,&nbsp;data);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;T&nbsp;getData()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if(data!=null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;super.get(&quot;data&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;setData(T&nbsp;data)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.data&nbsp;=&nbsp;data;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>就是 get的时候，如果拿不到，就调用map.get(key)方法获取数据。</p><p>这样完美解决问题，不需要对JSON配置进行任何修改。</p><p><br/></p>

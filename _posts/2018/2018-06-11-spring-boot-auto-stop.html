@@ -1,0 +1,42 @@
+---
+layout: ue
+title: springboot自动关闭、主动关闭
+category: Spring专题
+tags: SpringBoot
+keywords: "SpringBoot自动关闭"
+---
+
+<p style="white-space: normal;">main保持：</p><p style="white-space: normal;"><br/></p><p><a href="https://blog.csdn.net/xxj_jing/article/details/69525032">https://blog.csdn.net/xxj_jing/article/details/69525032</a></p><div><p><br/></p><p>Springboot关闭</p><p><a href="https://hacpai.com/article/1488335661664">https://hacpai.com/article/1488335661664</a> </p><p><br/></p><p>EmbeddedWebApplicationContext context = (EmbeddedWebApplicationContext)BeanTool.getAppContext();</p><p>context.getEmbeddedServletContainer().stop();</p><p><br/></p><pre class="brush:java;toolbar:false">private&nbsp;void&nbsp;handleExitCode(ConfigurableApplicationContext&nbsp;context,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Throwable&nbsp;exception)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;exitCode&nbsp;=&nbsp;getExitCodeFromException(context,&nbsp;exception);
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(exitCode&nbsp;!=&nbsp;0)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(context&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;context.publishEvent(new&nbsp;ExitCodeEvent(context,&nbsp;exitCode));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SpringBootExceptionHandler&nbsp;handler&nbsp;=&nbsp;getSpringBootExceptionHandler();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(handler&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handler.registerExitCode(exitCode);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+private&nbsp;int&nbsp;getExitCodeFromException(ConfigurableApplicationContext&nbsp;context,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Throwable&nbsp;exception)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;int&nbsp;exitCode&nbsp;=&nbsp;getExitCodeFromMappedException(context,&nbsp;exception);
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(exitCode&nbsp;==&nbsp;0)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exitCode&nbsp;=&nbsp;getExitCodeFromExitCodeGeneratorException(exception);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;exitCode;
+}
+
+private&nbsp;int&nbsp;getExitCodeFromMappedException(ConfigurableApplicationContext&nbsp;context,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Throwable&nbsp;exception)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(context&nbsp;==&nbsp;null&nbsp;||&nbsp;!context.isActive())&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;0;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;ExitCodeGenerators&nbsp;generators&nbsp;=&nbsp;new&nbsp;ExitCodeGenerators();
+&nbsp;&nbsp;&nbsp;&nbsp;Collection&lt;ExitCodeExceptionMapper&gt;&nbsp;beans&nbsp;=&nbsp;context
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.getBeansOfType(ExitCodeExceptionMapper.class).values();
+&nbsp;&nbsp;&nbsp;&nbsp;generators.addAll(exception,&nbsp;beans);
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;generators.getExitCode();
+}</pre><p><br/></p></div>

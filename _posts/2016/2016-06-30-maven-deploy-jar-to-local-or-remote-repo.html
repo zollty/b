@@ -20,7 +20,7 @@ call&nbsp;mvn&nbsp;deploy:3.0.0-M1:deploy-file&nbsp;-X&nbsp;^
 
 echo&nbsp;&quot;===&nbsp;deploy&nbsp;jar&nbsp;finished&nbsp;...&nbsp;===&quot;
 
-pause</pre><p>如果是远程仓库的话，将上面的url替换成远程仓库地址即可，例如</p><p>-Durl=http://10.2.10.22:8081/nexus/content/repositories/releases/</p><p><br/></p><p>2、deploy-pom.bat</p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
+pause</pre><p>如果是远程仓库的话，将上面的url替换成远程仓库地址即可，例如</p><p>-Durl=http://10.2.10.22:8081/nexus/content/repositories/releases/</p><p>注意 pomFile 虽然也是可选，但是建议加上，否则无法自动识别依赖包，需要手动添加依赖。</p><p><br/></p><p>2、deploy-pom.bat</p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
 echo&nbsp;&quot;===&nbsp;start&nbsp;to&nbsp;deploy&nbsp;pom...&nbsp;===&quot;
 
 call&nbsp;mvn&nbsp;deploy:deploy-file&nbsp;-X&nbsp;^
@@ -32,7 +32,7 @@ call&nbsp;mvn&nbsp;deploy:deploy-file&nbsp;-X&nbsp;^
 
 echo&nbsp;&quot;===&nbsp;deploy&nbsp;pom&nbsp;finished&nbsp;...&nbsp;===&quot;
 
-pause</pre><p><br/></p><p>具体用法可以参见官方文档：</p><p><a href="http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html">http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html</a> </p><p><br/></p><p><br/></p><p>情况二：有无pom文件都可以，手动指定groupId等信息</p><p>deploy-jar.bat<br/></p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
+pause</pre><p><br/></p><p>具体用法可以参见官方文档：</p><p><a href="http://maven.apache.org/plugins/maven-deploy-plugin/deploy-file-mojo.html">http://maven.apache.org/plugins/maven-deploy-plugin/deploy-file-mojo.html</a></p><p><a href="http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html">http://maven.apache.org/plugins/maven-deploy-plugin/examples/deploying-sources-javadoc.html</a> </p><p><br/></p><p><br/></p><p>情况二：有无pom文件都可以，手动指定groupId等信息</p><p>deploy-jar.bat<br/></p><pre class="brush:bash;toolbar:false">@echo&nbsp;off
 ::&nbsp;****************************************************************************
 ::&nbsp;Title&nbsp;:&nbsp;&nbsp;deploy&nbsp;jar&nbsp;to&nbsp;maven&nbsp;repositories&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
