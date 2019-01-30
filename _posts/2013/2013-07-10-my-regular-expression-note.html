@@ -6,4 +6,40 @@ tags: 正则表达式
 keywords: "正则表达式"
 ---
 
-<p><br/></p><div>-------------匹配【任意字符，任意长度】</div><div>替换：</div><div>&nbsp;name: new FormEntity(&#39;规则名称&#39;,&#39;ruleName&#39;,&#39;&#39;,&#39;&#39;),</div><div>&nbsp;detail: new FormEntity(&#39;规则描述&#39;,&#39;ruleDec&#39;,&#39;&#39;,&#39;&#39;),</div><div>成：</div><div>&nbsp;name: &#39;&#39;,</div><div>&nbsp;detail: &#39;&#39;,</div><p><br/></p><div>正则表达式为： new FormEntity\(<span style="color:#ff0000;">(.){0,}</span></div><p><br/><br/></p><div>示例2：</div><div>正则表达式为：/<span style="color:#1f497d;"><strong>\*</strong></span><span style="color:#ff0000;"><strong>.{1,10}</strong></span><span style="color:#1f497d;"><strong>\*</strong></span>/&nbsp;</div><div>将</div><div><span style="color:#ff0000;">/* &nbsp; &nbsp;*/ &nbsp; { </span></div><div><span style="color:#ff0000;">/* 27 */ &nbsp; &nbsp; String hql = &quot;from AirLine &quot;; </span></div><div><span style="color:#ff0000;">/* 28 */ &nbsp; &nbsp; return ((HibernateEntityManager)getEntityManager()).find(hql, condition, pageInfo, true); </span></div><div><span style="color:#ff0000;">/* &nbsp; &nbsp;*/ &nbsp; }</span></div><div>前面的 /* xxx */ 都替换掉。</div><p><br/><br/></p><div>正则表达式为： <strong><span style="color:#1f497d;">^.*</span>,</strong></div><div>替换</div><div><span style="color:#ff0000;">一般需求开发类,0.8 </span></div><div><span style="color:#ff0000;">组建项目工作类,0.6-0.8</span></div><div>成</div><div><span style="color:#ff0000;">0.8</span></div><div><span style="color:#ff0000;">0.6-0.8</span></div><p><br/><br/></p><div>移除空白行【有时候间隔太多空白行，不想要这么多间隙，所以想去掉空白行】</div><div>正则表达式为：^\r\n</div><p><br/></p><p><br/></p><p>替换从某个字符开始，一直到行尾：</p><p>行尾用 $ 表示：</p><p>abc.*$</p><p><br/></p><p><br/></p><p><span style="font-size: 18px;"><strong>首字母大写，替换成小写</strong></span></p><p>例如<br/></p><p>BaseResultMap 替换成：</p><p>baseResultMap</p><p><br/></p><p>查找：^([A-Z])</p><p>替换：\L\1</p><p>（如果是小写替换成大写，则用\U），如果替换多个字母，则末尾加/E，例如&nbsp;\L\1\E</p><p><br/></p><p><br/></p><p><br/></p><p><br/></p>
+<p><br/></p><div>-------------匹配【任意字符，任意长度】</div><div>替换：</div><div>&nbsp;name: new FormEntity(&#39;规则名称&#39;,&#39;ruleName&#39;,&#39;&#39;,&#39;&#39;),</div><div>&nbsp;detail: new FormEntity(&#39;规则描述&#39;,&#39;ruleDec&#39;,&#39;&#39;,&#39;&#39;),</div><div>成：</div><div>&nbsp;name: &#39;&#39;,</div><div>&nbsp;detail: &#39;&#39;,</div><p><br/></p><div>正则表达式为： new FormEntity\(<span style="color:#ff0000;">(.){0,}</span></div><p><br/><br/></p><div>示例2：</div><div>正则表达式为：/<span style="color:#1f497d;"><strong>\*</strong></span><span style="color:#ff0000;"><strong>.{1,10}</strong></span><span style="color:#1f497d;"><strong>\*</strong></span>/&nbsp;</div><div>将</div><div><span style="color:#ff0000;">/* &nbsp; &nbsp;*/ &nbsp; { </span></div><div><span style="color:#ff0000;">/* 27 */ &nbsp; &nbsp; String hql = &quot;from AirLine &quot;; </span></div><div><span style="color:#ff0000;">/* 28 */ &nbsp; &nbsp; return ((HibernateEntityManager)getEntityManager()).find(hql, condition, pageInfo, true); </span></div><div><span style="color:#ff0000;">/* &nbsp; &nbsp;*/ &nbsp; }</span></div><div>前面的 /* xxx */ 都替换掉。</div><p><br/><br/></p><div>正则表达式为： <strong><span style="color:#1f497d;">^.*</span>,</strong></div><div>替换</div><div><span style="color:#ff0000;">一般需求开发类,0.8 </span></div><div><span style="color:#ff0000;">组建项目工作类,0.6-0.8</span></div><div>成</div><div><span style="color:#ff0000;">0.8</span></div><div><span style="color:#ff0000;">0.6-0.8</span></div><p><br/><br/></p><div>移除空白行【有时候间隔太多空白行，不想要这么多间隙，所以想去掉空白行】</div><div>正则表达式为：^\r\n</div><p><br/></p><p><br/></p><p>替换从某个字符开始，一直到行尾：</p><p>行尾用 $ 表示：</p><p>abc.*$</p><p><br/></p><p><br/></p><p><span style="font-size: 18px;"><strong>首字母大写，替换成小写</strong></span></p><p>例如<br/></p><p>BaseResultMap 替换成：</p><p>baseResultMap</p><p><br/></p><p>查找：^([A-Z])</p><p>替换：\L\1</p><p>（如果是小写替换成大写，则用\U），如果替换多个字母，则末尾加/E，例如&nbsp;\L\1\E</p><p><br/></p><p><span style="font-size: 20px;"><strong>如何匹配所有字符，包括换行符（.*不能匹配换行符）</strong></span></p><p>有如下文本：</p><pre class="brush:plain;toolbar:false">2018年07月12日&nbsp;10:05,&quot;昨日：
+张三：1.&nbsp;完成exploitdb漏洞库爬取及数据展示。2.&nbsp;沟通讨论漏扫相关计划。3.&nbsp;漏扫虚拟机模版已给正配，待上传生产配置完成后获取两码。4.&nbsp;上线安全评估及安全测试。5.&nbsp;mac10.12.x连接vpn问题（未解决）
+李四：1、日志数据牵移(开放平台、中台)；2、zabbix&nbsp;11网段监控配置；3、灾备测试讨论；4、上线评审；5、大数据网络策略开通；6、风控紧急上线；
+王小二：1、数据库数据离线备份；2、账付通以及聚合支付SQL评审；
+邹勇勇：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。
+刘某某：1、手机银行系统上线；2、中台fastdfs改造配合；3、双活测试方案讨论；
+杨五:&nbsp;1、redmine整理流程配置，DEMO创建完成100%，并且完成宣讲。2、参加上线评审。4、提供自动装机系统的IPPOOL的代码。
+
+2018年07月11日&nbsp;10:01,&quot;昨日：
+张三：1.&nbsp;完成exploitdb漏洞库爬取及数据展示。2.&nbsp;沟通讨论漏扫相关计划。3.&nbsp;漏扫虚拟机模版已给正配，待上传生产配置完成后获取两码。4.&nbsp;上线安全评估及安全测试。5.&nbsp;mac10.12.x连接vpn问题（未解决）
+李四：1、日志数据牵移(开放平台、中台)；2、zabbix&nbsp;11网段监控配置；3、灾备测试讨论；4、上线评审；5、大数据网络策略开通；6、风控紧急上线；
+王小二：1、数据库数据离线备份；2、账付通以及聚合支付SQL评审；
+邹勇勇：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。
+杨某：1、使用tomcat用户在预发布环境进行发布操作&nbsp;2、前端联调评审功能&nbsp;3、应用日志查看前端功能开发&nbsp;4、主机环境检查前端功能开发。</pre><p>怎么替换成如下内容：</p><pre class="brush:plain;toolbar:false">2018年07月12日&nbsp;10:05,&quot;昨日：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。
+2018年07月11日&nbsp;10:01,&quot;昨日：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。</pre><p>知识点1：用[\d\D] 匹配所有字符，或者是[\s\S]。</p><p>知识点2：使用非贪婪匹配模式（?模式）。</p><p>使用答案如下：<br/></p><pre class="brush:js;toolbar:false">昨日：[\d\D]*?邹勇勇</pre><p>如果不加?号，则将会匹配到最后一个邹勇勇。</p><p><br/></p><p><span style="font-size: 20px;"><strong>替换 非xx开头或结尾 的内容</strong></span></p><p>有如下文本：</p><pre class="brush:plain;toolbar:false">2018年07月12日&nbsp;10:05,&quot;昨日：
+张三：1.&nbsp;完成exploitdb漏洞库爬取及数据展示。2.&nbsp;沟通讨论漏扫相关计划。3.&nbsp;漏扫虚拟机模版已给正配，待上传生产配置完成后获取两码。4.&nbsp;上线安全评估及安全测试。5.&nbsp;mac10.12.x连接vpn问题（未解决）
+李四：1、日志数据牵移(开放平台、中台)；2、zabbix&nbsp;11网段监控配置；3、灾备测试讨论；4、上线评审；5、大数据网络策略开通；6、风控紧急上线；
+王小二：1、数据库数据离线备份；2、账付通以及聚合支付SQL评审；
+邹勇勇：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。
+刘某某：1、手机银行系统上线；2、中台fastdfs改造配合；3、双活测试方案讨论；
+秦某某：1,电信线路开80,443端口资料盖章和申请。2，博云POC安装交流。&nbsp;3，参与新的软件发布流程会议。
+杨五:&nbsp;1、redmine整理流程配置，DEMO创建完成100%，并且完成宣讲。2、参加上线评审。4、提供自动装机系统的IPPOOL的代码。
+
+
+今日：
+刘某某：1.&nbsp;态势感知地图展示开发。2.&nbsp;漏洞扫描相关工作准备。3.&nbsp;继续解决mac10.12.x连接vpn问题。
+张三：1、灾备项目跟进(模板机准备支撑)；2、iptables转F5预发策略配置；3、上线准备及上线支撑；
+李四：1、聚合支付SQL优化；2、生产环境数据库虚拟机在线迁移；3、数据库上线相关工作；
+邹勇勇：1.熟悉ElementUI用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题。
+王小二：1、docker&nbsp;服务器网络配置还原；2、安全扫描软件安装配置；3、备份网卡添加测试；4、灾备模板机创建配置。
+秦某某：1,电信线路开80,443端口跟踪。2，博云POC安装。&nbsp;3，现网内核优化参数分析与测试。
+曾某：1.上半年主机漏扫准备工作，申请天镜授权码。2.漏洞监控平台前端优化，增加威胁情报子菜单。3.分析SeMF平台路由与视图关系源码。
+袁某：1.&nbsp;自动化装机系统主机，虚拟机信息，folder，数据中心，资源池等相关信息页开发
+杨某：1、部署中心功能优化，自测，验证预发布环境应用&nbsp;&nbsp;2、rsync&nbsp;+&nbsp;Inotify&nbsp;&nbsp;测试备份&quot;</pre><p>使用正则表达式，剥离出邹勇勇的工作内容，将其替换成如下内容：<br/></p><pre class="brush:plain;toolbar:false">2018年07月12日&nbsp;10:05
+昨日：1.熟悉TypeScript及vue-router用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题;4.协助开放平台沙箱环境apollo部署;5.参加各种会议。
+今日：1.熟悉ElementUI用法,搭建前端开发框架;2.跟踪和支持FastDFS的改造,协助测试;3.协助各战队开发框架的使用,并解决问题。</pre><p>使用如下正则表达式，替换其内容：<br/></p><pre class="brush:java;toolbar:false">^(?!(.*昨日)|(邹勇勇)).*$</pre><p>使用说明如下：</p><pre class="brush:js;toolbar:false;">匹配非string开头的行：^(?!string)
+匹配非.txt结尾的行：.*(?!\.txt)$</pre><p><br/></p>
