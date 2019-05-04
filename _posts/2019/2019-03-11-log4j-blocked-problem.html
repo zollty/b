@@ -1,0 +1,38 @@
+---
+layout: ue
+title: Log4j blocked 线程阻塞问题
+category: Java框架和组件
+tags: Log4j,线程阻塞
+keywords: "Log4j,线程阻塞"
+---
+
+<p><br/></p><p>我的zoa项目中，一直使用的是log4j 1.x版本，由于简单，一直没更换，也没怀疑过它的问题。</p><p><br/></p><p>偶尔有两次，zoa在使用过程中<strong>假死的情况，不能响应任何请求，包括正常的关闭都无法进行</strong>。</p><p><br/></p><p>于是我使用 jvm工具分析了JVM的情况，最终定位为 log4j引起的线程 blocked，不算是死锁，但是所以请求都会调用log4j，而log4j又无法正常执行，所以 所有请求都会 block。线程堆栈信息片段 形如：</p><pre class="brush:plain;toolbar:false">&quot;qtp1056944384-232&quot;&nbsp;prio=10&nbsp;tid=0x00007f54900d0800&nbsp;nid=0x63b3&nbsp;waiting&nbsp;for&nbsp;monitor&nbsp;entry&nbsp;[0x00007f54492d0000]
+&nbsp;&nbsp;&nbsp;java.lang.Thread.State:&nbsp;BLOCKED&nbsp;(on&nbsp;object&nbsp;monitor)
+	at&nbsp;org.apache.log4j.Category.callAppenders(Category.java:205)
+	-&nbsp;waiting&nbsp;to&nbsp;lock&nbsp;&lt;0x00000007e81c4830&gt;&nbsp;(a&nbsp;org.apache.log4j.spi.RootLogger)
+	at&nbsp;org.apache.log4j.Category.forcedLog(Category.java:391)
+	at&nbsp;org.apache.log4j.Category.log(Category.java:856)
+	at&nbsp;org.slf4j.impl.Log4jLoggerAdapter.info(Log4jLoggerAdapter.java:368)</pre><p>主要是下面这个类中的这段代码造成的：</p><pre class="brush:java;toolbar:false">&nbsp;/**
+&nbsp;&nbsp;*&nbsp;Call&nbsp;the&nbsp;appenders&nbsp;in&nbsp;the&nbsp;hierrachy&nbsp;starting&nbsp;at&nbsp;&lt;code&gt;this&lt;/code&gt;.&nbsp;If&nbsp;no
+&nbsp;&nbsp;*&nbsp;appenders&nbsp;could&nbsp;be&nbsp;found,&nbsp;emit&nbsp;a&nbsp;warning.
+&nbsp;*/
+public&nbsp;void&nbsp;callAppenders(LoggingEvent&nbsp;event)&nbsp;{
+&nbsp;int&nbsp;writes&nbsp;=&nbsp;0;
+
+&nbsp;for&nbsp;(Category&nbsp;c&nbsp;=&nbsp;this;&nbsp;c&nbsp;!=&nbsp;null;&nbsp;c&nbsp;=&nbsp;c.parent)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Protected&nbsp;against&nbsp;simultaneous&nbsp;call&nbsp;to&nbsp;addAppender,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;removeAppender,...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;synchronized&nbsp;(c)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(c.aai&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writes&nbsp;+=&nbsp;c.aai.appendLoopOnAppenders(event);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(!c.additive)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;}
+
+&nbsp;if&nbsp;(writes&nbsp;==&nbsp;0)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;repository.emitNoAppenderWarning(this);
+&nbsp;}
+}</pre><p>它使用了synchronized(this)，所有线程共用一个Category，而它通过log4j.properties指定。 同一个Category下的线程打log时，需要进行全局同步，因此它的效率会很低，不适合高并发的场景。</p><p>详细分析参见：<br/></p><p><a href="https://dzone.com/articles/log4j-thread-deadlock-case">https://dzone.com/articles/log4j-thread-deadlock-case</a> </p><p><br/></p>

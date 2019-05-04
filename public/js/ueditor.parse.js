@@ -1007,7 +1007,7 @@ UE.parse.register('insertcode', function (utils) {
                         aa(i + 1);
                     });
                 } else {
-                    utils.cssRule('my-syntaxhlt', '.syntaxhighlighter table td.code .line {padding: 0 4px!important;} .syntaxhighlighter.nogutter td.code .line,gutter td.code .container textarea{padding-left:4px!important} .syntaxhighlighter code,.syntaxhighlighter div,.syntaxhighlighter table,.syntaxhighlighter table caption,.syntaxhighlighter table tbody,.syntaxhighlighter table td,.syntaxhighlighter table thead,.syntaxhighlighter table tr,.syntaxhighlighter textarea{line-height:1.3em!important}');
+                    utils.cssRule('my-syntaxhlt', '.syntaxhighlighter table td.code .line {padding: 0 4px!important;} .syntaxhighlighter .line.alt2 { background-color: #f7f7f7!important;} .syntaxhighlighter.nogutter td.code .line,gutter td.code .container textarea{padding-left:4px!important} .syntaxhighlighter code,.syntaxhighlighter div,.syntaxhighlighter table,.syntaxhighlighter table caption,.syntaxhighlighter table tbody,.syntaxhighlighter table td,.syntaxhighlighter table thead,.syntaxhighlighter table tr,.syntaxhighlighter textarea{line-height:1.3em!important}');
                     SyntaxHighlighter.defaults['gutter'] = false; // 去掉行号
                     utils.each(pres, function (pi) {
                         if (pi && /brush/i.test(pi.className)) {

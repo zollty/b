@@ -1,0 +1,62 @@
+---
+layout: ue
+title: Spring 406 Not Acceptable HttpMediaTypeNotAcceptableException
+category: Spring专题
+tags: Spring
+keywords: "HttpMediaTypeNotAcceptableException, 406 not acceptable"
+---
+
+<p>SpringMVC异常报406 (Not Acceptable)的解决办法</p><p>异常信息如下</p><p>org.springframework.web.HttpMediaTypeNotAcceptableException: Could not find acceptable representation</p><p><br/></p><p>因为在RequestMapping里面加上了</p><pre class="brush:java;toolbar:false">produces=MediaType.APPLICATION_JSON_VALUE</pre><p><br/></p><p>分析如下：</p><p>参见：<a href="https://www.cnblogs.com/wuxun1997/p/7729175.html">https://www.cnblogs.com/wuxun1997/p/7729175.html</a> </p><p>匹配逻辑：ProducesRequestCondition类185行</p><pre class="brush:java;toolbar:false">public&nbsp;ProducesRequestCondition&nbsp;getMatchingCondition(HttpServletRequest&nbsp;request)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(isEmpty())&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Set&lt;ProduceMediaTypeExpression&gt;&nbsp;result&nbsp;=&nbsp;new&nbsp;LinkedHashSet&lt;ProduceMediaTypeExpression&gt;(expressions);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(Iterator&lt;ProduceMediaTypeExpression&gt;&nbsp;iterator&nbsp;=&nbsp;result.iterator();&nbsp;iterator.hasNext();)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ProduceMediaTypeExpression&nbsp;expression&nbsp;=&nbsp;iterator.next();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(!expression.match(request))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;iterator.remove();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;(result.isEmpty())&nbsp;?&nbsp;null&nbsp;:&nbsp;new&nbsp;ProducesRequestCondition(result,&nbsp;this.contentNegotiationManager);
+&nbsp;&nbsp;&nbsp;&nbsp;}</pre><p>解析请求Content-Type在这里，AbstractMappingContentNegotiationStrategy类</p><pre class="brush:java;toolbar:false">public&nbsp;List&lt;MediaType&gt;&nbsp;resolveMediaTypes(NativeWebRequest&nbsp;webRequest)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throws&nbsp;HttpMediaTypeNotAcceptableException&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;resolveMediaTypeKey(webRequest,&nbsp;getMediaTypeKey(webRequest));
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;/**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;An&nbsp;alternative&nbsp;to&nbsp;{@link&nbsp;#resolveMediaTypes(NativeWebRequest)}&nbsp;that&nbsp;accepts
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;an&nbsp;already&nbsp;extracted&nbsp;key.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;@since&nbsp;3.2.16
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;List&lt;MediaType&gt;&nbsp;resolveMediaTypeKey(NativeWebRequest&nbsp;webRequest,&nbsp;String&nbsp;key)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throws&nbsp;HttpMediaTypeNotAcceptableException&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(StringUtils.hasText(key))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MediaType&nbsp;mediaType&nbsp;=&nbsp;lookupMediaType(key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(mediaType&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;handleMatch(key,&nbsp;mediaType);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Collections.singletonList(mediaType);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;mediaType&nbsp;=&nbsp;handleNoMatch(webRequest,&nbsp;key);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(mediaType&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;addMapping(key,&nbsp;mediaType);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Collections.singletonList(mediaType);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;Collections.emptyList();
+&nbsp;&nbsp;&nbsp;&nbsp;}</pre><p><br/></p><p>例如 URI 为 <a href="http://x.x.x.x/api/email/alice@gmail.com">http://x.x.x.x/api/email/alice@gmail.com</a> </p><p>则上面方法解析出来的 key 为&quot;com&quot;， mediaType =&nbsp;&quot;application/x-msdownload&quot;</p><p><br/></p><p>这显然是错的。</p><p><br/></p><p><strong>解决方法（来源于stackoverflow）</strong></p><p>参见：</p><p><a href="https://stackoverflow.com/questions/45189189/spring-rest-request-406-not-acceptable-for-123?r=SearchResults">https://stackoverflow.com/questions/45189189/spring-rest-request-406-not-acceptable-for-123?r=SearchResults</a> </p><p><a href="https://stackoverflow.com/questions/16332092/spring-mvc-pathvariable-with-dot-is-getting-truncated#">https://stackoverflow.com/questions/16332092/spring-mvc-pathvariable-with-dot-is-getting-truncated#</a> </p><p>我试了很多都不行，总结一下，就是配置下面的两处</p><pre class="brush:xml;toolbar:false">&lt;bean&nbsp;id=&quot;contentNegotiationManager&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;class=&quot;org.springframework.web.accept.ContentNegotiationManagerFactoryBean&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;favorPathExtension&quot;&nbsp;value=&quot;false&quot;&nbsp;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;favorParameter&quot;&nbsp;value=&quot;true&quot;&nbsp;/&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;mediaTypes&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;value&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;json=application/json
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xml=application/xml
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/value&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/property&gt;
+&lt;/bean&gt;
+&lt;mvc:annotation-driven
+&nbsp;&nbsp;&nbsp;&nbsp;content-negotiation-manager=&quot;contentNegotiationManager&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;mvc:path-matching&nbsp;suffix-pattern=&quot;false&quot;&nbsp;registered-suffixes-only=&quot;true&quot;&nbsp;/&gt;
+&lt;/mvc:annotation-driven&gt;</pre><p>一定要配置&nbsp;contentNegotiationManager 和&nbsp;registered-suffixes-only才行，当然也可以在Java代码里配置。</p><p><br/></p><p>关于这个问题，我认真分析后，给Spring 社区提了一个issue，后续参见：<br/></p><p><a href="https://github.com/spring-projects/spring-framework/issues/22623">https://github.com/spring-projects/spring-framework/issues/22623</a> </p><p><br/></p>
