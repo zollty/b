@@ -1,0 +1,64 @@
+---
+layout: ue
+title: FastDFS问题分析和总结
+category: 中间件技术
+tags: FastDFS
+keywords: "FastDFS"
+---
+
+<p><br/></p><p><strong>故障现象 描述：</strong></p><p><br/></p><p>1、应用方面：Java客户端，上传身份证图片和视频失败，有几次，报错时间大概是从 2018 09-27 22:27:34.815。</p><p><img class="pimg"  src="{{site.assets_url}}img/20180928/1538120305812084930.png" title="1538120305812084930.png" alt="1538120305812084930.png" width="875" height="188"/></p><p>客户端错误信息：</p><p><img class="pimg"  src="{{site.assets_url}}img/20180928/1538121075634034856.png" title="1538121075634034856.png" alt="fastED835B785593.png"/></p><p><br/></p><p>2、服务器方面：查看日志，发现上传的 那个storage节点 报错了，报错信息为 ：</p><pre class="brush:plain;toolbar:false">无法&nbsp;rename&nbsp;/data/xxxx01.tmp&nbsp;文件到&nbsp;/data/10/00/xxxxxxx.mp4路径
+无法&nbsp;rename&nbsp;/data/xxxx02.tmp&nbsp;文件到&nbsp;/data/10/00/xxxxxxx.mp4路径
+无法&nbsp;rename&nbsp;/data/xxxx03.tmp&nbsp;文件到&nbsp;/data/10/00/xxxxxxx.mp4路径
+无法&nbsp;rename&nbsp;/data/xxxx04.tmp&nbsp;文件到&nbsp;/data/10/00/xxxxxxx.mp4路径
+.....................
+无法&nbsp;rename&nbsp;/data/xxxx99.tmp&nbsp;文件到&nbsp;/data/10/00/xxxxxxx.mp4路径
+....................
+
+详细如下-----------------
+[2018-07-31&nbsp;01:36:50]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;tracker_client_thread.c,&nbsp;line:&nbsp;310,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;tracker&nbsp;server&nbsp;10.1.10.243:22122,&nbsp;continuous&nbsp;fail&nbsp;count:&nbsp;25,&nbsp;as&nbsp;a&nbsp;tracker&nbsp;client,&nbsp;my&nbsp;ip&nbsp;is&nbsp;10.1.10.247
+[2018-08-28&nbsp;15:27:33]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_nio.c,&nbsp;line:&nbsp;371,&nbsp;client&nbsp;ip:&nbsp;10.1.10.118,&nbsp;pkg&nbsp;length:&nbsp;-8728791489328468646&nbsp;&lt;&nbsp;0
+[2018-09-27&nbsp;19:26:32]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_nio.c,&nbsp;line:&nbsp;371,&nbsp;client&nbsp;ip:&nbsp;10.1.11.88,&nbsp;pkg&nbsp;length:&nbsp;-939450282112145517&nbsp;&lt;&nbsp;0
+[2018-09-27&nbsp;21:25:56]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp819598.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9Vus2luAWvGOAATtxisTGPM212.mp4&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory
+[2018-09-27&nbsp;21:25:57]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,##&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp819599.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9Vus2luAWvGOAATtxisTGPM212.mp4&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory
+....................
+[2018-09-27&nbsp;21:32:07]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp819971.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9lus29aAUwe5AAciwZj2VXY814.jpg&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory
+[2018-09-27&nbsp;21:32:08]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp819972.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9Vus2luAWvGOAATtxisTGPM212.mp4&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory
+....................（中间全是一样的报错，总共有&nbsp;905048&nbsp;-&nbsp;819598&nbsp;=&nbsp;85450次）
+[2018-09-28&nbsp;09:28:07]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp905047.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9lus29aAUwe5AAciwZj2VXY814.jpg&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory
+[2018-09-28&nbsp;09:28:08]&nbsp;WARNING&nbsp;-&nbsp;file:&nbsp;storage_service.c,&nbsp;line:&nbsp;506,&nbsp;rename&nbsp;/data/fastdfs/storage/data/.cp905048.tmp&nbsp;to&nbsp;/data/fastdfs/storage/data/10/00/CgEK9Vus2luAWvGOAATtxisTGPM212.mp4&nbsp;fail,&nbsp;errno:&nbsp;2,&nbsp;error&nbsp;info:&nbsp;No&nbsp;such&nbsp;file&nbsp;or&nbsp;directory</pre><p>查看data目录，发现有8万多个临时文件，恰好等于报错的日志条数。</p><p>全程只有两个文件：</p><p>&nbsp; &nbsp; 最开始是 21:25:56 是 CgEK9Vus2luAWvGOAATtxisTGPM212.mp4 这个文件，</p><p>&nbsp; &nbsp; 后面21:32:07 又增加了CgEK9lus29aAUwe5AAciwZj2VXY814.jpg</p><p><br/></p><p>另外两个storage日志如下：</p><pre class="brush:plain;toolbar:false">storage2：
+[2018-09-11&nbsp;08:15:09]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_nio.c,&nbsp;line:&nbsp;371,&nbsp;client&nbsp;ip:&nbsp;10.1.10.119,&nbsp;pkg&nbsp;length:&nbsp;-8037590831910596577&nbsp;&lt;&nbsp;0
+[2018-09-21&nbsp;09:28:30]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_nio.c,&nbsp;line:&nbsp;371,&nbsp;client&nbsp;ip:&nbsp;10.1.11.88,&nbsp;pkg&nbsp;length:&nbsp;-6839366949275813527&nbsp;&lt;&nbsp;0
+[2018-09-27&nbsp;21:32:08]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;tracker_proto.c,&nbsp;line:&nbsp;48,&nbsp;server:&nbsp;10.1.10.247:23000,&nbsp;response&nbsp;status&nbsp;2&nbsp;!=&nbsp;0
+[2018-09-27&nbsp;21:32:08]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;255,&nbsp;fdfs_recv_response&nbsp;fail,&nbsp;result:&nbsp;2
+[2018-09-27&nbsp;21:32:09]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;2733,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;storage&nbsp;server&nbsp;10.1.10.247:23000
+.......（中间一直重复&nbsp;tracker_proto.c、storage_sync.c&nbsp;报错信息，一直持续到2018-09-28&nbsp;09:28:07）
+[2018-09-28&nbsp;09:28:06]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;tracker_proto.c,&nbsp;line:&nbsp;48,&nbsp;server:&nbsp;10.1.10.247:23000,&nbsp;response&nbsp;status&nbsp;2&nbsp;!=&nbsp;0
+[2018-09-28&nbsp;09:28:06]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;255,&nbsp;fdfs_recv_response&nbsp;fail,&nbsp;result:&nbsp;2
+[2018-09-28&nbsp;09:28:07]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;2733,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;storage&nbsp;server&nbsp;10.1.10.247:23000
+
+storage1：
+[2018-07-31&nbsp;01:36:51]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;tracker_client_thread.c,&nbsp;line:&nbsp;310,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;tracker&nbsp;server&nbsp;10.1.10.243:22122,&nbsp;continuous&nbsp;fail&nbsp;count:&nbsp;25,&nbsp;as&nbsp;a&nbsp;tracker&nbsp;client,&nbsp;my&nbsp;ip&nbsp;is&nbsp;10.1.10.245
+[2018-09-27&nbsp;21:25:57]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;tracker_proto.c,&nbsp;line:&nbsp;48,&nbsp;server:&nbsp;10.1.10.247:23000,&nbsp;response&nbsp;status&nbsp;2&nbsp;!=&nbsp;0
+[2018-09-27&nbsp;21:25:57]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;255,&nbsp;fdfs_recv_response&nbsp;fail,&nbsp;result:&nbsp;2
+[2018-09-27&nbsp;21:25:58]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;2733,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;storage&nbsp;server&nbsp;10.1.10.247:23000
+.......
+[2018-09-28&nbsp;09:28:06]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;tracker_proto.c,&nbsp;line:&nbsp;48,&nbsp;server:&nbsp;10.1.10.247:23000,&nbsp;response&nbsp;status&nbsp;2&nbsp;!=&nbsp;0
+[2018-09-28&nbsp;09:28:06]&nbsp;ERROR&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;255,&nbsp;fdfs_recv_response&nbsp;fail,&nbsp;result:&nbsp;2
+[2018-09-28&nbsp;09:28:07]&nbsp;INFO&nbsp;-&nbsp;file:&nbsp;storage_sync.c,&nbsp;line:&nbsp;2733,&nbsp;successfully&nbsp;connect&nbsp;to&nbsp;storage&nbsp;server&nbsp;10.1.10.247:23000</pre><p><br/></p><p><br/></p><p><strong>临时解决方案：</strong></p><p>&nbsp; &nbsp;一共有3个storage，关闭报错的那个storage，应用上传文件恢复正常。</p><p><br/></p><p><strong>故障排查分析：</strong></p><p>&nbsp;</p><p>关键点如下</p><p>1、为何无法 rename ？</p><p>答案：经过检查发现，是因为 /data/10 这个目录不存在。</p><p>启动FastDFS服务器时，正常情况下，&nbsp;/data/目录会有 包括00、10、11、12等在内的255 个目录。&nbsp;</p><p>其他254个目录都有，为何 /data/10/ 这个目录没有？ 刚好文件同步到这个目录，肯定会报错。</p><p><br/></p><p>2、查看 storage_service.c 源代码（这个文件有8000多行而且没有注释），找到506行：</p><pre class="brush:cpp;toolbar:false">static&nbsp;int&nbsp;storage_sync_copy_file_rename_filename(
+&nbsp;&nbsp;&nbsp;&nbsp;.......
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(rename(pFileContext-&gt;filename,&nbsp;full_filename)&nbsp;!=&nbsp;0)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result&nbsp;=&nbsp;errno&nbsp;!=&nbsp;0&nbsp;?&nbsp;errno&nbsp;:&nbsp;EPERM;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logWarning(&quot;file:&nbsp;&quot;__FILE__&quot;,&nbsp;line:&nbsp;%d,&nbsp;&quot;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;rename&nbsp;%s&nbsp;to&nbsp;%s&nbsp;fail,&nbsp;&quot;&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;errno:&nbsp;%d,&nbsp;error&nbsp;info:&nbsp;%s&quot;,&nbsp;__LINE__,&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pFileContext-&gt;filename,&nbsp;full_filename,&nbsp;\
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result,&nbsp;STRERROR(result));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;result;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}
+
+STORAGE_PROTO_CMD_SYNC_CREATE_FILE
+&nbsp;-&gt;&nbsp;storage_sync_copy_file_done_callback()
+&nbsp;-&gt;&nbsp;storage_sync_copy_file_rename_filename()</pre><p>在同步文件时，会执行这个rename的操作，看上去同步失败，发起方会再次发起同步请求，直到同步成功为止。</p><p><br/></p><p><br/></p><p>3、这个文件同步失败的问题，影响到文件的上传了，导致文件上传只要是到这个storage的请求都会失败。</p><p>按道理说，同步文件失败，和新上传的文件没有联系的。会不会是因为服务器忙着同步文件，而无法响应其他请求？（根据客户端的报错来看，是getStoreStorage fail，errno code: 28，确实是连不上这个storage了。但是根据报错的频率来看，基本上是1秒钟一次，速度很快，而且服务器整体CPU、内存、磁盘空间都是正常的）</p><p><br/></p><p><br/></p><p><strong>原因分析和初步结论：</strong></p><p><br/></p><p>此次事故，系 有两个文件 同步失败，失败后无限循环重试，引起某个 storage 无法再收到上传请求。</p><p><br/></p><p>1、同步失败引起的原因是 因为 /data/10/ 这个目录不存在。为什么这个目录不存在，有两种可能性：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>最开始有这个目录，但是由于某种故障或者bug，程序将这个目录删除了。</p></li><li><p>有人动过fastdfs服务器，不小心把这个目录删除了。（据悉，之前有用过unison去同步过文件，会不会是同步文件时把这个目录清除了？）<br/></p></li></ol><p><br/></p><p>2、fastdfs自身程序不完善，体现在两个方面：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>同步文件失败时，不应该无限循环且无间隔的去重试。</p></li><li><p>某两个文件同步失败，不应该整个storage都无法继续接受新的上传请求。<br/></p></li></ol><p><br/></p><p><br/></p><p><strong>初步解决方案和应对策略：</strong></p><p><br/></p><p>分析：正常情况下，/data/下面的目录，不会无缘无故消失，生产系统已经运行几个月了，之前都很稳定。</p><p>但是如果真的再出现这种情况，无论是意外删除，还是程序bug导致，都需要避免。<br/></p><p><br/></p><p>这个问题的特征很清楚，只要有 同步失败，都很可能会引起此次的问题。监控fastdfs的日志，一旦有文件多次同步失败，就告警。恢复方式比较简单，手工同步一下，再重启一般就OK了。</p><p><br/></p><p>关于fastdfs的bug，只能尝试联系作者，等等看能否修复，但是这个作者最近几年很不活跃，这个项目几乎没人维护。</p><p>找对c语言很熟悉的人，研究一下fastdfs源码，自己改一下，但是难度也比较大，fastdfs的源码还是比较复杂，而且没有代码注释，要看懂还是得花很大功夫。</p><p><br/></p><p><strong>题外话</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;其实，我并不推荐使用FastDFS，因为它并不满足我对<a href="middleware-selection-standards-and-procedures.html" target="_blank">中间件的选型要求</a>，</p><p>&nbsp;&nbsp;&nbsp;&nbsp;我推荐使用：SeaweedFS【<a href="https://github.com/chrislusf/seaweedfs">https://github.com/chrislusf/seaweedfs</a>】</p><p>&nbsp;&nbsp;&nbsp;&nbsp;两者简单对比：比如Contributors（贡献者）数量，FastDFS为4，而SeaweedFS为61，发布版本数量，前者为6，后者为54，最重要的，FastDFS有250多个open的issues没人解决，近5年多，就没人再维护了，想想多可怕……再有，以我多年代码研究和评审的眼光来看，FastDFS的源码很糟糕，谁愿意去参与维护？</p><p><br/></p>

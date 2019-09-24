@@ -1,0 +1,50 @@
+---
+layout: ue
+title: Webpack零基础入门指导
+category: 前端技术_JS、CSS等
+tags: Webpack
+keywords: "Webpack教程"
+---
+
+<p>（本文为培训新人编写）</p><h2>第1章 webpack 基本介绍<br/></h2><p>主要介绍webpack 的基本信息，如何安装 webpack，通过命令行如何使用webpack</p><h3>1.1 Webpack 基本介绍</h3><h4>为什要使用WebPack</h4><p>现今的很多网页其实可以看做是功能丰富的应用，它们拥有着复杂的JavaScript代码和一大堆依赖包。为了简化开发的复杂度，前端社区涌现出了很多好的实践方法</p><ul class=" list-paddingleft-2"><li><p><strong>模块化</strong>，让我们可以把复杂的程序细化为小的文件;</p></li><li><p>类似于TypeScript这种在JavaScript基础上拓展的开发语言：使我们能够实现目前版本的JavaScript不能直接使用的特性，并且之后还能转换为JavaScript文件使浏览器可以识别；</p></li><li><p>Scss，less等CSS预处理器</p></li><li><p>...</p></li></ul><p>打包工具工作方式是：在一个配置文件中，指明对某些文件进行类似编译，组合，压缩等任务的具体步骤，工具之后可以自动替你完成这些任务。</p><p>这些改进确实大大的提高了我们的开发效率，但是利用它们开发的文件往往需要进行额外的处理才能让浏览器识别,而手动处理又是非常繁琐的，这就为WebPack类的工具的出现提供了需求。</p><p><strong>什么是Webpack</strong></p><p>WebPack可以看做是<span style="font-weight: 700;">模块打包机</span>：它做的事情是，分析你的项目结构，找到JavaScript模块以及其它的一些浏览器不能直接运行的拓展语言（Scss，TypeScript等），并将其转换和打包为合适的格式供浏览器使用。</p><p>Webpack的工作方式是：把你的项目当做一个整体，通过一个给定的主文件（如：index.js），Webpack将从这个文件开始找到你的项目的所有依赖文件，使用loaders处理它们，最后打包为一个（或多个）浏览器可识别的JavaScript文件。</p><h3>1.2 Webpack 安装和命令行</h3><p>在安装 Webpack 前，你本地环境需要支持&nbsp;<a href="https://www.runoob.com/nodejs/nodejs-install-setup.html" target="_blank">node.js</a>。</p><p>Webpack可以使用npm安装，新建一个空的练习文件夹（此处命名为webpack_demo），在终端中转到该文件夹后，</p><p>在D盘、E盘或任意一个磁盘中新建文件夹，命名为webpack_demo：</p><p>然后快速打开命令行，切换到这个目录下，</p><p>在webpack_demo文件夹上点击鼠标右键，再左键点击“Git bash here”（推荐） 或者 “在此处打开命令行窗口”：</p><p>执行下面命令：<br/></p><pre class="brush:bash;toolbar:false">npm&nbsp;init&nbsp;-y</pre><p>该命令会在当前文件夹下&nbsp;生成 package.json文件</p><p>然后，执行下述指令安装webpack：</p><pre class="brush:bash;toolbar:false">npm&nbsp;install&nbsp;--save-dev&nbsp;webpack&nbsp;webpack-cli</pre><p>（--save-dev作用是 以 开发环境的方式 安装的插件到项目本地（node_modules目录），将插件名写入package.json的devDependencies列表中）</p><p>此时查看webpack_demo文件夹，会发现多出了一个node_modules文件夹：</p><p>打开package.json会看到devDependencies内容。</p><p><br/></p><p>至此，webpack安装成功。</p><p><br/></p><h2>第2章 webpack 基本配置和使用</h2><p><br/></p><p>用 开发工具 Visual Studio Code打开webpack_demo文件夹，<br/></p><p>在项目根目录下，建立如下文件</p><p>./index.html：</p><pre class="brush:html;toolbar:false">&lt;!DOCTYPE&nbsp;html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;charset=&quot;UTF-8&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;name=&quot;viewport&quot;&nbsp;content=&quot;width=device-width,&nbsp;initial-scale=1.0&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta&nbsp;http-equiv=&quot;X-UA-Compatible&quot;&nbsp;content=&quot;ie=edge&quot;&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;Document&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script&nbsp;src=&quot;./dist/main.js&quot;&gt;&lt;/script&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;src引入的文件将在接下来由&nbsp;webpack&nbsp;打包创建&nbsp;--&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre><p>./src/index.js：</p><pre class="brush:js;toolbar:false">import&nbsp;{name}&nbsp;from&nbsp;&#39;./init&#39;;//引入&nbsp;init.js&nbsp;存于&nbsp;name&nbsp;，&nbsp;(js后缀可以省略)
+alert(name);</pre><p>./src/init.js：</p><pre class="brush:js;toolbar:false">var&nbsp;name&nbsp;=&nbsp;&quot;newApp&quot;;
+export&nbsp;{//ECMAScript&nbsp;6&nbsp;语法&nbsp;，&nbsp;向外暴露接口供其他文件调用时使用
+&nbsp;&nbsp;&nbsp;&nbsp;name//将变量&nbsp;name&nbsp;指定为向外暴露成员
+};</pre><p>目录表示说明：</p><p><span style="font-size: 16px;">./&nbsp; 代表 当前目录</span></p><p><span style="font-size: 16px;">../ 代表父级目录</span></p><p><span style="font-size: 16px;">/&nbsp; 代表根目录</span></p><p style="margin-bottom: 0.7rem; white-space: normal; font-family: -apple-system, &quot;Helvetica Neue&quot;, Helvetica, Arial, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;WenQuanYi Micro Hei&quot;, &quot;Microsoft Yahei&quot;, sans-serif; -webkit-font-smoothing: antialiased; padding: 0px; max-width: 100%; color: rgb(61, 70, 77); line-height: 1.8; overflow-wrap: break-word; font-size: 16px;"><span style="font-weight: 700; -webkit-font-smoothing: antialiased; margin: 0px; padding: 0px; max-width: 100%;">项目目录：</span><br/><img class="pimg"  src="http://localhost:9500{{site.assets_url}}img/20190507/1557209941537007270.png" alt="webpack教程"/></p><p>2、执行打包（直接打包，没有配置文件的情况下），上面多个文件文件执行打包：webpack</p><p>执行完命令后，我们看到如下输出</p><pre class="brush:bash;toolbar:false">$&nbsp;webpack
+Hash:&nbsp;27dbeb7e67fc703ddd14
+Version:&nbsp;webpack&nbsp;4.30.0
+Time:&nbsp;452ms
+Built&nbsp;at:&nbsp;2019-05-07&nbsp;14:26:56
+&nbsp;&nbsp;Asset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Size&nbsp;&nbsp;Chunks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Chunk&nbsp;Names
+main.js&nbsp;&nbsp;967&nbsp;bytes&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;[emitted]&nbsp;&nbsp;main
+Entrypoint&nbsp;main&nbsp;=&nbsp;main.js
+[0]&nbsp;./src/index.js&nbsp;+&nbsp;1&nbsp;modules&nbsp;171&nbsp;bytes&nbsp;{0}&nbsp;[built]
+&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;./src/index.js&nbsp;74&nbsp;bytes&nbsp;[built]
+&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;./src/init.js&nbsp;97&nbsp;bytes&nbsp;[built]
+
+WARNING&nbsp;in&nbsp;configuration
+The&nbsp;&#39;mode&#39;&nbsp;option&nbsp;has&nbsp;not&nbsp;been&nbsp;set,&nbsp;webpack&nbsp;will&nbsp;fallback&nbsp;to&nbsp;&#39;production&#39;&nbsp;for&nbsp;this&nbsp;value.&nbsp;Set&nbsp;&#39;mode&#39;&nbsp;option&nbsp;to&nbsp;&#39;development&#39;&nbsp;or&nbsp;&#39;production&#39;&nbsp;to&nbsp;enable&nbsp;defaults&nbsp;for&nbsp;each&nbsp;environment.</pre><p>我们可以看到，里面有 main.js&nbsp; &nbsp;./src/index.js、init.js</p><p>打开目录，发现目录下多了一个 dist文件夹，里面有一个 main.js文件（这个就是 webpack根据 index.js 和 init.js生成的）。</p><p>可见，webpack 把 我们的js，打包到了 dist/main.js里面。</p><p>然后，我们可以用浏览器打开 index.html 来运行 main.js。</p><p>同时，我们看到，上面的命令输出中，有一个 WARNING（警告），百度翻译一下意思如下：</p><pre class="brush:plain;toolbar:false">WARNING&nbsp;in&nbsp;configuration
+尚未设置“模式”选项，Webpack将为此值回退到“生产”。
+将“模式”选项设置为“开发”或“生产”，以便为每个环境启用默认值。</pre><p>这是在我们没有任何配置的情况下，默认的效果。下面我们来配置 webpack。<br/></p><p><br/></p><p>3、在package.json里面配置<br/>可以在在package.json文件的&quot;scripts&quot;属性下增加了&quot;build&quot;属性，即<br/></p><pre class="brush:js;toolbar:false">&quot;scripts&quot;:&nbsp;{
+&nbsp;&nbsp;&quot;test&quot;:&nbsp;&quot;echo&nbsp;\&quot;Error:&nbsp;no&nbsp;test&nbsp;specified\&quot;&nbsp;&amp;&amp;&nbsp;exit&nbsp;1&quot;,
+&nbsp;&nbsp;&quot;dev&quot;:&nbsp;&quot;webpack&nbsp;--mode&nbsp;development&quot;,
+&nbsp;&nbsp;&quot;build&quot;:&nbsp;&quot;webpack&nbsp;--mode&nbsp;production&quot;
+}</pre><p>其中 test、dev、build对应的值都是执行的命令。</p><p>这样就可以在命令行使用 npm run dev 或者&nbsp; npm run build 执行打包操作了</p><ul style="font-family: -apple-system, &quot;Helvetica Neue&quot;, Helvetica, Arial, &quot;PingFang SC&quot;, &quot;Hiragino Sans GB&quot;, &quot;WenQuanYi Micro Hei&quot;, &quot;Microsoft Yahei&quot;, sans-serif; -webkit-font-smoothing: antialiased; margin-bottom: 15px; margin-left: 1.2rem; padding: 0px; max-width: 100%; color: rgb(51, 51, 51); white-space: normal;" class=" list-paddingleft-2"><li><p>npm run dev (<strong>开发环境</strong>输出的main.js没有压缩)，是平时我们写代码的形式</p></li><li><p>npm run build (<strong>生产模式</strong>输出的main.js压缩过)&nbsp;<br/></p></li></ul><p>★如果是直接进行打包，而没有配置文件，那么使用npm run dev，那么会默认打包src文件夹下的index.js文件,打包完成后是main.js文件(放在dist)</p><p>也就是说，在没有配置文件的情况下，默认入口文件是 src/index.js，出口文件是 dist/main.js，（如果没有创建index.js，那么打包就会报错）</p><p><br/>另外，webpack的用法如下：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>打包单个文件，直接是webpack demo.js -o demo.bundle.js --mode development 在终端（命令行）中使用webpack打包，打包哪个文件就写上其名字，后面-o跟上输出的名字，--mode指定 “生产模式”production 或者 “开发模式”development。</p></li><li><p>如果是打包多个文件，且彼此之间有依赖关系，就使用配置文件（webpack.config.js）来进行打包</p></li></ul><p><br/></p><p>下面我们就来讲 配置文件 webpack.config.js</p><div><div><p>在当前练习文件夹的根目录下新建一个名为<code>webpack.config.js</code>的文件，我们在其中写入如下所示的简单配置代码，目前的配置主要涉及到的内容是<strong>入口文件路径（entry）</strong>和<strong>打包后文件的存放路径(output)</strong>。</p><pre class="brush:js;toolbar:false;">module.exports&nbsp;=&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;entry:&nbsp;__dirname&nbsp;+&nbsp;&quot;/src/index.js&quot;,&nbsp;//已多次提及的唯一入口文件&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;output:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;path:&nbsp;__dirname&nbsp;+&nbsp;&quot;/dist&quot;,&nbsp;//打包后的文件存放的地方&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filename:&nbsp;&quot;bundle.js&quot;&nbsp;//打包后输出文件的文件名&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>注：“__dirname”是node.js中的一个全局变量，它指向当前执行脚本所在的目录。</p><p>注意到我们的入口为 src/index.js文件，出口为 /dist/boudle.js文件</p><p>有了这个配置之后，再打包文件，只需在终端里运行<code>webpack</code>命令（或者<span style="color: rgb(192, 0, 0);">npm run dev，推荐使用后者</span>）就可以了，这条命令会自动引用<code>webpack.config.js</code>文件中的配置选项。</p></div>运行npm run dev命令后，我们看到 dist目录下面生成了 boudle.js文件。<br/><p>然后我们把&nbsp; index.html里面的 main.js 改成bundle.js，用浏览器打开index.html即可运行。</p><p><br/></p></div><p><strong>本教程结束，接下来，有个更好的<span style="color: rgb(192, 0, 0);">官方教程</span>，你可以跟着它一步一步做：</strong></p><p><a href="https://webpack.docschina.org/guides/installation/">https://webpack.docschina.org/guides/installation/</a></p><p>除此之外，这里还提供几个第三方教程（优先学习上面的官方教程）：</p><p><a href="https://blog.51cto.com/9161018/2323001?source=dra">https://blog.51cto.com/9161018/2323001?source=dra</a></p><p><a href="https://www.runoob.com/w3cnote/webpack-tutorial.html">https://www.runoob.com/w3cnote/webpack-tutorial.html</a></p><p><a href="https://www.jianshu.com/p/42e11515c10f">https://www.jianshu.com/p/42e11515c10f</a></p><p><a href="https://www.cnblogs.com/liqiyuan/p/6246870.html">https://www.cnblogs.com/liqiyuan/p/6246870.html</a></p><p><a href="https://github.com/ruanyf/webpack-demos#demo01-entry-file-source">https://github.com/ruanyf/webpack-demos#demo01-entry-file-source</a></p><p><br/></p>

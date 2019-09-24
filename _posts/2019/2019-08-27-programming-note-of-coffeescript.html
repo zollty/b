@@ -1,0 +1,132 @@
+---
+layout: ue
+title: CoffeeScript编程笔记
+category: 前端技术_JS、CSS等
+tags: CoffeeScript
+keywords: "CoffeeScript"
+---
+
+<p><br/></p><h3>编程建议</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;由于CoffeeScript采用 空白符缩进 来控制语句，如果同级的代码缩进没有对齐（多一个空格和少一个空格）都会对程序结构产生影响，在编译过程中，经常报代码未对齐的错误。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;建议 采用 Tab键 作为缩进符号，一是直观，而是方面增加和减少对齐（如果用4个空格代替Tab，则减少对齐时要删除4个空格，容易出错；如果用2个空格来缩进，程序不够直观，例如下面的代码↓）。</p><pre class="brush:js;toolbar:false">$&nbsp;&#39;body&#39;
+.click&nbsp;(e)&nbsp;-&gt;
+&nbsp;&nbsp;$&nbsp;&#39;.box&#39;
+&nbsp;&nbsp;.fadeIn&nbsp;&#39;fast&#39;
+&nbsp;&nbsp;&nbsp;&nbsp;.addClass&nbsp;&#39;show&#39;
+&nbsp;&nbsp;.fadeOut&nbsp;&#39;fast&#39;
+.css&nbsp;&#39;background&#39;,&nbsp;&#39;white&#39;</pre><p>Tab缩进的如下：</p><pre class="brush:js;toolbar:false">$&nbsp;&#39;body&#39;
+.click&nbsp;(e)&nbsp;-&gt;
+	$&nbsp;&#39;.box&#39;
+	.fadeIn&nbsp;&#39;fast&#39;
+		.addClass&nbsp;&#39;show&#39;
+	.fadeOut&nbsp;&#39;fast&#39;
+.css&nbsp;&#39;background&#39;,&nbsp;&#39;white&#39;</pre><p>注意：也可以用 特殊的编辑器（例如vscode），自动使用4个空格替换tab，且一次性删除4个空格。但注意这样的程序放在其他地方，比如Vim编辑器中，就不太好用。<br/></p><p><br/></p><h3>Operators</h3><pre class="brush:plain;toolbar:false">==&nbsp;等于&nbsp;===
+!=&nbsp;等于&nbsp;!==
+is&nbsp;等于&nbsp;===
+isnt&nbsp;等于&nbsp;!==
+!代表非
+and&nbsp;代表&nbsp;&amp;&amp;
+or&nbsp;代表&nbsp;||
+
+例如：
+window.ps&nbsp;or=&nbsp;perfectSquares()
+等价于：
+window.ps&nbsp;||&nbsp;(window.ps&nbsp;=&nbsp;perfectSquares());
+意思是，如果window.ps不存在，则赋值为后面那个函数的值。
+
+unless&nbsp;代表&nbsp;if的反面
+
+true,&nbsp;yes,&nbsp;on&nbsp;代表&nbsp;true
+false,&nbsp;no,&nbsp;off&nbsp;	代表&nbsp;false
+
+this.property&nbsp;简写为&nbsp;@property
+例如，定义一个Class函数：
+Account&nbsp;=&nbsp;(customer,&nbsp;cart)&nbsp;-&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;@customer&nbsp;=&nbsp;customer
+&nbsp;&nbsp;&nbsp;&nbsp;@cart&nbsp;=&nbsp;cart</pre><p><br/></p><h3>If-Else</h3><p>1、? 返回 true 除非变量是 null、undefined 或 未声明。</p><pre class="brush:js;toolbar:false">foo&nbsp;=&nbsp;&quot;anything&quot;
+bar&nbsp;=&nbsp;false
+
+if&nbsp;foo
+	alert&nbsp;&quot;true&quot;
+else&nbsp;if&nbsp;bar
+&nbsp;&nbsp;&nbsp;&nbsp;alert&nbsp;&quot;xxx&quot;
+else&nbsp;
+	alert&nbsp;&#39;c&#39;
+
+//&nbsp;使用?判断变量是否存在
+if&nbsp;nonexistent?
+	alert&nbsp;&quot;aaa&quot;
+else
+	alert&nbsp;&quot;bbb&quot;
+
+//&nbsp;if的反面
+unless&nbsp;nonexistent?
+	alert&nbsp;&quot;aaaa&quot;
+else&nbsp;
+	alert&nbsp;&quot;bbb&quot;
+
+//&nbsp;yeti存在，则&nbsp;foot&nbsp;=&nbsp;yeti，否则&nbsp;foot&nbsp;=&nbsp;&quot;bear&quot;
+foot&nbsp;=&nbsp;yeti&nbsp;?&nbsp;&quot;bear&quot;
+
+
+eldest&nbsp;=&nbsp;if&nbsp;24&nbsp;&gt;&nbsp;21&nbsp;then&nbsp;&quot;Liz&quot;&nbsp;else&nbsp;&quot;Ike&quot;
+
+//&nbsp;if&nbsp;-&nbsp;and&nbsp;语法
+solipsism&nbsp;=&nbsp;true&nbsp;if&nbsp;mind?&nbsp;and&nbsp;world?
+
+//&nbsp;if&nbsp;-&nbsp;and&nbsp;not&nbsp;语法
+solipsism&nbsp;=&nbsp;true&nbsp;if&nbsp;mind?&nbsp;and&nbsp;not&nbsp;world?
+
+
+//&nbsp;牛逼的功能
+zip&nbsp;=&nbsp;lottery.drawWinner?().address?.zipcode
+//&nbsp;先判断&nbsp;drawWinner是否为函数，然后再调用，然后再判断address是否存在，然后再调用zipcode
+//&nbsp;等价于：
+zip&nbsp;=&nbsp;typeof&nbsp;lottery.drawWinner&nbsp;===&nbsp;&quot;function&quot;&nbsp;?&nbsp;
+	(_ref&nbsp;=&nbsp;lottery.drawWinner().address)&nbsp;!=&nbsp;null&nbsp;?&nbsp;_ref.zipcode&nbsp;:&nbsp;void&nbsp;0&nbsp;
+	:&nbsp;void&nbsp;0;
+
+//&nbsp;语法如下：
+a?.b&nbsp;or&nbsp;a?[&#39;b&#39;]
+a?(b,&nbsp;c)&nbsp;or&nbsp;a?&nbsp;b,&nbsp;c</pre><p><br/></p><h3>Loops</h3><p>0、数组推导</p><p>可以直接在 for语句前面 调用当前for的变量，例如：<br/></p><pre class="brush:js;toolbar:false">console.log&nbsp;num&nbsp;for&nbsp;num&nbsp;in&nbsp;[10..1]</pre><p>直接在for语句前面调用 console.log(num)</p><p><br/></p><p>也可以在 for语句后面 跟判断语句（when），例如：</p><pre class="brush:js;toolbar:false">foods&nbsp;=&nbsp;[&#39;broccoli&#39;,&nbsp;&#39;spinach&#39;,&nbsp;&#39;chocolate&#39;]&nbsp;
+eat&nbsp;food&nbsp;for&nbsp;food&nbsp;in&nbsp;foods&nbsp;when&nbsp;food&nbsp;isnt&nbsp;&#39;chocolate&#39;</pre><p><br/></p><p>用 括号 将 for语句包起来，将每次for循环的值，加入到一个数组中，然后返回，例如：</p><pre class="brush:js;toolbar:false">numbers&nbsp;=&nbsp;[9,&nbsp;8,&nbsp;7]
+result1&nbsp;=&nbsp;(n*2&nbsp;for&nbsp;n&nbsp;in&nbsp;numbers)
+#&nbsp;result1&nbsp;=&nbsp;[18,&nbsp;16,&nbsp;14]
+
+countdown&nbsp;=&nbsp;(num&nbsp;for&nbsp;num&nbsp;in&nbsp;[10..1])&nbsp;
+//&nbsp;countdown&nbsp;=&nbsp;[10,9,8,7,6,5,4,3,2,1]&nbsp;
+n&nbsp;=&nbsp;10&nbsp;
+evens&nbsp;=&nbsp;(x&nbsp;for&nbsp;x&nbsp;in&nbsp;[0..n]&nbsp;by&nbsp;2)&nbsp;
+//&nbsp;evens&nbsp;=&nbsp;[0,2,4,6,8,10]</pre><p>也可以在 for语句后面 跟by设置步长，见上面的例子。</p><p><br/></p><p>1、in 和 of</p><p>a in b 等价于 [].indexOf.call(b, a) &gt;= 0</p><p>a of b&nbsp; 等价于 a in b</p><pre class="brush:js;toolbar:false;">numbers&nbsp;=&nbsp;[9,&nbsp;8,&nbsp;7]
+
+#&nbsp;[9,&nbsp;8,&nbsp;7]
+result0&nbsp;=&nbsp;(i&nbsp;for&nbsp;n,&nbsp;i&nbsp;of&nbsp;numbers)
+result1&nbsp;=&nbsp;(n&nbsp;for&nbsp;n,&nbsp;i&nbsp;in&nbsp;numbers)
+
+
+#&nbsp;[0,&nbsp;1,&nbsp;2]
+result0&nbsp;=&nbsp;(n&nbsp;for&nbsp;n,&nbsp;i&nbsp;of&nbsp;numbers)
+result1&nbsp;=&nbsp;(i&nbsp;for&nbsp;n,&nbsp;i&nbsp;in&nbsp;numbers)</pre><p><br/></p><p>2、</p><pre class="brush:js;toolbar:false">#&nbsp;Eat&nbsp;lunch.
+eat&nbsp;=&nbsp;(food)&nbsp;-&gt;&nbsp;&quot;#{food}&nbsp;eaten.&quot;
+eat&nbsp;food&nbsp;for&nbsp;food&nbsp;in&nbsp;[&#39;toast&#39;,&nbsp;&#39;cheese&#39;,&nbsp;&#39;wine&#39;]
+#&nbsp;Health&nbsp;conscious&nbsp;meal.
+foods&nbsp;=&nbsp;[&#39;broccoli&#39;,&nbsp;&#39;spinach&#39;,&nbsp;&#39;chocolate&#39;]
+eat&nbsp;food&nbsp;for&nbsp;food&nbsp;in&nbsp;foods&nbsp;when&nbsp;food&nbsp;isnt&nbsp;&#39;chocolate&#39;
+#&nbsp;Fine&nbsp;five&nbsp;course&nbsp;dining.
+courses&nbsp;=&nbsp;[&#39;greens&#39;,&nbsp;&#39;caviar&#39;,&nbsp;&#39;truffles&#39;,&nbsp;&#39;roast&#39;,&nbsp;&#39;cake&#39;]
+menu&nbsp;=&nbsp;(i,&nbsp;dish)&nbsp;-&gt;&nbsp;&quot;Menu&nbsp;Item&nbsp;#{i}:&nbsp;#{dish}&quot;&nbsp;
+menu&nbsp;i&nbsp;+&nbsp;1,&nbsp;dish&nbsp;for&nbsp;dish,&nbsp;i&nbsp;in&nbsp;courses</pre><p>4、<br/></p><pre class="brush:js;toolbar:false">yearsOld&nbsp;=&nbsp;max:&nbsp;10,&nbsp;ida:&nbsp;9,&nbsp;tim:&nbsp;11
+
+ages&nbsp;=&nbsp;for&nbsp;key00,&nbsp;val00&nbsp;of&nbsp;yearsOld
+&nbsp;&nbsp;&quot;#{key00}&nbsp;is&nbsp;#{val00}&quot;
+
+//&nbsp;结果&nbsp;ages是一个数组&nbsp;[&quot;max&nbsp;is&nbsp;10&quot;,&nbsp;&quot;ida&nbsp;is&nbsp;9&quot;,&nbsp;&quot;tim&nbsp;is&nbsp;11&quot;]</pre><p><br/></p><h3>Array</h3><p>1、Index</p><pre class="brush:js;toolbar:false">numbers&nbsp;=&nbsp;[1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9]
+
+#&nbsp;等价于&nbsp;numbers.slice(0,&nbsp;3)
+start&nbsp;&nbsp;&nbsp;=&nbsp;numbers[0..2]
+
+middle&nbsp;&nbsp;=&nbsp;numbers[3...-2]
+
+end&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;numbers[-2..]
+
+copy&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;numbers[..]
+
+numbers[3..6]&nbsp;=&nbsp;[-3,&nbsp;-4,&nbsp;-5,&nbsp;-6]</pre><p><br/></p>

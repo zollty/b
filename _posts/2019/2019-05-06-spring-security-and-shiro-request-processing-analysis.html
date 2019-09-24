@@ -1,0 +1,114 @@
+---
+layout: ue
+title: 源码分析之Spring Security 和 Shiro 请求处理流程
+category: Spring专题
+tags: Spring, Shiro
+keywords: "Spring Security 源码, Shiro源码"
+---
+
+<h2><strong>一、Spring Security登录执行流程</strong><br/></h2><p><br/></p><p>1、首先用ServletFilter拦截器（AbstractAuthenticationProcessingFilter）</p><p>对应<span style="color: rgb(192, 0, 0);">UsernamePasswordAuthenticationFilter</span>：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp; &nbsp; 拦截到登录的请求（通常是form Login，比如 /login + POST ）</p></li><li><p>&nbsp; &nbsp; <span style="color: rgb(192, 0, 0);">解析出登录信息</span>principal和credentials（对应username和password），<span style="color: rgb(192, 0, 0);">封装成</span>Authentication（对应<span style="color: rgb(192, 0, 0);">UsernamePasswordAuthenticationToken</span>）</p></li></ul><p><br/></p><p>2、获得AuthenticationProvider执行provider.authenticate(Authentication authentication)方法</p><p>对应<span style="color: rgb(192, 0, 0);">DaoAuthenticationProvider</span>：（注意，可以有多个AuthenticationProvider，包括同级的和父子级别，具体参见ProviderManager）</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp; &nbsp; 判断是否已经认证过（username是否存在于userCache中）；</p></li><li><p>&nbsp; &nbsp; 查询用户username是否存在，然后查询密码是否正确，如果OK，构造一个<span style="color: rgb(192, 0, 0);">UserDetails </span>user；</p></li><li><p>&nbsp; &nbsp; 重新构造一个登录成功的<span style="color: rgb(192, 0, 0);">UsernamePasswordAuthenticationToken</span>信息，包括调用authoritiesMapper转换user的Authorities信息。</p></li></ul><p><br/></p><p>如果不想用user+password模式，可以替换上面的UsernamePasswordAuthenticationFilter类。</p><p>替换方法为 （<span style="color: rgb(192, 0, 0);">addFilterBefore</span>）：</p><pre class="brush:java;toolbar:false">httpSecurity
+&nbsp;&nbsp;&nbsp;&nbsp;.authorizeRequests()
+&nbsp;&nbsp;&nbsp;&nbsp;.antMatchers(&quot;/&quot;,&nbsp;&quot;/*.html&quot;,&nbsp;&quot;/**/*.css&quot;,&nbsp;&quot;/**/*.js&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;.and()
+&nbsp;&nbsp;&nbsp;&nbsp;.addFilterBefore(myFilter(),&nbsp;BasicAuthenticationFilter.class);</pre><p><br/></p><h2><strong>二、Shiro安全控制及登录执行流程</strong></h2><p>首先，它会注册一个主 servlet filter，名字叫&nbsp;ShiroFilterFactoryBean</p><p><em>PS：下面是我查看一次请求的所有tomcat filter的结果：</em></p><pre class="brush:java;toolbar:false">[name=corsFilter,&nbsp;filterClass=springweb.filter.CorsFilter],&nbsp;
+[name=characterEncodingFilter,&nbsp;filterClass=springboot.web.servlet.filter.OrderedCharacterEncodingFilter],&nbsp;
+[name=hiddenHttpMethodFilter,&nbsp;filterClass=springboot.web.servlet.filter.OrderedHiddenHttpMethodFilter],&nbsp;
+[name=formContentFilter,&nbsp;filterClass=springboot.web.servlet.filter.OrderedFormContentFilter],&nbsp;
+[name=requestContextFilter,&nbsp;filterClass=springboot.web.servlet.filter.OrderedRequestContextFilter],&nbsp;
+[name=delegatingFilterProxy,&nbsp;filterClass=springweb.filter.DelegatingFilterProxy],&nbsp;
+[name=xssFilter,&nbsp;filterClass=org.jretty.fast.core.xss.XssFilter],&nbsp;
+[name=webStatFilter,&nbsp;filterClass=com.alibaba.druid.support.http.WebStatFilter],&nbsp;
+[name=shiroFilter,&nbsp;filterClass=org.apache.shiro.spring.web.ShiroFilterFactoryBean$SpringShiroFilter]
+null</pre><p>可见，shiroFilter位于所有filter的末尾。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;这个shiroFilter是里面还会注册多个内部的filter（存放在list中），这些filter都会继承抽象类&nbsp;PathMatchingFilter（继承自 OncePerRequestFilter ）。Shiro默认注册的filter如下：</p><pre class="brush:java;toolbar:false">public&nbsp;enum&nbsp;DefaultFilter&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;anon(AnonymousFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;authc(FormAuthenticationFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;authcBasic(BasicHttpAuthenticationFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;logout(LogoutFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;noSessionCreation(NoSessionCreationFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;perms(PermissionsAuthorizationFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;port(PortFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;rest(HttpMethodPermissionFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;roles(RolesAuthorizationFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;ssl(SslFilter.class),
+&nbsp;&nbsp;&nbsp;&nbsp;user(UserFilter.class);
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;在shiro配置时，需要配置拦截的uri，以及对应的filter，例如下面的配置：</p><pre class="brush:java;toolbar:false">filterMap.put(&quot;/public/**&quot;,&nbsp;&quot;anon&quot;);
+filterMap.put(&quot;/*.html&quot;,&nbsp;&quot;anon&quot;);
+filterMap.put(&quot;/sys/login&quot;,&nbsp;&quot;anon&quot;);
+filterMap.put(&quot;/favicon.ico&quot;,&nbsp;&quot;anon&quot;);
+
+filterMap.put(&quot;/sys/logout/**&quot;,&nbsp;&quot;logout&quot;);
+filterMap.put(&quot;/**&quot;,&nbsp;&quot;authc&quot;);</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;如无filterChain的特殊配置，每个filter都是一个独立的filterChain（被shiro封装成ProxiedFilterChain），每个请求，只会被一个filterChain处理，换句话说，在如无filterChain特殊配置，每个请求只会被第一个匹配到的filter处理，后面的filter不会执行。ProxiedFilterChain的处理逻辑如下：</p><pre class="brush:java;toolbar:false">public&nbsp;void&nbsp;doFilter(ServletRequest&nbsp;request,&nbsp;ServletResponse&nbsp;response)&nbsp;throws&nbsp;IOException,&nbsp;ServletException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(this.filters&nbsp;==&nbsp;null&nbsp;||&nbsp;this.filters.size()&nbsp;==&nbsp;this.index)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//we&#39;ve&nbsp;reached&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;wrapped&nbsp;chain,&nbsp;so&nbsp;invoke&nbsp;the&nbsp;original&nbsp;one:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log.trace(&quot;Invoking&nbsp;original&nbsp;filter&nbsp;chain.&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.orig.doFilter(request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log.trace(&quot;Invoking&nbsp;wrapped&nbsp;filter&nbsp;at&nbsp;index&nbsp;[&quot;&nbsp;+&nbsp;this.index&nbsp;+&nbsp;&quot;]&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.filters.get(this.index++).doFilter(request,&nbsp;response,&nbsp;this);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;每个请求进来，会尝试依次匹配这些path，如果匹配了，对应的filterChain就会执行。通常filterChain里面只有一个filter，比如这个名为 anno的filter，它执行完之后，就会调用 servlet的original filter，从而执行后面的其他servlet filter，根据我前面给出的servlet filter列表，shiroFilter已经是最后一个filter，所以最终这个url就会顺利地通过shiro，然后被执行。anno filter的代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;AnonymousFilter&nbsp;extends&nbsp;PathMatchingFilter&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;boolean&nbsp;onPreHandle(ServletRequest&nbsp;request,&nbsp;ServletResponse&nbsp;response,&nbsp;Object&nbsp;mappedValue)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Always&nbsp;return&nbsp;true&nbsp;since&nbsp;we&nbsp;allow&nbsp;access&nbsp;to&nbsp;anyone
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;true;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;可见它是十分高效的，像这样的配置：filterMap.put(&quot;/public/**&quot;, &quot;anon&quot;)，这个/public/下面的内容，会快速地通过shiro，shiro直接返回true，不会对它做任何处理。<br/></p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;好了，明白上面的原理后，登录流程就容易说明了，shiro默认有一个filter，叫FormAuthenticationFilter，它会去匹配登录的uri，一旦拦截就会执行。这个FormAuthenticationFilter的流程，就不多说了，无非就是从Http Request中 提取出 username和password，然后执行login逻辑，如下所示：</p><pre class="brush:java;toolbar:false">protected&nbsp;boolean&nbsp;executeLogin(ServletRequest&nbsp;request,&nbsp;ServletResponse&nbsp;response)&nbsp;throws&nbsp;Exception&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;AuthenticationToken&nbsp;token&nbsp;=&nbsp;createToken(request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(token&nbsp;==&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;msg&nbsp;=&nbsp;&quot;createToken&nbsp;method&nbsp;implementation&nbsp;returned&nbsp;null.&nbsp;A&nbsp;valid&nbsp;non-null&nbsp;AuthenticationToken&nbsp;&quot;&nbsp;+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&quot;must&nbsp;be&nbsp;created&nbsp;in&nbsp;order&nbsp;to&nbsp;execute&nbsp;a&nbsp;login&nbsp;attempt.&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;IllegalStateException(msg);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subject&nbsp;subject&nbsp;=&nbsp;getSubject(request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;subject.login(token);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;onLoginSuccess(token,&nbsp;subject,&nbsp;request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(AuthenticationException&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;onLoginFailure(token,&nbsp;e,&nbsp;request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;首先，把username和password封装成&nbsp;AuthenticationToken，然后提交给&nbsp;Subject实现类（DelegatingSubject）去执行login，这个方法实际上是这个类的：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;DefaultSecurityManager&nbsp;extends&nbsp;SessionsSecurityManager&nbsp;{...}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;这个类会调用&nbsp;RealmSecurityManager 去验证账号密码，成功之后会返回一个携带成功信息（SubjectContext）的Subject类。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;需要注意的是，Subject恐怕是Shiro中最重要的设计，DelegatingSubject类有个非常重要的方法叫&nbsp;getSession()，它会调用&nbsp;SessionManager 去创建或者获取session，注意这个Session是 shiro Session（org.apache.shiro.session.Session）并不是 tomcat session（org.apache.catalina.Session），shiro默认的实现类是DefaultWebSessionManager，它是将session存于客户端的cookie中，因此它跟 tomcat的session，没有一点关系。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;PS：通常的session实现方式有三种：</p><ol class="custom_num list-paddingleft-1"><li class="list-num-1-1 list-num-paddingleft-1"><p>使用web服务器自带的session存储（是在内存中的，可以选择持久化到本地文件中的）。</p></li><li class="list-num-1-2 list-num-paddingleft-1"><p>使用外挂的存储来保存session（比如redis、甚至数据库）</p></li><li class="list-num-1-3 list-num-paddingleft-1"><p>使用客户端的cookie来保存session</p></li></ol><p>&nbsp;&nbsp;&nbsp;&nbsp;因为这个Shiro Session的设计，我还踩过一个坑：我用的Keycloak单点登录平台，它是基于服务器Session来控制的，登录时，会在服务器Session中记录登录信息，单点退出时，会通知所有服务器清除Session，然而由于Shiro使用的是自己的独立的session，它根本感知不到服务器的session状态，所以它不能单点退出。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;题外话：查看tomcat的Request源码（org.apache.catalina.connector.Request），我发现 上面shiro的Subject，就相当于 tomcat的这个 Request，例如Request有个方法也是获取session的：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;Request&nbsp;implements&nbsp;HttpServletRequest&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;Session&nbsp;doGetSession(boolean&nbsp;create)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;session&nbsp;=&nbsp;manager.findSession(requestedSessionId);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;/**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;@return&nbsp;the&nbsp;principal&nbsp;that&nbsp;has&nbsp;been&nbsp;authenticated&nbsp;for&nbsp;this&nbsp;Request.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Principal&nbsp;getUserPrincipal()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(userPrincipal&nbsp;instanceof&nbsp;TomcatPrincipal)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;userPrincipal;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;/**
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;@return&nbsp;&lt;code&gt;true&lt;/code&gt;&nbsp;if&nbsp;the&nbsp;authenticated&nbsp;user&nbsp;principal
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;possesses&nbsp;the&nbsp;specified&nbsp;role&nbsp;name.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*&nbsp;@param&nbsp;role&nbsp;Role&nbsp;name&nbsp;to&nbsp;be&nbsp;validated
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;*/
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;boolean&nbsp;isUserInRole(String&nbsp;role)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Realm&nbsp;realm&nbsp;=&nbsp;context.getRealm();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(realm&nbsp;==&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;Check&nbsp;for&nbsp;a&nbsp;role&nbsp;defined&nbsp;directly&nbsp;as&nbsp;a&nbsp;&lt;security-role&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;realm.hasRole(getWrapper(),&nbsp;userPrincipal,&nbsp;role);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;login(String&nbsp;username,&nbsp;String&nbsp;password)&nbsp;throws&nbsp;ServletException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getContext().getAuthenticator().login(username,&nbsp;password,&nbsp;this);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;logout()&nbsp;throws&nbsp;ServletException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;getContext().getAuthenticator().logout(this);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</pre><p><br/></p><p><br/></p>

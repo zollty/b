@@ -1,0 +1,66 @@
+---
+layout: ue
+title: Maven配置（settings.xml）
+category: Maven专题
+tags: Maven
+keywords: "Maven配置，Maven settings.xml"
+---
+
+<div class="subject-title" onclick="toggleContent(this,'#gcycea');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>Maven配置 远程仓库和发布server</p></div><div id="gcycea" class="subject-content" style="display:none;"><p>&lt;servers&gt; 和&nbsp;&lt;repositories&gt;</p><p>例如下面的模板：</p><pre class="brush:xml;toolbar:false">&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;
+&lt;settings&nbsp;xmlns=&quot;http://maven.apache.org/SETTINGS/1.0.0&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xsi:schemaLocation=&quot;http://maven.apache.org/xsd/settings-1.0.0.xsd&quot;&gt;
+
+&nbsp;&nbsp;&lt;localRepository&gt;D:/worksolft/maven-repo&lt;/localRepository&gt;
+
+&nbsp;&nbsp;&lt;pluginGroups&gt;
+&nbsp;&nbsp;&lt;/pluginGroups&gt;
+
+&nbsp;&nbsp;&lt;proxies&gt;
+&nbsp;&nbsp;&lt;/proxies&gt;
+
+
+&nbsp;&nbsp;&lt;servers&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;server&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;releases&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;username&gt;deployment&lt;/username&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;password&gt;deployment123&lt;/password&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/server&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;server&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;snapshots&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;username&gt;deployment&lt;/username&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;password&gt;deployment123&lt;/password&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/server&gt;
+&nbsp;&nbsp;&lt;/servers&gt;
+
+&nbsp;&nbsp;&lt;mirrors&gt;
+&nbsp;&nbsp;&lt;/mirrors&gt;
+
+
+&nbsp;&nbsp;&lt;profiles&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;profile&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;jdk-1.6&lt;/id&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;activation&gt;
+	&nbsp;&nbsp;&nbsp;&nbsp;&lt;activeByDefault&gt;true&lt;/activeByDefault&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;jdk&gt;1.6&lt;/jdk&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/activation&gt;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;repositories&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;id&gt;nexus&lt;/id&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;name&gt;nexus&lt;/name&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;url&gt;http://172.16.1.205:8081/nexus/content/groups/public&lt;/url&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;layout&gt;default&lt;/layout&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;releases&gt;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;true&lt;/enabled&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/releases&gt;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;snapshots&gt;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;enabled&gt;true&lt;/enabled&gt;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/snapshots&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/repository&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/repositories&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/profile&gt;
+&nbsp;&nbsp;&lt;/profiles&gt;
+&nbsp;&nbsp;
+&lt;/settings&gt;</pre></div><p style='line-height: 1;'><br/></p><p><strong>Maven镜像（mirror）的作用和配置</strong></p><p>mirror相当于一个拦截器：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;它会拦截maven对remote repository的相关请求，把请求里的remote repository地址，重定向到mirror里配置的地址。</p><p>参见：</p><p><a href="http://maven.apache.org/guides/mini/guide-mirror-settings.html">http://maven.apache.org/guides/mini/guide-mirror-settings.html</a> </p><p style='line-height: 1;'><br/></p><script type="text/javascript">var toggleContent=function(that, id){var tx="－ (点击以下标题隐藏正文内容)";if($(id).css("display")!="none"){tx="＋ (点击以下标题显示正文内容)"}$(that).children(":first").text(tx);$(id).fadeToggle(100)};</script>

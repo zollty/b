@@ -1,0 +1,12 @@
+---
+layout: ue
+title: Git基础知识
+category: 技术/开发工具
+tags: GIT
+keywords: "GIT命令"
+---
+
+<p>参考资料：</p><p>Pro Git book：<a href="http://git-scm.com/book/zh/v1">http://git-scm.com/book/zh/v1</a></p><h3>1. 常用命令</h3><h4><strong>1.1 本地分支</strong>操作命令</h4><p style="line-height: 2em;"><strong>●&nbsp;查看</strong>分支列表：git branch<br/></p><p style="line-height: 2em;">●&nbsp;将当前分支<strong>切换</strong>到 master：git checkout master<br/></p><p style="line-height: 2em;">●&nbsp;从当前分支<strong>创建</strong>&nbsp;xxxxx分支：git branch xxxxx<br/></p><p style="line-height: 2em;">●&nbsp;从当前分支创建 xxxxx分支：git checkout -b xxxxx<br/></p><p style="line-height: 2em;">●&nbsp;从master分支创建 xxxxx分支：git checkout -b xxxxxx master<br/></p><div><p style="line-height: 2em;">●&nbsp;<strong>删除</strong>&nbsp;本地xxxxx分支：git branch -d xxxxx</p></div><p style="line-height: 2em;">●&nbsp;合并某分支到当前分支：git merge name&nbsp;</p><div>&nbsp; &nbsp; 例如，将xxxxx分支 merge 到 maser分支</div><div>&nbsp;&nbsp;&nbsp;&nbsp;git checkout master</div><div>&nbsp;&nbsp;&nbsp;&nbsp;git merge xxxxx</div><p style="line-height: 2em;">●&nbsp;移动文件：git mv file1.txt source/file1.txt</p><p style="line-height: 2em;">●&nbsp;移动文件夹：git mv src fastdfs/fastdfs-client/</p><p><br/></p><h4>1.2 其他命令</h4><p style="line-height: 2em;">●&nbsp;将xxxxx分支&nbsp;push到服务器：git push origin xxxxx</p><p style="line-height: 2em;">●&nbsp;提交所有代码</p><pre class="brush:bash;toolbar:false">git&nbsp;add&nbsp;--all
+git&nbsp;commit&nbsp;-m&nbsp;&#39;some&nbsp;messages&#39;
+git&nbsp;push&nbsp;origin&nbsp;master</pre><p style="line-height: 2em;">●&nbsp;创建一个tag（发布一个版本）并提交</p><div><pre class="brush:bash;toolbar:false">git&nbsp;tag&nbsp;-a&nbsp;v1.1.0.RELEASE&nbsp;-m&nbsp;&#39;release&nbsp;v1.1.0&#39;
+git&nbsp;push&nbsp;origin&nbsp;&nbsp;v1.1.0.RELEASE</pre></div><p>其中&nbsp; v1.1.0.RELEASE 为 tag name</p><p>●&nbsp;修改commit后但未push的注释信息</p><pre class="brush:bash;toolbar:false">git&nbsp;commit&nbsp;--amend</pre><p><br/></p><h3>2 关键术语</h3><p>首先我们来看几个术语：</p><p><strong>HEAD</strong></p><p>这是当前分支版本顶端的别名，也就是在当前分支你最近的一个提交</p><p><strong>Index</strong></p><p>index也被称为staging area，是指一整套即将被下一个提交的文件集合。它也是将成为HEAD的父亲的那个commit。</p><p><strong>Working Copy</strong></p><p>working copy代表你正在工作的那个文件集。</p><p><br/></p>

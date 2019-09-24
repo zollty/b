@@ -1,0 +1,17 @@
+---
+layout: ue
+title: 使用npm link引入本地npm工程模块
+category: 前端技术_JS、CSS等
+tags: npm
+keywords: "npm link"
+---
+
+<p>使用npm命令，直接离线引入本地工程模块，不需要install<br/></p><p>（不用上传仓库，使本地项目可以直接依赖另一个项目）<br/></p><p><br/></p><p>Symlink(符号链接)一个package文件夹。</p><p>概括</p><pre class="brush:bash;toolbar:false">npm&nbsp;link&nbsp;(in&nbsp;package&nbsp;dir)
+npm&nbsp;link&nbsp;[&lt;@scope&gt;/]&lt;pkg&gt;[@&lt;version&gt;]
+
+alias:&nbsp;npm&nbsp;ln</pre><p>描述</p><p>package 链接过程分为两步</p><p>首先、npm link将会在全局包{prefix}/lib/node_modules/下面创建一个指向命令执行的地方的符号链接。同时也会创建一个{prefix}/bin/{name}下面对应的bin包。</p><p>另一种情况下，npm link package-name 将会创建一个从global包指向当前文件夹node_modules/下对应的链接。</p><p>注意：package-name是依据package.json的name而非文件名称。</p><p><br/></p><p>包名称可以选择以任意作用域为前缀。 详情请查看npm-scope。 作用域必须以@-symbol开头，后跟斜杠。</p><p><br/></p><p>在npm publish创建tarballs时，会通过解析符号链接将被链接的包“快照”到其当前状态。<br/></p><p>安装自己的东西很方便，所以很方便基于其迭代开发测试，不需要重新build。</p><p>例如：</p><pre class="brush:bash;toolbar:false">cd&nbsp;~/projects/node-redis&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;go&nbsp;into&nbsp;the&nbsp;package&nbsp;directory
+npm&nbsp;link&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;creates&nbsp;global&nbsp;link
+cd&nbsp;~/projects/node-bloggy&nbsp;&nbsp;&nbsp;#&nbsp;go&nbsp;into&nbsp;some&nbsp;other&nbsp;package&nbsp;directory.
+npm&nbsp;link&nbsp;redis&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;link-install&nbsp;the&nbsp;package</pre><p>现在，所有对~/projects/node-redis的更改都会映射到~/projects/node-bloggy/node_modules/node-redis/。需要注意的是，link的是包的名称而非文件夹名称。</p><p><br/></p><p>当然你也可以简化以上两步，如下</p><pre class="brush:bash;toolbar:false">cd&nbsp;~/projects/node-bloggy&nbsp;&nbsp;#&nbsp;go&nbsp;into&nbsp;the&nbsp;dir&nbsp;of&nbsp;your&nbsp;main&nbsp;project
+npm&nbsp;link&nbsp;../node-redis&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;link&nbsp;the&nbsp;dir&nbsp;of&nbsp;your&nbsp;dependency</pre><p>第二行相当于：</p><pre class="brush:bash;toolbar:false">cd&nbsp;../node-redis;&nbsp;npm&nbsp;link
+npm&nbsp;link&nbsp;redis</pre><p>上面做了如下事情：首先创建了一个全局链接，然后讲该全局安装的target链接到自己项目里的node_modules文件夹。</p><p>注意这种简化的操作，后面是文件路径node-redis而不是package的名称redis</p><p>一个实际案例：</p><p>在本地开发一个hubot-sample的插件项目，</p><p>然后在hubot工程中，使用如下命令引入该插件：</p><pre class="brush:bash;toolbar:false">npm&nbsp;link&nbsp;../hubot-sample</pre><p><br/></p><p>如果链接的包是有作用域的，我们的命令就要包括作用域</p><pre class="brush:bash;toolbar:false;">npm&nbsp;link&nbsp;@zollty/privatepackage</pre><p><br/></p><p>link的官方原文：<a href="https://docs.npmjs.com/cli/link">https://docs.npmjs.com/cli/link</a></p><p><br/></p>

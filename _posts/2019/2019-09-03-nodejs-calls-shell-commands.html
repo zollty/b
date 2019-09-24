@@ -1,0 +1,26 @@
+---
+layout: ue
+title: NodeJS调用shell命令
+category: 前端技术_JS、CSS等
+tags: NodeJS
+keywords: "NodeJS"
+---
+
+<p>使用child_process，如下示例<br/></p><pre class="brush:js;toolbar:false">const&nbsp;{&nbsp;spawn&nbsp;}&nbsp;=&nbsp;require(&#39;child_process&#39;);
+const&nbsp;ls&nbsp;=&nbsp;spawn(&#39;ls&#39;,&nbsp;[&#39;-lh&#39;,&nbsp;&#39;/usr&#39;]);
+
+ls.stdout.on(&#39;data&#39;,&nbsp;(data)&nbsp;=&gt;&nbsp;{
+&nbsp;&nbsp;console.log(`stdout:&nbsp;${data}`);
+});
+
+ls.stdout.on(&#39;end&#39;,&nbsp;(data)&nbsp;=&gt;&nbsp;{
+&nbsp;&nbsp;console.log(`stdout:&nbsp;end`);
+});
+
+ls.on(&#39;close&#39;,&nbsp;(code)&nbsp;=&gt;&nbsp;{
+&nbsp;&nbsp;console.log(`child&nbsp;process&nbsp;close&nbsp;all&nbsp;stdio&nbsp;with&nbsp;code&nbsp;${code}`);
+});
+
+ls.on(&#39;exit&#39;,&nbsp;(code)&nbsp;=&gt;&nbsp;{
+&nbsp;&nbsp;console.log(`child&nbsp;process&nbsp;exited&nbsp;with&nbsp;code&nbsp;${code}`);
+});</pre><p>使用 stdout的on data事件获取输出信息。使用on exit事件处理进程结束。</p><p><br/></p><p>参见官方文档：<a href="https://nodejs.org/api/child_process.html#child_process_class_childprocess">https://nodejs.org/api/child_process.html#child_process_class_childprocess</a> </p><p><br/></p><p><br/></p>

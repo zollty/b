@@ -1,0 +1,9 @@
+---
+layout: ue
+title: Windows使用adb连接Android调试apk
+category: Android、iOS软件开发
+tags: Android
+keywords: "Android adb"
+---
+
+<p>1、找到adb安装路径，如果安装了Android SDK，则在platform-tools下面，例如：<br/></p><p>D:\devsoft\Android\SDK\platform-tools</p><p><br/></p><p>2、运行 adb.exe --help查看命令</p><p>adb.exe&nbsp;devices -l 查看连接的设备（首次使用会启动adb服务，连上android数据线会提示是否允许调试，如果在手机端同意调试，则adb会自动连接上这个设备）</p><p><br/></p><p>3、adb.exe&nbsp;install xxx.apk 安装apk（也可以手动自己安装）</p><p><br/></p><p>4、adb logcat 根据TAG过滤</p><p>adb.exe logcat -s Jetty:V</p><p>logcat的用法详见：adb.exe logcat --help</p><p><br/></p>

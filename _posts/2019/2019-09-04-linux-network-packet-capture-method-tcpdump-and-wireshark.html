@@ -1,0 +1,12 @@
+---
+layout: ue
+title: Linux网络抓包方法tcpdump与wireshark
+category: Linux系统与应用
+tags: Linux,抓包
+keywords: "Linux抓包,网络抓包"
+---
+
+<p>tcpdump 与wireshark<br/></p><p>Wireshark(以前是ethereal)是Windows下非常简单易用的抓包工具。但在Linux下很难找到一个好用的图形化抓包工具。 还好有Tcpdump。我们可以用Tcpdump + Wireshark 的完美组合实现：在 Linux 里抓包，然后在Windows 里分析包。</p><p><strong>Wireshark</strong></p><pre class="brush:bash;toolbar:false">yum&nbsp;install&nbsp;wireshark</pre><p>简单用法</p><pre class="brush:bash;toolbar:false">tshark&nbsp;-i&nbsp;eth0&nbsp;port&nbsp;6060</pre><p><strong>Tcpdump</strong></p><pre class="brush:bash;toolbar:false">yum&nbsp;install&nbsp;tcpdump</pre><p>简单用法<br/></p><pre class="brush:bash;toolbar:false">tcpdump&nbsp;-i&nbsp;eth0&nbsp;-s&nbsp;0&nbsp;-w&nbsp;/tmp/test.cap</pre><p>然后使用wireshark进行解包分析，windows下下载路径：https://www.wireshark.org/</p><p><br/></p><p>详细用法</p><pre class="brush:bash;toolbar:false">tcpdump&nbsp;tcp&nbsp;-i&nbsp;eth1&nbsp;-t&nbsp;-s&nbsp;0&nbsp;-c&nbsp;100&nbsp;\
+&nbsp;&nbsp;and&nbsp;dst&nbsp;port&nbsp;!&nbsp;22&nbsp;\
+&nbsp;&nbsp;and&nbsp;src&nbsp;net&nbsp;172.118.1.0/24&nbsp;\
+&nbsp;&nbsp;-w&nbsp;./target.cap</pre><p>说明：</p><p>(1)tcp: ip icmp arp rarp 和 tcp、udp、icmp这些选项等都要放到第一个参数的位置，用来过滤数据报的类型&nbsp;</p><p>(2)-i eth1 : 只抓经过接口eth1的包&nbsp;</p><p>(3)-t : 不显示时间戳&nbsp;</p><p>(4)-s 0 : 抓取数据包时默认抓取长度为68字节。加上-S 0 后可以抓到完整的数据包&nbsp;</p><p>(5)-c 100 : 只抓取100个数据包&nbsp;</p><p>(6)dst port ! 22 : 不抓取目标端口是22的数据包&nbsp;</p><p>(7)src net 172.118.1.0/24 : 数据包的源网络地址为172.118.1.0/24&nbsp;</p><p>(8)-w ./target.cap : 保存成cap文件，方便用ethereal(即wireshark)分析</p><p><br/></p>
