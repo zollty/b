@@ -9,6 +9,15 @@ blockquote p {
   font-size: 20px;
 }
 
+code, kbd, pre, samp {
+  font-family: Consolas,Menlo,Monaco,"Courier New",monospace,"Heiti SC","Hiragino Sans GB",Simsun,sans-self;
+  border-radius:8px;
+}
+table {
+  background-color: transparent;
+  font-size: 16px;
+}
+
 h1, .h1 {
   font-size: 32px;
 }
@@ -101,49 +110,6 @@ h4, .h4, h5, .h5 {
 }
 .aside3-content {
 }
-#content {
-  margin-left: -14px;
-  margin-right: -15px;
-  padding-top: 1px;
-  background-color: #f5f5d5; /* #C7EDCC */
-}
-#inner-cont {
-  margin: 0 14px;
-  font-size: 18px;
-  line-height: 1.8;
-}
-/*
-#content h2, h3 {
-  line-height: 2;
-}
-*/
-/* 其他配置 */
-.center {
-  text-align: center;
-}
-.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
-  color: #2a6496;
-  background-color: #fafaf6;
-}
-
-.my-content-table {
-  position: fixed;
-  right: 20px;
-  top: 150px;
-}
-.my-c-panel-body {
-  padding-left: 0;
-  padding-top: 10px;
-}
-.catalog-btn-div {
-  position: fixed;
-  right: 20px;
-  top: 100px;
-}
-/* 显示评论按钮 */
-.show-commend {
-  width: 100%;
-}
 
 /* Begin zs-nav */
 .zs-narrow-nav .navbar {
@@ -164,50 +130,19 @@ h4, .h4, h5, .h5 {
 }
 /* End zs-nav */
 
-/* Begin 归档分页-pagi */
-.pagi-list-item,.pagi-list-seperator{
-  list-style-type:none;
+.fold-btn-wrapper {
+  position:fixed;
+  right:20px;
+  top:50px;
 }
-.pagi-list-item time{
-  color:#999999;
+.fold-btn-wrapper button {
+  height:45px;
+  width:45px;
 }
-.pagi-list-seperator{
-  /* font-weight:bold; */
-}
-.pagi-list-item a{
-  padding:.2em .2em;
-  color: #184B76; /* #dd0000 */
-  text-decoration: none;
+#pjax {
+  padding-bottom: 12px;
 }
 
-.pagi {
-  padding:.5em 0em;
-  font-size: 16px;
-  line-height: 24px;
-}
-.pagi ul{
-  padding:.5em 0em;
-}
-
-.pagi-foot {
-  color: #AAA;
-  line-height: 150%;
-  display: block;
-}
-.pagi-foot a,.pagi-foot span{
-  padding: 0 4px;
-  margin: 2px;
-  text-decoration: none;
-}
-.pagi-foot .current-page {
-  color: white;
-  background: #ff0000;
-}
-.pagi-foot a:hover{
-  color: white;
-  background: #83BF73;
-}
-/* End 归档分页-pagi */
 .my-tag-wr {
   padding:.5em 0em;
   font-size: 16px;
@@ -236,6 +171,23 @@ h4, .h4, h5, .h5 {
 .my-mt10 {
   margin-top: 10px;
 }
+
+#content {
+  margin-left: -14px;
+  margin-right: -15px;
+  padding-top: 1px;
+  background-color: #f5f5d5; /* #C7EDCC */
+}
+#inner-cont {
+  margin: 0 14px;
+  font-size: 18px;
+  line-height: 1.8;
+}
+/*
+#content h2, h3 {
+  line-height: 2;
+}
+*/
 /* Begin Post */
 .article-footer {
   background: #fafafa; 
@@ -284,25 +236,86 @@ h4, .h4, h5, .h5 {
   float: right; 
   padding-right: 10px;
 }
+.subject-title {
+    border: 1px solid #a79e6b;
+    padding: 0 8px;
+    margin: 0 -8px;
+}
+.subject-info {
+    font-size: 14px;
+    color: #905e5d;
+}
 /* End Post */
-.fold-btn-wrapper {
-  position:fixed;
-  right:20px;
-  top:50px;
+
+/* Begin 归档分页-pagi */
+.pagi-list-item,.pagi-list-seperator{
+  list-style-type:none;
 }
-.fold-btn-wrapper button {
-  height:45px;
-  width:45px;
+.pagi-list-item time{
+  color:#999999;
 }
-#pjax {
-  padding-bottom: 12px;
+.pagi-list-seperator{
+  /* font-weight:bold; */
+}
+.pagi-list-item a{
+  padding:.2em .2em;
+  color: #184B76; /* #dd0000 */
+  text-decoration: none;
 }
 
-code, kbd, pre, samp {
-  font-family: Consolas,Menlo,Monaco,"Courier New",monospace,"Heiti SC","Hiragino Sans GB",Simsun,sans-self;
-  border-radius:8px;
-}
-table {
-  background-color: transparent;
+.pagi {
+  padding:.5em 0em;
   font-size: 16px;
+  line-height: 24px;
+}
+.pagi ul{
+  padding:.5em 0em;
+}
+
+.pagi-foot {
+  color: #AAA;
+  line-height: 150%;
+  display: block;
+}
+.pagi-foot a,.pagi-foot span{
+  padding: 0 4px;
+  margin: 2px;
+  text-decoration: none;
+}
+.pagi-foot .current-page {
+  color: white;
+  background: #ff0000;
+}
+.pagi-foot a:hover{
+  color: white;
+  background: #83BF73;
+}
+/* End 归档分页-pagi */
+
+/* 其他配置？？？ */
+.center {
+  text-align: center;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+  color: #2a6496;
+  background-color: #fafaf6;
+}
+
+.my-content-table {
+  position: fixed;
+  right: 20px;
+  top: 150px;
+}
+.my-c-panel-body {
+  padding-left: 0;
+  padding-top: 10px;
+}
+.catalog-btn-div {
+  position: fixed;
+  right: 20px;
+  top: 100px;
+}
+/* 显示评论按钮 */
+.show-commend {
+  width: 100%;
 }
