@@ -1,0 +1,134 @@
+---
+layout: ue
+title: Keycloak通用接入手册（以Java为例）
+category: 中间件技术
+tags: Keycloak,SSO
+keywords: "Keycloak"
+---
+
+<p><br/></p><p><strong><span style="font-size: 18px;">第一步：</span></strong><span style="font-size: 18px;">在keycloak平台上，新建一个client app</span></p><p>&nbsp;联系Keycloak管理员，<span style="color: rgb(192, 0, 0);">提供 应用的</span><strong> root url </strong>和 <strong>app name</strong>即可。</p><p>&nbsp;建好client之后，可以<span style="color: rgb(192, 0, 0);">得到一个 client&nbsp;secret（密匙）</span>。</p><p><br/></p><p><strong><span style="font-size: 18px;">第二步：</span></strong><span style="font-size: 18px;">在client project中 加入 keycloak配置</span></p><p>配置形如：</p><pre class="brush:bash;toolbar:false;">#&nbsp;空间名，默认所有app和用户都在一个keycloak空间
+keycloak.realm=ops
+#&nbsp;keycloak服务器的auth地址
+keycloak.auth-server-url=http://localhost:8180/auth
+#&nbsp;client&nbsp;app&nbsp;name
+keycloak.resource=fm-cache-cloud
+#&nbsp;client&nbsp;secret
+keycloak.credentials.secret=d4589683-0ce7-4982-bcd3-c48a12572f79
+#&nbsp;登录url和所需要的role
+keycloak.securityConstraints[0].authRoles[0]&nbsp;=&nbsp;user
+keycloak.securityConstraints[0].securityCollections[0].patterns[0]&nbsp;=&nbsp;/manage/ssologin/*</pre><p>上面的配置，除了 最后一项，其他都是<strong>基本配置</strong>，直接填好就行了。</p><p>最后一项需要先在controller中定义这样一个用于登录的url，下面会讲。</p><p><br/></p><p><strong><span style="font-size: 18px;">在讲第三步之前，说一下Keycloak客户端接入原理：</span></strong></p><p>（keycloak支持很多种方式接入，我只讲其中一部分）</p><p><strong>基本原理</strong>：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;keycloak是JBOSS开源的，JBOSS是做服务器的，所以，对于服务器，它比谁都玩得熟，Keycloak的强大之处也在于，它对于客户端应用的管控，直接可以到 服务器层面（<strong>相当于给服务器装一个插件，然后进入这个服务器的请求，都会被拦截和认证</strong>）。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;本文以我们常用的<span style="color: rgb(192, 0, 0);">Spring Boot 内嵌的 Tomcat 服务器 </span>为例，在项目中引入 keycloak包并配置好之后，实际上开启了一个 tomcat的 filter，这个filter会拦截指定的url，如果没登录，就跳转到统一登录页面进行登录。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;（如果不是用的Spring boot内嵌的tomcat服务器，比如用的是独立的tomcat服务器，原理也是一样的，只是配置方法不一样）<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;keycloak提供了很多种插件（adapter），例如仅Java的adapter就有如下：<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.1. Java Adapter Config</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.2. JBoss EAP/WildFly Adapter</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.4. JBoss Fuse 6、7 Adapter</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.6. <span style="color: rgb(192, 0, 0);">Spring Boot Adapter</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.7. Tomcat 6, 7 and 8 Adapters</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.8. Jetty 9.x Adapters</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.9. Jetty 8.1.x Adapter</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.10. Spring Security Adapter</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.1.11. Java Servlet Filter Adapter</p><p>&nbsp;&nbsp;&nbsp;&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;下面<span style="color: rgb(192, 0, 0);">以 Spring Boot Adapter</span>为例，说明如何装插件。其他服务器，或者其他语言的客户端是类似的，很简单。</p><p>安装方法：</p><p>例如 spring boot 1.x，在pom.xml中引入下面依赖即可：</p><pre class="brush:xml;toolbar:false" style="line-height: 1.42857;">&lt;!--&nbsp;Keycloak&nbsp;&nbsp;--&gt;
+&lt;dependency&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;groupId&gt;org.keycloak&lt;/groupId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;artifactId&gt;keycloak-legacy-spring-boot-starter&lt;/artifactId&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;version&gt;5.0.0&lt;/version&gt;
+&lt;/dependency&gt;</pre><p>如果是spring boot 2.x版本，上面的 starter 换成&nbsp;keycloak-spring-boot-starter。</p><p><br/></p><p><strong>由于keycloak是基于 filter拦截器的，所以如果 项目本身 已经用了filter来作为登录控制的话，则需要进行改造，Java项目常见情况如下：</strong></p><p>1、基于shiro框架进行登录控制；</p><p>2、基于spring security进行登录控制；</p><p>3、基于自定义简单的servlet filter进行登录控制；</p><p>下面，针对 2、3 项目情况，说明如何进行集成配置（注意，<span style="color: rgb(192, 0, 0);">不同的项目，情况可能不完全一样，只要掌握思路即可</span>）。</p><p><br/></p><p><span style="font-size: 18px;">第三步（针对“3、基于简单servlet filter登录的项目”）</span></p><p>改造之前：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>原项目，采用了filter来拦截请求，如果没登录，则跳转到登录页面（比如 /mange/login）。</p></li><li><p>使用项目自带的登录页面，进行登录。</p></li></ul><p><br/></p><p>改造之后：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>沿用原来的filter，但是如果没登录，则跳转到 用于统一登录的指定controller（比如 /mange/ssologin）；</p></li><li><p>把这个统一登录的controller的url，配置成 keycloak拦截的登录地址，使用keycloak来进行登录；</p></li></ul><p><br/></p><p>这个controller，逻辑很简单，一个例子如下，流程见注释：</p><pre class="brush:java;toolbar:false">@GetMapping(&quot;/ssologin&quot;)
+public&nbsp;View&nbsp;ssologin(HttpServletRequest&nbsp;request)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;1、从request获取用户名，再查看本系统中有无此用户
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;2、有这个用户，则执行登录成功逻辑，代表登录成功
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;3、没有这个用户，则执行登录失败逻辑，比如跳转到登录页面
+}</pre><p>一个真实例子：</p><pre class="brush:java;toolbar:false">@RequestMapping(value&nbsp;=&nbsp;&quot;/ssologin&quot;,&nbsp;method&nbsp;=&nbsp;RequestMethod.GET)
+public&nbsp;ModelAndView&nbsp;ssologin(HttpServletRequest&nbsp;request,&nbsp;HttpServletResponse&nbsp;response)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;从request获取用户名，再查看本系统中有无此用户
+&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;userName&nbsp;=&nbsp;Identity(request).getName();
+&nbsp;&nbsp;&nbsp;&nbsp;AppUser&nbsp;user&nbsp;=&nbsp;userService.getByName(userName);
+&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(user&nbsp;==&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;ModelAndView(&quot;redirect:/manage/login&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;有这个用户，则添加到session或者cookie中，代表登录成功
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userLoginService.addLoginStatus(request,&nbsp;response,&nbsp;user.getId().toString());
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;返回用户主页
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;ModelAndView(&quot;redirect:/admin/app/list.do&quot;);
+}</pre><p><br/></p><p><strong>登录原理 </strong>说明：</p><p>由于在keycloak配置中加入了url权限控制，如下</p><pre class="brush:bash;toolbar:false;">#&nbsp;登录url和所需要的role
+keycloak...authRoles[0]&nbsp;=&nbsp;user
+keycloak...patterns[0]&nbsp;=&nbsp;/manage/ssologin/*</pre><p>那么，<span style="color: rgb(192, 0, 0);">访问这个 url，在没登录的情况下，就会跳转到 统一登录页面，</span><span style="color: rgb(192, 0, 0);">用户输入用户密码成功登录之后，就会进入到上面定义的 controller中，再执行应用本地的登录逻辑即可</span>。</p><p><br/></p><p><strong>退出登录</strong>，很简单，只需要执行&nbsp; HttpServletRequest.logout() 即可</p><p>例如：</p><pre class="brush:java;toolbar:false">@GetMapping(value&nbsp;=&nbsp;&quot;/logout&quot;)
+public&nbsp;void&nbsp;logout(HttpServletRequest&nbsp;request)&nbsp;throws&nbsp;ServletException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;先移除本地的session或者cookie
+&nbsp;&nbsp;&nbsp;&nbsp;userLoginService.removeLoginStatus(request,&nbsp;response);
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;然后执行&nbsp;request.logout()&nbsp;即可
+&nbsp;&nbsp;&nbsp;&nbsp;request.logout();
+}</pre><p><br/></p><p><span style="font-size: 18px;">第三步（针对“2、基于spring security进行登录的项目”）</span></p><p><br/></p><p>改造之前：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>请求被spring security的UsernamePasswordAuthenticationFilter拦截，判断是否登录，如果未登录，则跳转到项目自己的登录页面。</p></li><li><p>使用项目自带的登录页面，进行登录。</p></li></ul><p><br/></p><p>准备工作：写一个KeycloakAuthenticationFilter，重载spring security的UsernamePasswordAuthenticationFilter，它的逻辑是，先判断有没有用户进行统一登录，如果用户已经统一登录了，但是本地没登录，则进行本地登录。</p><p><br/></p><p>改造之后：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>请求被spring security的KeycloakAuthenticationFilter拦截，判断是否登录，如果未登录，则跳转到&nbsp;用于统一登录的指定controller（比如 /keycloak/ssologin）；</p></li><li><p>把这个统一登录的controller的url，配置成 keycloak拦截的登录地址，使用keycloak来进行登录；</p></li><li><p>keycloak登录的controller执行成功之后，再跳转到spring security的登录处理url进行登录。<br/></p></li></ul><p><br/></p><p><strong>改造之前，spring security配置如下</strong>：</p><pre class="brush:java;toolbar:false">&nbsp;&nbsp;@Override
+&nbsp;&nbsp;protected&nbsp;void&nbsp;configure(HttpSecurity&nbsp;http)&nbsp;throws&nbsp;Exception&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;http.csrf().disable();
+&nbsp;&nbsp;&nbsp;&nbsp;http.headers().frameOptions().disable();
+&nbsp;&nbsp;&nbsp;&nbsp;http.authorizeRequests().antMatchers(&quot;/openapi/**&quot;,&nbsp;&quot;/keycloak/**&quot;,&nbsp;&quot;/img/**&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;.permitAll().antMatchers(&quot;/**&quot;).hasAnyRole(USER_ROLE);
+&nbsp;&nbsp;&nbsp;&nbsp;http.formLogin().loginPage(&quot;/signin&quot;).permitAll().loginProcessingUrl(&quot;/sslogin&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.failureUrl(&quot;/signin?#/error&quot;).and().httpBasic();
+&nbsp;&nbsp;&nbsp;&nbsp;http.logout().invalidateHttpSession(true).clearAuthentication(true)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.logoutSuccessUrl(&quot;/signin?#/logout&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;http.exceptionHandling().authenticationEntryPoint(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;LoginUrlAuthenticationEntryPoint(&quot;/signin?#/logout&quot;));
+&nbsp;&nbsp;}</pre><p><strong>改造之后，spring security配置如下：</strong></p><pre class="brush:java;toolbar:false">&nbsp;&nbsp;@Override
+&nbsp;&nbsp;protected&nbsp;void&nbsp;configure(HttpSecurity&nbsp;http)&nbsp;throws&nbsp;Exception&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;http.csrf().disable();
+&nbsp;&nbsp;&nbsp;&nbsp;http.headers().frameOptions().disable();
+&nbsp;&nbsp;&nbsp;&nbsp;http.authorizeRequests().antMatchers(&quot;/openapi/**&quot;,&nbsp;&quot;/keycloak/**&quot;,&nbsp;&quot;/img/**&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;.permitAll().antMatchers(&quot;/**&quot;).hasAnyRole(USER_ROLE);
+&nbsp;&nbsp;&nbsp;&nbsp;http.formLogin().loginPage(&quot;/signin&quot;).permitAll().loginProcessingUrl(&quot;/sslogin&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.failureUrl(&quot;/signin?#/error&quot;).and().httpBasic().and()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;add&nbsp;by&nbsp;zollty
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.addFilterBefore(keycloakAuthenticationFilter(),&nbsp;BasicAuthenticationFilter.class);
+&nbsp;&nbsp;&nbsp;&nbsp;http.logout().invalidateHttpSession(true).clearAuthentication(true)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.logoutSuccessUrl(&quot;/signin?#/logout&quot;)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;add&nbsp;by&nbsp;zollty
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.addLogoutHandler(new&nbsp;KeycloakSpringLogoutHandler());
+&nbsp;&nbsp;&nbsp;&nbsp;http.exceptionHandling().authenticationEntryPoint(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;to&nbsp;keycloak&nbsp;ssologin&nbsp;controller
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;LoginUrlAuthenticationEntryPoint(&quot;/keycloak/ssologin&quot;));
+&nbsp;&nbsp;}</pre><p>即，加了一个自定义的 keycloakAuthenticationFilter 和&nbsp;KeycloakSpringLogoutHandler，同时 将LoginUrlAuthenticationEntryPoint登录地址，修改成&nbsp;用于统一登录的指定controller的URL。这个controller代码如下：</p><pre class="brush:java;toolbar:false">@RequestMapping(value&nbsp;=&nbsp;&quot;keycloak/ssologin&quot;,&nbsp;method&nbsp;=&nbsp;RequestMethod.GET)
+public&nbsp;ModelAndView&nbsp;ssologin()&nbsp;{
+
+&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;new&nbsp;ModelAndView(&quot;redirect:/sslogin&quot;);
+}</pre><p>进入到这个方法，代表已经sso登录成功，然后直接跳转到 spring security的loginProcessingUrl进行本地登录即可。</p><p>KeycloakSpringLogoutHandler的代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;KeycloakSpringLogoutHandler&nbsp;implements&nbsp;LogoutHandler&nbsp;{
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;void&nbsp;logout(HttpServletRequest&nbsp;request,&nbsp;HttpServletResponse&nbsp;response
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;,&nbsp;Authentication&nbsp;authentication)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;退出keycloak&nbsp;sso
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;request.logout();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;catch&nbsp;(ServletException&nbsp;e)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;e.printStackTrace();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+}</pre><p>其作用是退出统一登录。</p><p>KeycloakAuthenticationFilter的代码如下：</p><pre class="brush:java;toolbar:false">public&nbsp;class&nbsp;KeycloakAuthenticationFilter&nbsp;extends&nbsp;UsernamePasswordAuthenticationFilter&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;final&nbsp;String&nbsp;DEFAULT_PASSWD_SIGN&nbsp;=&nbsp;&quot;`kc`&quot;;
+
+&nbsp;&nbsp;&nbsp;&nbsp;@Override
+&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;Authentication&nbsp;attemptAuthentication(HttpServletRequest&nbsp;request,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HttpServletResponse&nbsp;response)&nbsp;throws&nbsp;AuthenticationException&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;username&nbsp;=&nbsp;obtainUsername(request);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;password&nbsp;=&nbsp;null;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Identity&nbsp;identity&nbsp;=&nbsp;new&nbsp;Identity(request);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(username&nbsp;==&nbsp;null&nbsp;&amp;&amp;&nbsp;identity.getSecurityContext()&nbsp;!=&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;identity.getName();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;=&nbsp;DEFAULT_PASSWD_SIGN;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;=&nbsp;obtainPassword(request);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(password&nbsp;==&nbsp;null)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password&nbsp;=&nbsp;&quot;&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;else&nbsp;if(DEFAULT_PASSWD_SIGN.equals(password))&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;throw&nbsp;new&nbsp;AuthenticationServiceException(&quot;Auth&nbsp;error&quot;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;username&nbsp;=&nbsp;username.trim();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UsernamePasswordAuthenticationToken&nbsp;authRequest&nbsp;=&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;UsernamePasswordAuthenticationToken(username,&nbsp;password);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;setDetails(request,&nbsp;authRequest);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;this.getAuthenticationManager().authenticate(authRequest);
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+}</pre><p>这个代码来源于spring security的UsernamePasswordAuthenticationFilter，只是加了7行代码，用于先判断是否有用户已经统一登录过，如果已经统一登录了，则将其密码设为一个特殊字符，这是一个取巧的做法，因为用户已经统一登录了，所以后面只要看到是这个特殊字符，就不再验证密码，直接登录。</p><p><br/></p><p><span style="font-size: 16px;"><strong>其他编程语言应用的接入</strong></span></p><p><br/></p><p>方法一：自己根据OpenID Connect和OAuth2.0的原理，找到相应的client，引入自己的项目使用。</p><p>官方指导文档：<a href="https://www.keycloak.org/docs/latest/securing_apps/index.html#other-openid-connect-libraries">https://www.keycloak.org/docs/latest/securing_apps/index.html#other-openid-connect-libraries</a> </p><p><br/></p><p>方法二：直接在网上或GitHub上搜索现成的第三方Client、Adapter或Demo，参照配置。例如：</p><p>1）Keycloak Golang相关的第三方adapter：</p><p>https://github.com/mitch-strong/KeycloakGo</p><p>https://github.com/cwocwo/keycloak-adapter-go</p><p>更多参见：<a href="https://github.com/search?l=Go&q=Keycloak&type=Repositories">https://github.com/search?l=Go&amp;q=Keycloak&amp;type=Repositories</a></p><p>2）Python相关的Client、Adapter或Demo：（包括Django、Flask相关的例子都有）</p><p><a href="https://github.com/search?l=Python&q=Keycloak&type=Repositories">https://github.com/search?l=Python&amp;q=Keycloak&amp;type=Repositories</a></p><p><br/></p><p><strong><span style="font-size: 20px;">全文总结</span></strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;在有keycloak adapter的加持下，keycloak的接入相当简单，它是可以做到不改一行代码的 —— 之所以上面提到一些小的改动，完全是 为了 替换或者 适配 原来项目已有 的登录filter配置，把原来的账号+密码的登录形式，拦截并跳转到 keycloak统一登录，登录完成之后，再在本地项目进行登录。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;明白这个原理之后，其他类型的项目都是一样的处理逻辑。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;具体接入时，参见这个文档&nbsp;<a href="https://www.keycloak.org/docs/latest/securing_apps/index.html" target="_blank">securing apps guide</a>，说得很清楚。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，参考其GitHub上的 <a href="https://github.com/keycloak/keycloak-quickstarts" target="_blank">Quick-Start Demo</a>。<br/></p><p><br/></p><p>附 Keycloak官网： <a href="https://www.keycloak.org" target="_self">www.keycloak.org</a></p><p><br/></p><p><span style="font-size: 20px;"><strong>Special专题：关于现代化前端、移动端的接入说明</strong></span></p><p>&nbsp; &nbsp; 参见这篇文章：<a href="keyloak-usage-of-modern-frontend-and-mobile.html" target="_blank">Keycloak现代化前端、移动端的接入说明</a>。</p><p><br/></p>

@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 自定义vscode插件路径及离线安装VSIX说明
+category: 技术/开发工具
+tags: VSCode
+keywords: "VSCode插件路径, 安装VSIX"
+---
+
+<p>插件安装位置：<br/></p><p>Windows：%USERPROFILE%\.vscode\extensions</p><p>其他：~/.vscode/extensions</p><p><br/></p><p>永久设置位置：</p><p>找到vs code的快捷方式地址，例如我的是：</p><p><span style="font-size: 12px;">C:\Users\ZOLLTY-PC\AppData\Roaming\Microsoft\Windows\Start Menu</span>\Programs\Visual Studio Code</p><p>然后右键查看“属性”，修改“目标”，添加--extensions-dir，如下：</p><pre class="brush:plain;toolbar:false">&quot;D:\C\Program Files\Microsoft VS Code\Code.exe&quot; --extensions-dir &quot;D:\C\Program Files\vscode\extensions&quot;</pre><p>设置后，将插件拷贝到指定的目录，重启，到插件页面，然后重新加载（reload）即可使用。</p><p><br/></p><p>注意，不能用：</p><p>code --extensions-dir &quot;D:\C\Program Files\vscode\extensions&quot;</p><p>因为<span style="text-decoration: underline;">这是一次性的</span>，要想永久生效，必须每次启动code时都设置，办法就是我上面写的，在打开code的快捷方式中设置。（类似于设置git bash的“起始位置”）</p><p><br/></p><p>除了上面直接将已安装的插件，拷贝到指定目录，然后重新加载之外，还可以使用下面的方法，离线打包插件，然后在另外的电脑上离线安装。</p><p><br/></p><p>您可以vsce用来轻松打包和发布扩展程序：</p><p>先安装vsce命令：</p><p>npm install -g vsce</p><p><br/></p><p>然后打包插件：</p><p>$ cd myExtension</p><p>$ vsce package</p><p># myExtension.vsix generated</p><p>参见官方文档：https://code.visualstudio.com/api/working-with-extensions/publishing-extension</p><p><br/></p><p>安装VSIX插件：</p><p>1、在插件安装页面，选择&quot;…&quot;这个选项，然后在弹出的菜单栏中选择Install from VSIX.</p><p>2、或者使用下面的命令行安装：</p><p>code --install-extension myextension.vsix</p><p>注意，这个命令，有可能是安装在默认extensions-dir下面的，如果是这样，将其拷贝到我们自定义的extensions-dir下面，再重新加载即可。</p><p><br/></p>

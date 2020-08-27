@@ -1,0 +1,134 @@
+---
+layout: ue
+title: 项目多环境配置管理方案
+category: 系统架构和设计
+tags: 配置
+keywords: "配置"
+---
+
+<p><span style="font-size: 10px;"></span></p><p style="text-align: left;"><br/></p><p><span style="font-size: 16px;"><strong>针对常见应用场景，可以分为以下几个方面来考虑</strong></span></p><p><span style="font-size: 16px;">注意：本文只针对没有接入统一配置中心、配置平台的情况</span></p><p><br/></p><p><strong>一、Java服务器端项目</strong></p><p><br/></p><p>1、对于项目的框架或者组件，如果支持编程方式配置，则编程根据不同环境读取不同配置，例如Spring框架、Logback日志库都支持；</p><p>&nbsp; &nbsp; 1)&nbsp; 如果使用Spring Boot，直接采用官方推荐的配置切换方式：设置spring.profiles.active，可以是jvm变量、main启动参数、环境变量等（建议使用jvm变量）；</p><p>&nbsp; &nbsp; 2)&nbsp; 如果使用Spring框架（但是非Spring Boot），环境相关的配置参数放在properties文件中，写个工具类，就可以根据不同环境（建议根据jvm变量识别）读取对应properties；</p><p>&nbsp; &nbsp; 3)&nbsp; 如果使用&nbsp;logback，在非Spring Boot环境下，可以把配置参数放在properties文件中，根据不同环境（建议根据jvm变量识别）读取对应properties；在Spring Boot环境下，可以使用logback的springProperty标签获取spring托管的参数；</p><p><br/></p><p>2、其他组件，如果不支持编程，（比如某些环境要引入一些特殊的二进制包，脚本，图片，或者xml文件等），则采用maven打包时输入-P参数选择打包指定文件达到目的。</p><p style="white-space: normal;"><br/></p><p style="white-space: normal;"><strong>二、客户端（Android、iOS、H5等）项目</strong></p><p style="white-space: normal;"><br/></p><p style="white-space: normal;">1.&nbsp;利用打包工具，在打包时自动区分各环境的配置文件。（无需人工手动替换）</p><p><br/></p><p><br/></p><p><strong><span style="font-size: 18px;">下面就以上提到的某些方面进行说明</span></strong></p><p><br/></p><p><strong><span style="font-size: 16px;">1、JVM变量、环境变量的配置</span></strong></p><p>&nbsp; &nbsp; IDE工具：</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 可以直接在图形化的配置窗口（VM&nbsp;arguments 或 VM&nbsp;options）配置&nbsp;</p><p>&nbsp; &nbsp; IDEA配置JVM启动参数 参见：&nbsp;<a href="http://blog.csdn.net/wangnayu/article/details/76794112">http://blog.csdn.net/wangnayu/article/details/76794112</a></p><p>&nbsp; &nbsp; Eclipse配置JVM启动参数 参见：<a href="https://jingyan.baidu.com/article/624e7459653ca534e8ba5a26.html">https://jingyan.baidu.com/article/624e7459653ca534e8ba5a26.html</a></p><p><br/></p><p>&nbsp; &nbsp; 服务器JVM启动参数：</p><p>&nbsp; &nbsp; &nbsp; 一般是在启动脚本或者配置脚本里面添加。&nbsp;</p><p>&nbsp; &nbsp; TOMCAT JVM启动参数配置 ：在catalina.bat或catalina.sh里面设置，参见：&nbsp;<a href="http://blog.csdn.net/xinluke/article/details/51490048">http://blog.csdn.net/xinluke/article/details/51490048</a></p><p><br/></p><p>&nbsp; &nbsp; 系统环境变量设置：</p><p>&nbsp; &nbsp; 1）Windows，参见：<a href="https://jingyan.baidu.com/article/d5a880eb6aca7213f047cc6c.html">https://jingyan.baidu.com/article/d5a880eb6aca7213f047cc6c.html</a></p><p>&nbsp; &nbsp; 2）Linux，有多种方式，参见：<a href="http://www.cnblogs.com/answercard/p/7142448.html">http://www.cnblogs.com/answercard/p/7142448.html</a>&nbsp; &nbsp;&nbsp;</p><p><br/></p><p style="white-space: normal;"><span style="font-size: 16px;"><span style="font-weight: 700;">2、Maven打包切换配置的方法（适用于Log4j&nbsp;等组件的配置）</span></span></p><p style="white-space: normal;">&nbsp; &nbsp; 如果组件自身不支持以编程的方式进行配置，则可以借助打包工具，maven、gradle等，下面以maven为例说明。用法参见：<a href="https://my.oschina.net/u/2341924/blog/667730">https://my.oschina.net/u/2341924/blog/667730</a></p><p><br/></p><p><strong>3、Spring 的配置方法</strong></p><p>在Spring&nbsp;非 Spring Boot环境下，方案如下：</p><p>(1) 尽量将配置都交给Spring管理（可以通过注入bean方式或者@Value等方式获取配置的值）；</p><p>(2)&nbsp;将Spring的配置参数，都集中在一个或者多个properties文件中，并将环境相关的配置&nbsp;分环境单独放置在后缀为&quot;-dev&quot;、&quot;-test&quot;、&quot;-prod&quot;...的properties文件中；</p><p><br/></p><p><span style="font-size: 14px;"><strong>配置切换方式一：</strong></span></p><p>利用Spring的spring.profiles.active参数来配置，例如：</p><pre class="brush:xml;toolbar:false">&lt;beans profile=&quot;dev&quot;&gt;  
+    &lt;!-- 开发环境 --&gt;
+    &lt;context:property-placeholder location=&quot;classpath:jdbc-dev.properties,classpath:conf.properties&quot;/&gt; 
+&lt;/beans&gt;
+&lt;beans profile=&quot;sit&quot;&gt;
+    &lt;!-- 测试sit环境 --&gt;
+    &lt;context:property-placeholder location=&quot;classpath:jdbc-sit.properties,classpath:conf.properties&quot;/&gt; 
+&lt;/beans&gt;
+&lt;beans profile=&quot;uat&quot;&gt;
+    &lt;!-- 测试uat环境 --&gt;
+    &lt;context:property-placeholder location=&quot;classpath:jdbc-uat.properties,classpath:conf.properties&quot;/&gt; 
+&lt;/beans&gt;
+&lt;beans profile=&quot;pre&quot;&gt;
+    &lt;!-- 预发布环境 --&gt;
+    &lt;context:property-placeholder location=&quot;classpath:jdbc-pre.properties,classpath:conf.properties&quot;/&gt; 
+&lt;/beans&gt;
+&lt;beans profile=&quot;prod&quot;&gt;
+    &lt;!-- 生产环境 --&gt;
+    &lt;context:property-placeholder location=&quot;file:${java.home}/jdbc-prod.properties,classpath:conf.properties&quot;/&gt; 
+&lt;/beans&gt;</pre><p><br/></p><p><span style="font-size: 14px;"><strong>配置方式二：（推荐）</strong></span></p><p>扩展spring的properties加载类org.springframework.beans.factory.config.PropertyPlaceholderConfigurer，使其能够根据不同的环境读取不同的properties配置文件，关于这个小工具，已经写好了，只需要在项目中引入即可，maven坐标如下：<br/></p><pre class="brush:xml;toolbar:false">&lt;!-- 用法参见http://10.2.10.22/zollty/zollty-commons/tree/master/zollty-common-util --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.zollty.commons&lt;/groupId&gt;
+  &lt;artifactId&gt;zollty-common-util&lt;/artifactId&gt;
+  &lt;version&gt;最新版本&lt;/version&gt;
+&lt;/dependency&gt;</pre><p>配置好后就可以直接使用了，例如，在Spring的xml配置文件中可以像下面这么配置：<br/></p><pre class="brush:xml;toolbar:false">&lt;bean id=&quot;confProperties&quot; class=&quot;io.zollty.util.EnvirmentPropertyConfigurer&quot;&gt;
+&lt;property name=&quot;globalLocations&quot;&gt;
+  &lt;list&gt; &lt;!-- 全局配置 --&gt;
+    &lt;value&gt;classpath:conf.properties&lt;/value&gt;
+    &lt;value&gt;classpath:dubbo/consumer.properties&lt;/value&gt;
+  &lt;/list&gt;
+&lt;/property&gt;
+&lt;!-- 分为 dev sit uat pre prod等环境 --&gt;
+&lt;property name=&quot;environmentLocations&quot;&gt;
+  &lt;map&gt; &lt;!-- 环境相关配置，文件后缀&#39;.properties&#39;省略，&#39;classpath:&#39;也可以省略 --&gt;
+    &lt;entry key=&quot;dev&quot; value=&quot;classpath:conf-dev&quot; /&gt;
+    &lt;entry key=&quot;sit&quot; value=&quot;classpath:conf-sit,file:C:/Users/consumer&quot;/&gt;
+    &lt;entry key=&quot;uat&quot; value=&quot;file:${java.home}/conf-uat&quot;/&gt;
+    &lt;entry key=&quot;pre&quot; value=&quot;file:${java.home}/conf-pre&quot;/&gt;
+    &lt;entry key=&quot;prod&quot; value=&quot;file:${java.home}/conf-prod&quot;/&gt;
+    &lt;!-- dev为默认配置。切换其他配置，需要设置参数，例如JVM参数 -Dspring.profiles.active=test --&gt;
+    &lt;!-- 支持多个文件逗号分隔 --&gt;
+    &lt;!-- 支持系统\环境变量占位符 --&gt;
+    &lt;!-- 支持&#39;file:&#39;前缀从文件系统读取文件 --&gt;
+  &lt;/map&gt;
+&lt;/property&gt;
+&lt;!-- 这个配置是可选的，设置为true代表 找不到配置时 不报错（默认为null），否则会报错提示 --&gt;
+&lt;property name=&quot;ignoreUnresolvablePlaceholders&quot; value=&quot;false&quot;/&gt;
+&lt;/bean&gt;</pre><p>使用时，可以在classpath下面放置如下一些配置文件：</p><p><span style="font-size: 14px;">&nbsp; &nbsp; conf.properties（全局配置）</span></p><p><span style="font-size: 14px;">&nbsp; &nbsp; conf-dev.properties（开发环境的配置）</span></p><p><span style="font-size: 14px;">&nbsp; &nbsp; conf-sit.properties（测试环境SIT的配置）</span></p><p><span style="font-size: 14px;"><span style="font-size: 14px;">&nbsp; &nbsp; conf-uat.properties（测试环境UAT的配置）</span></span></p><p><span style="font-size: 14px;">&nbsp; &nbsp; conf-prod.properties（生产环境的配置）</span></p><p><span style="font-size: 14px;">&nbsp; &nbsp; conf-</span>demoxxx<span style="font-size: 14px;">.properties（其他分类配置）</span></p><p><span style="font-size: 14px;">&nbsp; &nbsp; dubbo/consumer<span style="font-size: 14px;">.properties（其他分类配置）</span></span></p><p>这个工具默认会读取全局配置，环境默认读取dev下面的配置，如果想切换到测试环境的配置，可以配置JVM系统变量：</p><p>&nbsp; &nbsp; -Dspring.profiles.active=test</p><p>或者操作系统的环境变量也可以。</p><p>这样配置的话，生效的就是&nbsp;test 环境对应的配置。</p><p><br/></p><p><strong>4、Logback的配置方法</strong></p><p>&nbsp; &nbsp; logback也支持多种方式扩展，一种是在logback.xml配置中使用条件表达式判断，第二种方法是使用statusListener，在logback配置解析之前调用一个自定义的类来设置参数。</p><p>&nbsp; &nbsp; 下面给出配置示例：</p><pre class="brush:xml;toolbar:false">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;configuration scan=&quot;true&quot; scanPeriod=&quot;60 seconds&quot; debug=&quot;false&quot;&gt;
+  
+  &lt;!-- 这个工具类参见：http://10.2.10.22/zollty/zollty-commons/tree/master/zollty-common-util --&gt;  
+  &lt;statusListener class=&quot;io.zollty.util.InitLogConfigListener&quot; /&gt;
+  
+  &lt;!-- 部署的环境类型：dev、test、product --&gt;
+  &lt;property name=&quot;DEPLOY_ENV&quot; value=&quot;${deploy.env:-dev}&quot; /&gt;
+  
+  &lt;!-- 日志路径，这里是相对路径，web项目eclipse下会输出到当前目录./logs/下，如果部署到linux上的tomcat下，会输出到tomcat/logs/目录 下 --&gt;
+  &lt;property name=&quot;LOG_HOME&quot; value=&quot;${catalina.base:-.}/logs&quot; /&gt;
+    
+  &lt;!-- 日志文件大小,超过这个大小将被压缩 --&gt;
+  &lt;property name=&quot;LOG_MAX_SIZE&quot; value=&quot;100MB&quot; /&gt;
+  &lt;!-- 日志输出格式 --&gt;
+  &lt;property name=&quot;LOG_COMMON_PATTERN&quot; value=&quot;%d{HH:mm:ss.SSS} [%thread] [%level] %logger - %msg%n&quot; /&gt;
+  &lt;property name=&quot;LOG_DEV_PATTERN&quot; value=&quot;%d{HH:mm:ss.SSS} [%thread] %-5level %logger{48}:%line - %msg%n&quot; /&gt;
+  
+  &lt;!-- 主日志级别 --&gt;
+  &lt;property name=&quot;ROOT_LEVEL&quot; value=&quot;${log.root.level:-DEBUG}&quot; /&gt;
+  
+  &lt;!-- APP 日志级别 --&gt;
+  &lt;property name=&quot;APP_LEVEL&quot; value=&quot;${log.app.level:-TRACE}&quot; /&gt;
+  &lt;!-- APP Package 前缀： cn.zollty.lightning --&gt;
+  &lt;property name=&quot;APP_PACKAGE&quot; value=&quot;cn.zollty.lightning&quot; /&gt;
+    
+  &lt;include resource=&quot;includedConfig.xml&quot;/&gt;
+    
+  &lt;appender name=&quot;STDOUT&quot; class=&quot;ch.qos.logback.core.ConsoleAppender&quot;&gt;
+    &lt;encoder&gt;
+      &lt;pattern&gt;${LOG_DEV_PATTERN}&lt;/pattern&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+    
+  &lt;appender name=&quot;FILTER-DATA&quot; class=&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;&gt;
+    &lt;file&gt;${LOG_HOME}/filter.log&lt;/file&gt;
+    &lt;rollingPolicy class=&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;&gt;
+      &lt;fileNamePattern&gt;${LOG_HOME}/filter/filter-%d{yyyy-MM-dd}-%i.log.zip&lt;/fileNamePattern&gt;
+      &lt;maxHistory&gt;90&lt;/maxHistory&gt;
+      &lt;TimeBasedFileNamingAndTriggeringPolicy class=&quot;ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP&quot;&gt;
+        &lt;MaxFileSize&gt;100MB&lt;/MaxFileSize&gt;
+      &lt;/TimeBasedFileNamingAndTriggeringPolicy&gt;
+    &lt;/rollingPolicy&gt;
+    &lt;encoder&gt;
+      &lt;pattern&gt;${LOG_COMMON_PATTERN}&lt;/pattern&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+    
+  &lt;appender name=&quot;ASYNC1&quot; class=&quot;ch.qos.logback.classic.AsyncAppender&quot;&gt;
+    &lt;appender-ref ref=&quot;FILTER-DATA&quot; /&gt;
+  &lt;/appender&gt;
+    
+  &lt;include resource=&quot;special_log_level.xml&quot;/&gt;
+  
+  &lt;logger name=&quot;${APP_PACKAGE}&quot; level=&quot;${APP_LEVEL}&quot; /&gt;
+    
+  &lt;logger name=&quot;FILTER-LOGGER&quot; level=&quot;${APP_LEVEL}&quot; additivity=&quot;false&quot;&gt;
+    &lt;appender-ref ref=&quot;ASYNC1&quot; /&gt;
+  &lt;/logger&gt;
+  
+  &lt;root level=&quot;${ROOT_LEVEL}&quot;&gt;
+    &lt;!-- Required: exception log --&gt;
+    &lt;appender-ref ref=&quot;FILE_EXCEPTION&quot;/&gt;
+    &lt;!-- Required: app log  --&gt;
+    &lt;appender-ref ref=&quot;FILE_APP&quot;/&gt;
+      
+    &lt;!-- Optional： show all debug or trace info --&gt;
+    &lt;!-- &lt;appender-ref ref=&quot;FILE_DEBUG&quot;/&gt; --&gt;
+    &lt;!-- &lt;appender-ref ref=&quot;FILE_TRACE&quot;/&gt; --&gt;
+      
+    &lt;if condition=&#39;p(&quot;DEPLOY_ENV&quot;).contains(&quot;dev&quot;)&#39;&gt;
+      &lt;then&gt;
+        &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;
+      &lt;/then&gt;
+    &lt;/if&gt;
+      
+  &lt;/root&gt;
+  
+&lt;/configuration&gt;</pre><p><br/></p><p>这个配置的关键之处在于<span style="text-decoration: underline;">系统变量、环境变量</span>的<span style="text-decoration: underline;">条件表达式</span>的使用：<br/></p><p>1、</p><p>&nbsp; &lt;!-- 部署的环境类型deploy.env = dev、test、product --&gt;</p><p>&nbsp; &lt;property name=&quot;DEPLOY_ENV&quot; value=&quot;${<span style="color: rgb(192, 0, 0);"><strong>deploy.env</strong></span>:-dev}&quot; /&gt;</p><p>2、</p><p>&nbsp; &lt;!-- 主日志级别 --&gt;</p><p>&nbsp; &lt;property name=&quot;ROOT_LEVEL&quot; value=&quot;${<span style="color: rgb(192, 0, 0);"><strong>log.root.level</strong></span>:-DEBUG}&quot; /&gt;</p><p>&nbsp; &lt;!-- APP 日志级别 --&gt;</p><p>&nbsp; &lt;property name=&quot;APP_LEVEL&quot; value=&quot;${<strong><span style="color: rgb(192, 0, 0);">log.app.level</span></strong>:-TRACE}&quot; /&gt;</p><p>3、</p><p>&lt;<span style="color: rgb(192, 0, 0);"><strong>if condition</strong></span><span style="color: rgb(192, 0, 0);">=&#39;p(&quot;DEPLOY_ENV&quot;).contains(&quot;dev&quot;)&#39;</span>&gt;</p><p>&nbsp; &lt;then&gt;</p><p>&nbsp; &nbsp; &lt;appender-ref ref=&quot;STDOUT&quot; /&gt;</p><p>&nbsp; &lt;/then&gt;</p><p>&lt;/if&gt;</p><p><br/></p><p><strong>5、编程方式自动读取配置（以Logback为例）</strong></p><p>&nbsp; &nbsp; 上面说到，有一些组件是支持以编程方式来配置的，logback就支持，方法是在logback.xml配置如下标签：</p><p>&lt;statusListener class=&quot;io.zollty.util.InitLogConfigListener&quot; /&gt;</p><p>在这个类InitLogConfigListener中，就可以任意发挥了，例如可以从jvm变量中获取值。这个工具类参见：</p><p><a href="http://10.2.10.22/zollty/zollty-commons/tree/master/zollty-common-util">http://10.2.10.22/zollty/zollty-commons/tree/master/zollty-common-util</a></p><p><br/></p><p><br/></p>

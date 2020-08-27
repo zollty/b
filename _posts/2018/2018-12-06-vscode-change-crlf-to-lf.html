@@ -1,0 +1,23 @@
+---
+layout: ue
+title: vscode CRLF自动转LF
+category: 技术/开发工具
+tags: vscode
+keywords: "vscode"
+---
+
+<p>vscode CRLF自动转LF<br/></p><p>解决方法：<br/></p><p><br/></p><p>1、使用&nbsp;&nbsp;.editorconfig&nbsp;</p><p>我的配置如下;<br/></p><pre class="brush:bash;toolbar:false;">#&nbsp;vscode&nbsp;请安装插件：CTRL+SHIFT+X&nbsp;搜索&nbsp;EditorConfig&nbsp;并安装
+#&nbsp;http://editorconfig.org
+root&nbsp;=&nbsp;true
+
+[*]
+charset&nbsp;=&nbsp;utf-8
+indent_style&nbsp;=&nbsp;space
+indent_size&nbsp;=&nbsp;2
+end_of_line&nbsp;=&nbsp;lf
+insert_final_newline&nbsp;=&nbsp;true
+trim_trailing_whitespace&nbsp;=&nbsp;true
+
+[*.md]
+insert_final_newline&nbsp;=&nbsp;false
+trim_trailing_whitespace&nbsp;=&nbsp;false</pre><p>具体配置说明，参见：</p><p><a href="https://editorconfig.org/">https://editorconfig.org/</a></p><div><p><br/></p><p>2、vscode 请安装插件EditorConfig&nbsp;</p><p>CTRL+SHIFT+X 打开搜索 EditorConfig 并安装<br/></p><p><br/></p><p>这样你新建或者把旧的文件 Ctrl + S，就OK了~</p><p><br/></p></div>

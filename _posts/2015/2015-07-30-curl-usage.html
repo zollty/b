@@ -6,11 +6,11 @@ tags: CURL
 keywords: "CURL用法命令"
 ---
 
-<p><strong>指定请求类型：-X</strong><br/></p><p>-X POST/PUT/DELETE</p><p><br/></p><p><strong>传参数：-d</strong></p><p>例如：</p><pre class="brush:bash;toolbar:false">curl&nbsp;localhost/api/test&nbsp;-X&nbsp;POST&nbsp;-d&nbsp;&quot;title=aa&amp;content=bb&quot;</pre><p><br/></p><p><strong>指定header：-H</strong></p><p>例如指定json格式，指定token等</p><pre class="brush:bash;toolbar:false">//&nbsp;指定请求格式为json
-curl&nbsp;localhost/api/test&nbsp;-H&nbsp;&quot;Content-Type:application/json&quot;
+<p><br/></p><p><strong>在linux下curl GET多个参数问题</strong></p><p>curl http://mywebsite.com/index.php?a=1&amp;b=2&amp;c=3</p><p>$_GET只能获取到参数a</p><p>由于url中有&amp;，其他参数获取不到，而且curl会变成后台运行（因为：在linux系统中 &amp; 会使进程系统后台运行）</p><p>必须对&amp;进行下转义才能让$_GET获取到所有参数，</p><p><span style="color: rgb(192, 0, 0);">正确写法：</span></p><p>curl http://mywebsite.com/index.php?a=1\&amp;b=2\&amp;c=3</p><p><br/></p><p><strong>指定请求类型：-X</strong><br/></p><p>-X POST/PUT/DELETE</p><p><br/></p><p><strong>传参数：-d</strong></p><p>例如：</p><pre class="brush:bash;toolbar:false">curl localhost/api/test -X POST -d &quot;title=aa&amp;content=bb&quot;</pre><p><br/></p><p><strong>指定header：-H</strong></p><p>例如指定json格式，指定token等</p><pre class="brush:bash;toolbar:false">// 指定请求格式为json
+curl localhost/api/test -H &quot;Content-Type:application/json&quot;
 
-//&nbsp;限制返回格式为json
-curl&nbsp;localhost/api/test&nbsp;-H&nbsp;&quot;Accept:application/json&quot;</pre><p><br/></p><p><strong>上传文件：-F &quot;file=@__FILE_PATH__&quot;</strong></p><p>例如：</p><pre class="brush:bash;toolbar:false">//&nbsp;相对路径
-curl&nbsp;localhost/api/test&nbsp;-F&nbsp;file=@report.js
-//&nbsp;绝对路径
-curl&nbsp;localhost/api/test&nbsp;-F&nbsp;file=@/root/zollty/report.js</pre><p><br/></p><p>更多用法参见：<a href="https://curl.haxx.se/docs/manpage.html" target="_self">man curl</a></p><p><br/></p>
+// 限制返回格式为json
+curl localhost/api/test -H &quot;Accept:application/json&quot;</pre><p><br/></p><p><strong>上传文件：-F &quot;file=@__FILE_PATH__&quot;</strong></p><p>例如：</p><pre class="brush:bash;toolbar:false">// 相对路径
+curl localhost/api/test -F file=@report.js
+// 绝对路径
+curl localhost/api/test -F file=@/root/zollty/report.js</pre><p><br/></p><p>更多用法参见：<a href="https://curl.haxx.se/docs/manpage.html" target="_self">man curl</a></p><p><br/></p>

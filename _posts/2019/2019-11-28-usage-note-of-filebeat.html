@@ -1,0 +1,30 @@
+---
+layout: ue
+title: filebeat使用笔记
+category: 中间件技术
+tags: filebeat
+keywords: "filebeat"
+---
+
+<p><br/></p><p>filebeat安装命令（for dockerfile rpm）</p><pre class="brush:bash;toolbar:false">RUN set -eux; \
+    \
+    rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch; \
+    { \
+        echo &#39;#!/usr/bin/env bash&#39;; \
+        echo &#39;[elastic-7.x]&#39;; \
+        echo &#39;name=Elastic repository for 7.x packages&#39;; \
+        echo &#39;baseurl=https://artifacts.elastic.co/packages/7.x/yum&#39;; \
+        echo &#39;gpgcheck=1&#39;; \
+        echo &#39;gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch&#39;; \
+        echo &#39;enabled=1&#39;; \
+        echo &#39;autorefresh=1&#39;; \
+        echo &#39;type=rpm-md&#39;; \
+    } &gt; /etc/yum.repos.d/elastic7.repo; \
+    yum install -y filebeat; \
+    chkconfig --add filebeat; \</pre><p><br/></p><p>也可以下载rpm离线安装，注意缓存问题：详见《我的dockerfile构建笔记》</p><p>报错：or switch to the OSS distribution of filebeat，解决方法为安装Apache版（OSS版）filebeat <br/></p><p>下载地址：<a href="https://www.elastic.co/cn/downloads/past-releases/filebeat-oss-7-4-2">https://www.elastic.co/cn/downloads/past-releases/filebeat-oss-7-4-2</a></p><p>安装<br/></p><pre class="brush:bash;toolbar:false">curl -L -O url
+sudo rpm -vi filebeat-6.8.5-x86_64.rpm</pre><p><br/></p><p>启动：</p><pre class="brush:bash;toolbar:false">/usr/share/filebeat/bin/filebeat -e -c /etc/filebeat/filebeat.yml</pre><p><br/></p><p><br/>输出到Logstash<br/>output.logstash:<br/>&nbsp; hosts: [&quot;localhost:5044&quot;]<br/><br/>输出到es：<br/>output.elasticsearch:<br/>&nbsp; hosts: [&quot;https://localhost:9200&quot;]<br/>&nbsp; username: &quot;filebeat_internal&quot;<br/>&nbsp; password: &quot;YOUR_PASSWORD&quot;<br/><br/>输出到File<br/>output.file:<br/>&nbsp; paths:<br/>&nbsp;&nbsp;&nbsp; - &quot;/var/log/app.log&quot;<br/>&nbsp;&nbsp;&nbsp; - /var/log/wifi.log<br/>&nbsp; filename: filebeat<br/>&nbsp;<br/>输出到控制台<br/>output.console:<br/>&nbsp; pretty: true<br/></p><p><br/></p><p><br/></p><p>filebeat.inputs:<br/>- type: log<br/>&nbsp; paths:<br/>&nbsp;&nbsp;&nbsp; - &quot;/var/log/app.log&quot;<br/>&nbsp;&nbsp;&nbsp; - /var/log/wifi.log</p><p>#支持正则 排除匹配的文件</p><p>&nbsp; exclude_files: [access.log]</p><p>合并多行为一行（例如Java的异常堆栈信息）</p><p>&nbsp; multiline:<br/>&nbsp;&nbsp;&nbsp; pattern: &#39;^[201|202]&#39;<br/>&nbsp;&nbsp;&nbsp; negate: true<br/>&nbsp;&nbsp;&nbsp; match: after</p><p>在source中增加自定义字段<br/></p><p>&nbsp; fields:<br/>&nbsp;&nbsp;&nbsp; app_id: &#39;{$HOSTNAME}&#39;</p><p>另一个合并方式：</p><p>&nbsp; multiline:<br/>&nbsp;&nbsp;&nbsp; pattern: &#39;^\t&#39;<br/>&nbsp;&nbsp;&nbsp; negate: false<br/>&nbsp;&nbsp;&nbsp; match: after</p><p><br/></p><p>自定义filebeat推送到es的索引（index）名称</p><p>参见官方文档：</p><p><a href="https://www.elastic.co/guide/en/beats/filebeat/7.4/elasticsearch-output.html">https://www.elastic.co/guide/en/beats/filebeat/7.4/elasticsearch-output.html</a><br/></p><p>The default is &quot;filebeat-%{[agent.version]}-%{+yyyy.MM.dd}&quot; (for example, &quot;filebeat-7.4.2-2019-11-27&quot;). If you change this setting, you also need to configure the setup.template.name and setup.template.pattern options.</p><p>示例<br/></p><pre class="brush:bash;toolbar:false">output.elasticsearch:
+  hosts: [&quot;http://localhost:9200&quot;]
+  index: &quot;java-%{[agent.hostname]}-%{[agent.version]}-%{+yyyy.MM.dd}&quot;
+  
+setup.template.name: &quot;filebeat&quot;
+setup.template.pattern: &quot;java-*&quot;</pre><p><br/></p><p><br/></p><p>Filebeat优化实践：</p><p><a href="https://my.oschina.net/u/2612999/blog/1518876">https://my.oschina.net/u/2612999/blog/1518876</a><br/></p><p><br/></p><p>以sidecar方式部署filebeat，参见：</p><p><a href="https://www.cnblogs.com/WisWang/p/9092185.html">https://www.cnblogs.com/WisWang/p/9092185.html</a><br/></p><p><a href="https://blog.51cto.com/ylw6006/2107307">https://blog.51cto.com/ylw6006/2107307</a><br/></p><p><br/> </p><p><br/> </p><p><br/> </p>

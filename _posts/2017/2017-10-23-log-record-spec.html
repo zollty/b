@@ -1,0 +1,106 @@
+---
+layout: ue
+title: 项目日志记录规范和标准
+category: 系统架构和设计
+tags: 日志
+keywords: "日志,规范"
+---
+
+<p>《项目日志记录规范和标准》（第二版2017年10月）</p><p>&nbsp; &nbsp;第一版（2013年3月）参见<a href="application-log-record-specification.html" target="_blank">这里</a>。</p><p style="text-align: center;"><span style="font-size: 24px;"><strong>一、说明</strong></span><br/></p><p><span style="font-weight: 700;"></span></p><p>日志分类如下：</p><p>&nbsp; &nbsp; <span style="background-color: rgb(229, 224, 236);">1. 面向问题排查的日志</span></p><p>&nbsp; &nbsp; <span style="background-color: rgb(229, 224, 236);">2. 面向提醒或告警的日志</span></p><p>&nbsp; &nbsp; <span style="background-color: rgb(229, 224, 236);">3. 面向调试和测试的日志</span></p><p>&nbsp; &nbsp; 4. 面向功能的 日志（准确的说，这是数据文件，不是日志）</p><p>&nbsp; &nbsp; <span style="background-color: rgb(229, 224, 236);">5. 面向人阅读的日志</span></p><p>&nbsp; &nbsp; 6. 面向机器解析的日志</p><p>本规范&nbsp;v1.0，主要针对于上面的1、2、3、5点。</p><p>对于第2点的告警信息，仅记录日志是不够的，建议配合实时的通知机制或接入监控平台。</p><p>对于第6点，这个是未来的一个发展方向，在后续的规划中，可能会借助大数据平台去处理日志。</p><p><br/></p><p style="text-align: center;"><strong><span style="font-size: 24px;">二、日志处理常见问题</span></strong></p><p><strong>1、多次重复记录</strong></p><p>&nbsp; &nbsp; 比如在DAO层记录了异常堆栈信息，然后抛出异常，在web层catch了异常之后，又记录了一次异常堆栈信息。</p><p><strong>2、滥用日志、记录不够精简、大量无用信息</strong></p><p>&nbsp; &nbsp; 大量的内容都记录到日志中，使得要从日志中查找关键信息如同大海捞针。更有甚者，频繁大量打印日志，使得日志文件超过100G、500G甚至撑爆磁盘。</p><p><strong>3、缺乏关键标识，很难定位某条信息的位置</strong></p><p>&nbsp; &nbsp; 比如，前端web页面报错，告诉开发人员报错了，但开发人员很难去查找当时的操作日志或者异常信息。仅仅根据时间来定位往往是不够的。</p><p><strong>4、日志记录对于系统性能、安全性的影响</strong></p><p>&nbsp; &nbsp; 关注日志记录是否太过于频繁。日志记录到文件IO或者数据库都是很费CPU和内存资源的事，是否会对系统的性能产生影响。日志是否会被恶意攻击频繁打印日志，直到日志文件塞满主机磁盘。</p><p><br/></p><p style="white-space: normal; text-align: center;"><span style="font-size: 24px; font-weight: bold; text-align: center;">三、日志记录规范 V1.0</span></p><p><span style="font-weight: 700;"><br/></span></p><p><span style="font-weight: 700;">1、清晰、清楚的日志记录</span></p><p>&nbsp; &nbsp; 所谓“清晰”、“清楚”，包括如下几方面：</p><p><span style="color: rgb(192, 0, 0);">1)&nbsp; 不记录很多无用的日志；</span></p><p><span style="color: rgb(192, 0, 0);">2)&nbsp; 日志按重要级别分类，比如ERROR、INFO，能正确反应对当前信息的重视程度；</span></p><p><span style="color: rgb(192, 0, 0);">3)&nbsp; 日志不存在大量重复，特别是异常堆栈的大量重复；</span></p><p><span style="color: rgb(192, 0, 0);">4)&nbsp; 日志描述准确，不能够张冠李戴，日志内容能切实反应当前情况；</span></p><p><span style="color: rgb(192, 0, 0);">5)&nbsp; 日志内容有助于排查问题，有必要记录关键的参数和状态信息；</span></p><p><span style="color: rgb(192, 0, 0);">6)&nbsp; 日志内容有助于定位问题，确保内容的唯一性，不得在不同的地方记录一模一样的日志。</span></p><p><br/></p><p>违规举例说明（以Java为例）：</p><p>针对&nbsp;第 (3)&nbsp;点，</p><pre class="brush:java;toolbar:false">void aa()  {
+    try {
+        bb();
+    } catch (Exception e) {
+        log.error(e); // 重复打印堆栈信息
+    }
+}
+
+void bb() {
+    try {
+        // TODO something...
+    } catch (Exception e) {
+        log.error(e);
+        throw new RuntimeException(e); // catch后又抛出
+    }
+}</pre><p>针对&nbsp;第 (4)&nbsp;点，<br/></p><pre class="brush:java;toolbar:false">public class Demo {
+    
+    Logger log = LogFactory.getLogger(ItemsDaoImpl.class); // 日志名称不正确
+
+    void service(int amount)  {
+        try {
+            
+            // TODO 计算价格
+            
+        } catch (Exception e) {
+            log.error(e, &quot;查询用户失败&quot;); // 日志描述张冠李戴
+        }
+    }
+}</pre><p>针对&nbsp;第 (5)&nbsp;点，<br/></p><pre class="brush:java;toolbar:false">void service(int userId, int orderId)  {
+    try {
+        
+        // TODO 查询订单
+        
+    } catch (Exception e) {
+        log.error(e); // 没有记录 订单ID，不便于问题排查
+    }
+}</pre><p>针对&nbsp;第 (6)&nbsp;点，</p><pre class="brush:java;toolbar:false">void aa(int userId, String param)  {
+    try {
+        // TODO something
+    } catch (Exception e) {
+        log.error(&quot;生成订单失败. userID={}, param={}&quot;, userId, param);
+    }
+}
+
+void bb(int userId, String param) {
+    try {
+        // TODO something
+    } catch (Exception e) {
+        // 此处日志和上面aa()中的日志一模一样，如果报错，则分不清是在方法aa()还是bb()中打印的。
+        log.error(&quot;生成订单失败. userID={}, param={}&quot;, userId, param);
+    }
+}</pre><p><br/></p><p>针对上面的规范，相关的解决方案和建议：</p><p>1）&nbsp;异常处理不重复try-catch；<br/></p><p>2）&nbsp;在程序的关键之处（入口处，结束处，容易报错的地方）记录日志；</p><p>3）&nbsp;每一条日志都认真编写描述，说清楚当前的场景，关键信息，记录必要的参数；</p><p>4）&nbsp;定期抽查和改进（项目负责人走查，或者组内开发人员相互走查）。</p><p><br/></p><p><span style="font-weight: 700;">2、<span style="font-weight: 700; color: rgb(192, 0, 0);">接口</span>调用日志记录规范</span></p><p>&nbsp; 外部系统（接口）调用需要按以下要求记录日志：</p><p>1、调用开始前打印日志，记录开始时间；</p><p>2、调用成功后打印日志，记录完成时间；</p><p>3、调用失败时打印详细异常信息和时间；</p><p>4、根据需要决定是否打印入参和返回结果，或者只打印其中的关键信息。</p><p><br/></p><p style="white-space: normal; text-align: center;"><span style="font-size: 24px;"><strong>四、日志级别的标准定义</strong></span></p><p><br/></p><p><strong><span style="font-size: 16px;">分为5种日志级别，可根据具体情况选择使用：</span></strong></p><p><span style="color: rgb(192, 0, 0);"><span style="font-weight: 700;">trace</span>（追踪）、<span style="font-weight: 700;">debug</span>（调试）、<span style="font-weight: 700;">info</span>（信息）、<span style="font-weight: 700;">warn</span>（警告）、<span style="font-weight: 700;">error</span>（错误）。</span></p><p>（本规范根据Java语言制定，其他编程语言不需要完全一致，但需要领会其精神）</p><p><br/></p><p><span style="font-weight: 700;">日志级别使用原则：（注意各个级别的区别）</span></p><p><br/></p><p>1、致命错误（fatal&nbsp;error）处理原则</p><p>&nbsp; &nbsp; 发生致命错误，代表 服务器整个 或者 核心功能 已经无法工作了！！</p><p>&nbsp; &nbsp; 处理原则如下：</p><p>&nbsp; &nbsp; 1）在服务器启动时就应该检查，如果存在致命错误，<span style="color: rgb(0, 176, 80);">直接抛异常，让服务器不要启动起来</span>（启动了也无法正常工作，不如不启动）。</p><p>&nbsp; &nbsp; 2）如果在服务器启动之后，发生了致命的错误，则记录error级别的错误日志，最好是同时<span style="color: rgb(0, 176, 80);">触发相关的修复和告警工作</span><span style="line-height: 32.4px;">（比如，给开发和维护人员发送告警邮件）。</span></p><p><br/></p><p>2、error（错误）使用原则</p><p>error为功能或者逻辑级别的严重异常，发生error级别的异常，<span style="color: rgb(0, 176, 80);">代表功能或者重要逻辑遇到问题、无法正常工作</span>。</p><p><br/></p><p>3、warn（警告）使用原则</p><p>warn是警告的意思，它有两方面作用：</p><p>一是从程序角度，在某些功能或逻辑不正常时，发生了一些<span style="color: rgb(0, 176, 80);">小故障但是没有大的影响</span>。</p><p>二是从业务角度，遇到了一些特殊操作或者特殊数据，例如<span style="color: rgb(0, 176, 80);">重要数据或配置被修改</span>，或者<span style="color: rgb(0, 176, 80);">某些操作需要引起重视</span>。</p><p><br/></p><p>4、info（信息）使用原则</p><p>info用于<span style="color: rgb(0, 176, 80);">记录一些有用的、关键的信息</span>，一般<span style="color: rgb(0, 176, 80);">这些信息出现得不频繁</span>，<span style="color: rgb(0, 176, 80);">只是在初始化的地方或者重要操作的地方才记录</span>。</p><p><br/></p><p>5、debug（调试）使用原则</p><p>debug用于记录一些<span style="color: rgb(0, 176, 80);">调试信息</span>，为了<span style="color: rgb(0, 176, 80);">方便查看程序的执行过程和相关数据、了解程序的动态</span>。</p><p><br/></p><p>6、trace（跟踪）使用原则</p><p>trace用于记录一些<span style="color: rgb(0, 176, 80);">更详细的调试信息</span>，这些信息<span style="color: rgb(0, 176, 80);">无需每次调试时都打印出来</span>，只在需要更详细的调试信息时才开启，例如在排查问题时、或者测试时跟踪程序的执行。</p><p><br/></p><p><span style="font-weight: 700;">总结和补充：</span></p><p>&nbsp; &nbsp; 注意，<strong><span style="text-decoration-line: underline;">是否需要记录日志，以及日志的级别</span></strong><span style="text-decoration-line: underline;">，<strong>是根据功能的重要性来决定的</strong>，而不是根据程序是否异常来决定的</span>。也就是说，对于程序报错，不一定都记录error级别的日志，在一些不太重要的地方，记录成warn或者debug级别就可以了。</p><p>&nbsp; &nbsp; 另外，在系统出现致命错误之后，应该立即采取应对措施，而不仅仅是记error日志。</p><p>&nbsp; &nbsp;&nbsp;<span style="font-weight: 700;">trace和debug的区别</span>：</p><p>&nbsp; &nbsp;&nbsp;<span style="text-decoration-line: underline;">debug日志相对较正规，它记录下程序执行的关键信息，可以在生产环境下保存下来，用于排查问题，日志输出量要控制在比较小的范围</span>，而<span style="text-decoration-line: underline;">trace</span>级别的日志，仅用于开发或者测试时<span style="text-decoration-line: underline;">调试程序</span>，用来查看程序详细执行信息，通常只用于开发环境，它<span style="text-decoration-line: underline;">在测试环境和生产环境一般是不开启的</span>，只在需要时<span style="text-decoration-line: underline;">临时开启</span>来排查问题，对于它的<span style="text-decoration-line: underline;">日志量是没有限制的</span>，通常来说trace日志输出比较多。</p><p><br/></p><p><br/></p><p style="white-space: normal; line-height: 32.4px;"><span style="font-weight: 700;">项目稳定运行时的日志量（非规范，只是经验，供参考）</span></p><p style="white-space: normal; line-height: 32.4px;">1）debug级别的日志量&nbsp;<span style="color: rgb(192, 0, 0); font-size: 20px; font-weight: bold; line-height: 32.4px;">：</span>&nbsp;info级别的日志量 &gt; 1000<span style="line-height: 32.4px;">&nbsp;</span><span style="line-height: 32.4px; font-size: 20px; color: rgb(192, 0, 0); font-weight: 700;">：</span><span style="line-height: 32.4px;">&nbsp;1，</span></p><p style="white-space: normal; line-height: 32.4px;"><span style="line-height: 32.4px;">也就是说</span>正常情况下，<span style="text-decoration: underline;">info日志很少</span>，只在部分重要位置会输出 info日志。【<span style="font-weight: 700;">言下之意是：要注意不要滥用info日志</span>】</p><p style="white-space: normal; line-height: 32.4px;"><br/></p><p style="white-space: normal; line-height: 32.4px;">2）error日志和warn日志，<span style="text-decoration: underline;">正常情况下，几乎为0</span>，当出现异常时，error日志和warn日志量 也在可控范围，不会超过debug级别的最大日志量。【<span style="font-weight: 700;">言下之意是：要注意不要滥用error日志和warn日志！同时注意发生异常后，确保error日志不会泛滥</span>】</p><p><br/></p><p style="white-space: normal; line-height: 32.4px;">3）正常情况下，trace日志至少是debug日志的100倍，</p><p style="white-space: normal; line-height: 32.4px;"><span style="line-height: 32.4px;">trace级别的日志量&nbsp;</span><span style="line-height: 32.4px; color: rgb(192, 0, 0); font-weight: 700; font-size: 20px;">：</span><span style="line-height: 32.4px;">&nbsp;debug级别的日志量 &nbsp;&gt; &nbsp;100&nbsp;</span><span style="line-height: 32.4px; font-size: 20px; color: rgb(192, 0, 0); font-weight: 700;">：</span><span style="line-height: 32.4px;">&nbsp;1，</span></p><p style="white-space: normal; line-height: 32.4px;">也就是说trace日志非常多，debug日志相对较少。【<span style="font-weight: 700;">言下之意是：要注意区分debug和trace级别</span>】</p><p><br/></p><p style="white-space: normal; text-align: center;"><strong><span style="font-size: 24px;">五、Java日志库指导规范</span></strong></p><p><br/></p><p>原则上，<span style="color: rgb(192, 0, 0);">日志 api 规定使用 SLF4J （不得使用System.out或printStackTrace以及其他日志库API），底层日志实现首选&nbsp;最新版Logback，次选Log4j 2</span>，不建议使用 Log4j 1.x 版本 以及 JDK Logger、Common Logging。</p><p>指导原则如下：</p><p><br/></p><p><strong><span style="font-size: 16px;">1. 总是使用 Log Facade，而不是具体 Log Implementation</span></strong></p><p>&nbsp; &nbsp; 使用 Log Facade 可以方便的切换具体的日志实现。而且，如果依赖多个项目，使用了不同的Log Facade，还可以方便的通过 Adapter 转接到同一个实现上。如果依赖项目使用了多个不同的日志实现，就麻烦的多了。</p><p><br/></p><p>2.&nbsp;<span style="font-weight: 700;">只添加一个 Log Implementation依赖</span></p><p>&nbsp; &nbsp; 毫无疑问，项目中应该只使用一个具体的 Log Implementation，建议使用Log4j2&nbsp;或者&nbsp;Logback。如果有依赖的项目中，使用的 Log Facade不支持直接使用当前的 Log Implementation，就添加合适的桥接器依赖，例如可以使用slf4j的桥接方式替换掉log4j1和commons-logging。</p><pre class="brush:xml;toolbar:false" style="line-height: 1.42857;">&lt;dependency&gt;
+  &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+  &lt;artifactId&gt;jcl-over-slf4j&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+  &lt;artifactId&gt;log4j-over-slf4j&lt;/artifactId&gt;
+&lt;/dependency&gt;</pre><p>同时，对某些传递依赖了其他日志库的组件进行日志库的排除配置，例如：</p><p>引入zkclient会传递引入slf4j-log4j12，引入jstorm会引入logback，可以使用maven的exclusion配置来排除依赖：</p><pre class="brush:xml;toolbar:false" style="line-height: 1.42857;">&lt;dependency&gt;
+    &lt;groupId&gt;com.101tec&lt;/groupId&gt;
+    &lt;artifactId&gt;zkclient&lt;/artifactId&gt;
+    &lt;version&gt;0.6&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+            &lt;artifactId&gt;slf4j-log4j12&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.jstorm&lt;/groupId&gt;
+    &lt;artifactId&gt;jstorm-core&lt;/artifactId&gt;
+    &lt;version&gt;2.1.1&lt;/version&gt;
+    &lt;exclusions&gt;
+        &lt;exclusion&gt;
+            &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+            &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+        &lt;/exclusion&gt;
+    &lt;/exclusions&gt;
+&lt;/dependency&gt;</pre><p><br/></p><p>3.&nbsp;<span style="font-weight: 700;">具体的日志实现依赖应该设置为optional和使用runtime scope</span></p><p>&nbsp; &nbsp; 在项目中，Log Implementation的依赖强烈建议设置为runtime scope，并且设置为optional。例如项目中使用了 SLF4J 作为 Log Facade，然后想使用 Log4j2 作为 Implementation，那么使用 maven 添加依赖的时候这样设置:<br/></p><pre class="brush:xml;toolbar:false" style="line-height: 1.42857;">&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.logging.log4j&lt;/groupId&gt;
+    &lt;artifactId&gt;log4j-core&lt;/artifactId&gt;
+    &lt;version&gt;${log4j.version}&lt;/version&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;optional&gt;true&lt;/optional&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.logging.log4j&lt;/groupId&gt;
+    &lt;artifactId&gt;log4j-slf4j-impl&lt;/artifactId&gt;
+    &lt;version&gt;${log4j.version}&lt;/version&gt;
+    &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;optional&gt;true&lt;/optional&gt;
+&lt;/dependency&gt;</pre><p>&nbsp; &nbsp; 设为optional，依赖不会传递，这样如果你是个lib项目，然后别的项目使用了你这个lib，不会被引入不想要的Log Implementation 依赖；</p><p>&nbsp; &nbsp; Scope设置为runtime，是为了防止开发人员在项目中直接使用Log Implementation中的类，而不适用Log Facade中的类。</p><p><br/></p><p><strong><span style="font-size: 16px;">4. 避免为不会输出的log付出代价</span></strong></p><p>例如下面的写法问题：</p><p>logger.debug(&quot;receive request: &quot; + toJson(request));</p><p>logger.debug(&quot;receive request: {}&quot;, toJson(request));</p><p>&nbsp; &nbsp; logger.debug方法是 仅当日志输出的级别 大于等于DEBUG级别时 才会执行。但是对于程序执行，第一条是直接做了字符串拼接，第二条的方式虽然避免了不必要的字符串拼接，但是toJson()这个函数无论如何都会被调用。所以上面这两种写法，实际上都执行了计算，有性能开销。</p><p>&nbsp; &nbsp; 推荐的写法如下:<br/></p><pre class="brush:java;toolbar:false" style="line-height: 1.42857;">if (logger.isDebugEnabled()) {  // SLF4J / LOG4J2
+    logger.debug(&quot;receive request: &quot; + toJson(request)); 
+}
+logger.debug(&quot;receive request: {}&quot;, () -&gt; toJson(request)); // JDK 1.8 LOG4J2
+logger.debug(() -&gt; &quot;receive request: &quot; + toJson(request)); // JDK 1.8 LOG4J2
+logger.debug(&quot;start process request, url:{}&quot;, url); // SLF4J / LOG4J2</pre><p><br/></p><p><strong><span style="font-size: 16px;">5.&nbsp;生产环境下，为了避免性能问题，日志格式中不要使用行号，函数名等字段</span></strong></p><p>&nbsp; &nbsp; 原因是，为了获取语句所在的函数名或者行号，log库的实现都是获取当前的stack trace，然后分析取出这些信息。而获取stacktrace的代价是很昂贵的。如果有很多的日志输出，就会占用大量的CPU。在没有特殊需要的情况下，建议不要在正式环境的日志中输出这些字段。</p><p><br/></p><p style="text-align: center;"><span style="font-size: 24px;"><strong>六、Logback最佳实践和使用指导（参考）</strong></span></p><p><br/></p><p>参见：<a href="logback-guide-and-best-practices.html" target="_blank">Logback最佳实践和使用指导</a>。</p><p><br/></p><p style="text-align: left;"><span style="font-size: 24px;"><strong>附录：</strong></span></p><p>1、推荐阅读：<a href="best-practice-for-exceptional-handling.html" target="_blank">“异常处理最佳实践”</a><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;文章中指出：<span style="color: rgb(192, 0, 0);">“异常处理 和 日志处理 有密切关系，但是不能混为一谈”</span>。<br/></p><p>2、相关文档：“日志脱敏方案”<em>（内部文档，暂不公开，想了解的可以私聊）</em><br/></p><p>3、相关文档：“logback配置使用说明”<em>（内部文档，暂不公开，想了解的可以私聊）</em></p><p>4、推荐阅读：<a href="the-best-practice-of-log4j2.html" target="_blank">“Log4j2配置及与Logback对比”</a></p><p>5、推荐阅读：<a href="the-depth-experience-and-best-practice-of-logback.html" target="_blank">“Logback的深度使用经验和最佳实践”</a></p><p>6、推荐阅读：<a href="you-zan-tong-ri-zhi-ping-tai.html" target="_blank">“有赞统一日志平台初探”</a><br/></p><p><br/></p>

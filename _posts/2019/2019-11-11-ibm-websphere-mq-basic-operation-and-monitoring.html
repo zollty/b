@@ -1,0 +1,19 @@
+---
+layout: ue
+title: IBM WebSphere MQ基础操作和监控
+category: 中间件技术
+tags: MQ
+keywords: "MQ"
+---
+
+<p><br/></p><p><strong>基础概念：</strong></p><p><br/></p><p>MQ中有几个很重要的组件：队列管理器（QueueManager）、队列（Queue）和通道（Channel）。</p><p><br/></p><p>队列</p><p>最重要的部分，用来存放、取出消息。</p><p><br/></p><p>通道</p><p>WebSphere® MQ 使用两种不同类型的通道：</p><p>1、消息通道，它是两个队列管理器之间的单向通信链路。WebSphere MQ 使用消息通道在队列管理器之间传送消息。 要双向发送消息，您必须定义每个方向的通道。</p><p>2、MQI 通道，它是双向通道，用于将应用程序（MQI 客户机）连接至服务器上的队列管理器。WebSphere MQ 使用 MQI 通道在 MQI 客户机和队列管理器之间传送 MQI 调用和响应。</p><p><br/></p><p><strong>常用命令：</strong></p><p>查看队列管理器<br/></p><p>dspmq -o all</p><p><br/></p><p>往队列中放消息</p><p>/usr/mqm/samp/bin/amqsput QName(队列名) QmgrName(队列管理器名)</p><p><br/></p><p>从队列中取出消息</p><p>/usr/mqm/samp/bin/amqsget QName QmgrName</p><p><br/></p><p>运行MQSC（命令界面）</p><p>runmqsc xxxx(队列管理器名称)</p><p><br/></p><p>MQSC用法如下（命令忽略大小写）：</p><p>查看“通道channel：</p><p>DISPLAY CHANNEL(*)</p><p><br/></p><p>查看“队列queue</p><p>dis q(*)</p><p>简写dis=display，q=queue</p><p><br/></p><p><br/></p><p><strong>常用技巧：</strong></p><p>查看IBM MQ安装信息和版本，命令：dspmqver</p><p><br/></p><p>总结：</p><p>1、IBM MQ提供了许多C语言编写的命令行tools，位于安装目录下的bin下面。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;具体用法参见官方文档（IBM WebSphere MQ Control commands）：</p><p><a href="https://www.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q083010_.htm">https://www.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q083010_.htm</a></p><p>2、MQSC是一个IBM MQ内置的命令行界面，输入runmqsc xxx(队列管理器名称)后进入，在里面可以执行类似于SQL的命令。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;具体语法参见官方文档（MQSC reference）：</p><p><a href="https://www.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085090_.htm">https://www.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085090_.htm</a></p><p><br/></p><p>查看活动队列的方法（如下，根据文件日志和size确定，szie大的说明是主要队列）</p><p>ls -lh /var/mqm/qmgrs/*/queues</p><p><br/></p><p>IBM MQ日志路径：</p><p>1、当队列管理器名称已知，并且队列管理器可用时，错误日志位于</p><p>$MQM/qmgrs/qmname/errors 目录下，如：与MQ通道有关的消息。&nbsp;&nbsp;</p><p><br/></p><p>2、当队列管理器不可用时，错误日志位于</p><p>$MQM/qmgrs/@SYSTEM/errors 目录下（通常，@SYSTEM目录为空）</p><p>&nbsp;&nbsp;</p><p>3、当错误是与Client应用程序有关（MQ系统错误），错误日志位于：&nbsp;</p><p>$MQM/errors目录下&nbsp;</p><p><br/></p><p><br/></p><p><strong>IBM MQ监控方法</strong></p><p>1、检查连接数</p><p><br/></p><p>1）底层网络连接检测方法</p><p>netstat -tnp | grep amqrmppa | wc -l</p><p>或</p><p>netstat -tn | grep :14 | wc -l</p><p><br/></p><p><br/></p><p>2）IBM MQ tool检测（推荐）</p><p>dspmqtrn -a | grep &quot;TranNum(&quot; | wc -l</p><p><br/></p><p>参考文档：https://www.ibm.com/support/knowledgecenter/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q083270_.htm</p><p><br/></p><p><br/></p><p>备注：上面的 grep :14 实际上是下面的简写：</p><p>netstat -tn | grep :1417 | wc -l</p><p><br/></p><p>其中1417为listener的port，可以先用：netstat -tn，确定一下是不是这个端口。</p><p>也可以用下面的MQSC命令查询：</p><p>&nbsp; 用dis listener(*)查询到名称name，假设为QMEMBFE</p><p>&nbsp; 然后 dis lsstatus(QMEMBFE)，即可看到port字段。</p><p><br/></p><p><br/></p><p><span style="color: rgb(192, 0, 0);">3）查询某个通道的连接数：（推荐）</span></p><pre class="brush:bash;toolbar:false">out=$(
+runmqsc&nbsp;${qmngr_name}&nbsp;&lt;&lt;EOF
+dis&nbsp;chs(${channel_name})
+EOF
+)
+echo&nbsp;&quot;$out&quot;&nbsp;|&nbsp;grep&nbsp;CONNAME&nbsp;|&nbsp;wc&nbsp;-l</pre><p><br/></p><p>4）查询某个队列的深度：</p><pre class="brush:bash;toolbar:false">out=$(
+runmqsc&nbsp;${qmngr_name}&nbsp;&lt;&lt;EOF
+dis&nbsp;qs(${queue_name})
+EOF
+)
+echo&nbsp;&quot;$out&quot;&nbsp;|&nbsp;awk&nbsp;&#39;/CURDEPTH/&nbsp;{n=index($1,&nbsp;&quot;)&quot;);print&nbsp;substr($1,10,n-10)}&#39;</pre><p><br/></p><p>建议：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;对主要使用的队列深度设定阈值（比如10000），超过则告警</p><p>&nbsp;&nbsp;&nbsp;&nbsp;同时，建议监控“死信队列”的深度，并设定阈值（比如200），超过则告警</p><p><br/></p><p>2、检查日志文件大小</p><p>方法：du -sh /var/mqm/errors</p><p><br/></p><p>PS：相关监控脚本已开源：</p><p><a href="https://github.com/zollty/IBM-MQ-Monitoring-Script.git">https://github.com/zollty/IBM-MQ-Monitoring-Script.git</a> </p><p><br/></p><p><br/></p>

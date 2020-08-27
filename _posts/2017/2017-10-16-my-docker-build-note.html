@@ -1,0 +1,106 @@
+---
+layout: ue
+title: 我的Dockerfile构建笔记
+category: 其他语言和技术
+tags: Docker
+keywords: "Docker, Dockerfile, Docker镜像"
+---
+
+{% raw %}
+<p><span style="color: inherit; font-family: 黑体, SimHei; font-size: 24px; font-weight: 600;">一、构建Docker镜像</span><br/></p><p><strong># 构建容器</strong></p><pre class="brush:bash;toolbar:false">docker build -t 镜像名称 .
+# 后面的. 指的是当前文件夹 (其实是Dockerfile存放的文件夹)
+docker build --rm=true -t loen/lamp .</pre><p>–rm 选项是告诉Docker，在构建完成后删除临时的Container，Dockerfile的某些指令（比如RUN、ADD、COPY）会创建临时的Container，这些临时生成的Container可以当做下次或者其他构建的缓存层，如果你确定不需要这些缓存，可以加上这个参数。</p><p><strong># 查看历史</strong></p><pre class="brush:bash;toolbar:false">docker history 镜像ID</pre><p><strong># 格式化显示</strong></p><pre class="brush:bash;toolbar:false">docker history 镜像ID --format &quot;table{{.ID}}=\n{{.CreatedBy}}&quot; --no-trunc</pre><p><br/></p><h2>二、Dockerfile最佳实践</h2><p>参见我的这篇文章<a href="dockerfile-best-practices.html" target="_blank">《Dockerfile最佳实践》</a><br/></p><p><br/></p><h2>三、常见问题<br/></h2><p>1、解决Docker容器中文乱码问题：</p><p>执行如下命令即可：export LC_ALL=C.UTF-8</p><p>如果要制作Dockerfile，不能用export，环境变量要固化到镜像中，必须使用ENV：</p><pre class="brush:bash;toolbar:false">ENV&nbsp;LC_ALL=C.UTF-8</pre><p>或者另一种脚本方案：</p><pre class="brush:bash;toolbar:false">echo &#39;export LC_ALL=C.UTF-8&#39; &gt;&gt; /etc/profile</pre><p><br/></p><h2>四、我的Dockerfile文件</h2><p>例1、Tomcat快速测试版</p><pre class="brush:bash;toolbar:false;"># 源于tomcat官方镜像：https://hub.docker.com/_/tomcat
+FROM tomcat:8.5.47-jdk8-corretto
+
+#删除tomcat自带的app，然后设置正确的时区
+RUN rm -rf /usr/local/tomcat/webapps/* \
+    &amp;&amp; export TZ=Asia/Shanghai \
+    &amp;&amp; ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    &amp;&amp; echo $TZ &gt; /etc/timezone \
+    &amp;&amp; unset TZ
+
+#将target下的xx.war拷贝到/usr/local/tomcat/webapps/下
+COPY target/*.war /usr/local/tomcat/webapps</pre><p><br/></p><p>例2、安装nodejs 和 vue的开发运行环境，运行 vue serve，访问http://localhost:8080/，显示App.vue的内容。</p><p>参见这个例子：</p><p><a href="https://cli.vuejs.org/guide/prototyping.html">https://cli.vuejs.org/guide/prototyping.html</a></p><p><br/></p><p>构建步骤一：基于node的vue环境基础镜像</p><pre class="brush:bash;toolbar:false;">FROM node
+RUN npm install -g @vue/cli \
+    &amp;&amp; npm install -g @vue/cli-service-global \
+    &amp;&amp; mkdir /app
+CMD [&quot;./usr/local/bin/vue&quot;, &quot;--version&quot;]</pre><p>建议使用stdin构建（无需上下文）：<br/></p><pre class="brush:bash;toolbar:false">docker build -t vue-serve:latest -&lt;&lt;EOF
+FROM node
+RUN npm install -g @vue/cli \
+    &amp;&amp; npm install -g @vue/cli-service-global \
+    &amp;&amp; mkdir /app
+CMD [&quot;./usr/local/bin/vue&quot;, &quot;--version&quot;]
+EOF</pre><p><br/></p><p>构建步骤二：vue app onbuild基础镜像</p><pre class="brush:bash;toolbar:false;">FROM vue-serve
+WORKDIR /app
+COPY docker-entrypoint.sh /app/
+ONBUILD COPY . /app/
+ENTRYPOINT [&quot;/app/docker-entrypoint.sh&quot;]</pre><p>docker build -t vue-onbuild:latest .</p><p>注意，给dock-entrypoint.sh添加可执行权限。chmod +x *.sh</p><p><br/></p><p>构建步骤三：业务app镜像</p><pre class="brush:bash;toolbar:false;">FROM vue-onbuild</pre><p>docker build -t vue-xxxx:latest .</p><p><br/></p><p>注意，这个例子的是当做开发环境运行。如果是测试环境，需要先build出target文件，然后放到Nginx等Web服务器上运行。build过程，可以使用docker的多阶段构建，或者使用容器云平台的pipline流水线。</p><p><br/></p><p>例3、Nginx应用镜像</p><p>如下：</p><pre class="brush:bash;toolbar:false">FROM nginx:1.17.4
+#用本地的文件替换nginx镜像里的默认配置
+COPY nginx.conf /etc/nginx/nginx.conf
+#拷贝web文件到html目录
+COPY dist/ /usr/share/nginx/html/</pre><p>其中简单的nginx.conf如下：<br/></p><pre class="brush:bash;toolbar:false">user  nginx;
+worker_processes  1;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  &#39;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#39;
+                      &#39;$status $body_bytes_sent &quot;$http_referer&quot; &#39;
+                      &#39;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#39;;
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    # http server
+    server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html;
+	    #try_files $uri $uri/ /index.html;
+        }
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }
+
+}</pre><p><br/></p><p>例4、Fat Jar程序</p><p>Dockerfile如下：</p><pre class="brush:bash;toolbar:false"># 源于亚马逊jdk官方镜像：https://hub.docker.com/_/amazoncorretto
+FROM amazoncorretto:8
+
+ADD target/xxxxxxx.jar .
+
+EXPOSE 8080
+
+# 环境变量 $JAVA_OPTS 在外部配置
+ENTRYPOINT exec java $JAVA_OPTS -jar xxxxxxx.jar
+# 常用的有：
+#   -Dfile.encoding=UTF8
+#   -Duser.timezone=GMT+08
+#
+#   -Xms256m -Xmx512m
+#   -XX:+UseG1GC 
+#   -XX:MaxGCPauseMillis=200
+#
+#   -Djava.security.egd=file:/dev/./urandom
+#</pre><p><br/></p><p><br/></p>
+{% endraw %}

@@ -1,0 +1,141 @@
+---
+layout: ue
+title: Android下运行Tomcat、Jetty等Java Web服务器
+category: Android、iOS软件开发
+tags: Android
+keywords: "Android运行tomcat,Android运行web服务器"
+---
+
+<p><br/></p><p><strong>方案一：</strong>在android下搭建linux运行环境，然后在linux下运行java web服务器。</p><p><strong>方案二：</strong>将tomcat或jetty等java web服务器的源码改造，并将class文件转译成android能直接运行的dex格式文件（运行在Dalvik VM上）。</p><p><br/></p><p><span style="color: rgb(192, 0, 0);">&nbsp;&nbsp;&nbsp;&nbsp;注意，方案二，自己去改造服务器源码，对于一般人显然不现实，但是jetty官方提供了一个叫“<strong>i-jetty</strong>”的项目，</span><span style="color: rgb(192, 0, 0);">可以直接在android下运行jetty服务器，然后安装dex转码过的war包。</span></p><p><br/></p><p>本文目前主要对方案二进行讲解。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;方案二，有一个很大的缺点，虽然class文件可以转换成dex格式文件运行，而且java反射也可以使用</p><p>（因为android下为了使dex能运行，它重写了System ClassLoader，名字叫dalvik.system.DexClassLoader和PathClassLoader），</p><p>&nbsp;&nbsp;&nbsp;&nbsp;但是，java classpath失效了，因为Dalvik VM根本不使用class。而且class打包成dex文件时，不会把classpath下面的资源文件也打包到dex文件中。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;所以，整个System ClassLoader无法获取任何class文件和资源文件。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果你的程序或者程序依赖的类库jar包中的代码，有用到classpath及资源文件加载的地方，都会失效，必须得重写这些代码的实现方式。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;举个例子，你把spring的application.properties文件放在classpath下面，肯定是无法使用的，甚至spring框架所依赖的Bean初始化，它会去classpath下面寻找配置的package下面的所有class文件，然后加载class文件中并读取里面的注解等，由于没有class了，所有它找不到class文件，而读取Android的dex文件需要特殊的实现，Spring等几乎所有的传统java框架或库，都没有这个功能。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;附：Spring扫描package下class文件的源码如下：</p><pre class="brush:java;toolbar:false">private&nbsp;Set&lt;BeanDefinition&gt;&nbsp;scanCandidateComponents(String&nbsp;basePackage)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;String&nbsp;packageSearchPath&nbsp;=&nbsp;&quot;classpath*:&quot;&nbsp;+&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolveBasePackage(basePackage)&nbsp;+&nbsp;&quot;/**/*.class&quot;;
+&nbsp;&nbsp;&nbsp;&nbsp;Resource[]&nbsp;resources&nbsp;=&nbsp;getResourcePatternResolver().getResources(packageSearchPath);
+&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(Resource&nbsp;resource&nbsp;:&nbsp;resources)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logger.trace(&quot;Scanning&nbsp;&quot;&nbsp;+&nbsp;resource);
+&nbsp;&nbsp;&nbsp;&nbsp;...
+}
+//&nbsp;代码来源：
+//&nbsp;org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;附：AndroidClassLoader源码解析，描述了从dex文件中查找资源的过程，涉及核心源码包括BaseDexClassLoader，DexPathList，DexFile<br/></p><p>参见：<a href="https://blog.csdn.net/qq_15274383/article/details/73306332">https://blog.csdn.net/qq_15274383/article/details/73306332</a></p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;值得一提的是，dex文件，是一个纯二进制文件，通常只包含class转换过的内容。你可以把dex文件当做一个map，可以通过标准的class name（比如com.zollty.test.Hello）来读取其二进制内容（类似于字节码），但是你不能通过package去寻找某个package下面有哪些类（它和传统的压缩包不同，传统的压缩包，比如zip，可以通过斜杆(/)分割的路径寻找里面的子文件，但是dex文件貌似不行）。<span style="color: rgb(192, 0, 0);">我想从 dex文件查询&nbsp; com.zollty 包下面的所有类，但是找不到方法。</span></p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，注意，<span style="color: rgb(192, 0, 0); text-decoration: underline;">i-jetty 这个项目，官方没有怎么维护，实际使用起来问题很多</span>，我也是花了整整2天时间，把i-jetty的源码，以及Android各个版本DexClassloader相关的源码，都分析阅读了之后，才把项目弄好。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(192, 0, 0);">我重写了i-jetty的AndroidClassLoder，让它可以读取jar包中的资源文件</span>，<span style="color: rgb(0, 112, 192);">同时配合 maven&nbsp; ant plugin自定义打包，将必要的java class和资源文件打包到 i-jetty的lib jar包中</span>，<span style="color: rgb(192, 0, 0);">同时配合我专用的<strong>zollty-mvc</strong>框架（能替代SpringMVC的绝大多数常用功能），以及android下专用的jdbc驱动</span>，才把一个完整的项目跑起来，这里面的每个环节都不能少。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;源码已传到GitHub上：<a href="https://github.com/zollty/i-jetty">https://github.com/zollty/i-jetty</a></p><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(192, 0, 0);">如果不想直接写原生Servlet，强烈推荐配合“超轻量级MVC框架-ZolltyMVC”</span>使用：<a href="https://github.com/zollty-org/zollty-mvc">https://github.com/zollty-org/zollty-mvc</a></p><p>&nbsp;&nbsp;&nbsp;&nbsp;ZolltyMVC的代码量连SpringMVC的1%不到，但是却具备SpringMVC的80%常用功能。<br/></p><p><br/></p><h3>附：<strong>i-jetty使用说明</strong></h3><p>1、将项目webapp文件夹复制到如下的webapps文件夹下：</p><p>/storage/emulated/0/jetty/webapps</p><p>&nbsp;&nbsp;&nbsp;&nbsp;项目webapp文件夹包含如下内容：</p><p>1）静态文件；</p><p>2）WEB-INF文件夹，下面有一个web.xml和lib\classes.zip</p><p><span style="white-space:pre">	</span>其中classes.zip是classpath下面所有文件的（class文件转译成android的dex文件后）打包而成。</p><p>classes.zip是在maven工程中，直接用maven插件打包生成。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;该Maven插件配置代码如下：</p><pre class="brush:xml;toolbar:false">  &lt;build&gt;
+    &lt;plugins&gt;
+      
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+        &lt;version&gt;2.3&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;unpack-dependencies&lt;/id&gt;
+            &lt;phase&gt;generate-sources&lt;/phase&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;unpack-dependencies&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;failOnMissingClassifierArtifact&gt;false&lt;/failOnMissingClassifierArtifact&gt;
+              &lt;excludeArtifactIds&gt;servlet-api,android,i-jetty-server,jetty-util&lt;/excludeArtifactIds&gt;
+              &lt;excludeTransitive&gt;true&lt;/excludeTransitive&gt;
+              &lt;outputDirectory&gt;${project.build.directory}/generated-classes&lt;/outputDirectory&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+
+      
+      &lt;plugin&gt;
+        &lt;artifactId&gt;maven-antrun-plugin&lt;/artifactId&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;copydex&lt;/id&gt;
+            &lt;phase&gt;process-classes&lt;/phase&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;run&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;tasks&gt;
+                &lt;mkdir
+                  dir=&quot;${project.build.directory}/${project.artifactId}/WEB-INF/lib&quot; /&gt;
+                &lt;mkdir
+                  dir=&quot;${project.build.directory}/dex-classes&quot; /&gt;
+                &lt;copy includeEmptyDirs=&quot;false&quot; todir=&quot;${project.build.directory}/dex-classes&quot;&gt;
+                  &lt;fileset dir=&quot;${project.build.directory}/generated-classes&quot;
+                     includes=&quot;**/*.class&quot; /&gt;
+                  &lt;fileset dir=&quot;${project.build.directory}/classes&quot;
+                     includes=&quot;**/*.class&quot; /&gt;
+                &lt;/copy&gt;
+                
+                &lt;java jar=&quot;${basedir}/dx.jar&quot; fork=&quot;true&quot; failonerror=&quot;true&quot;&gt;
+                  &lt;arg value=&quot;--dex&quot; /&gt;
+                  &lt;arg value=&quot;--verbose&quot; /&gt;
+                  &lt;arg value=&quot;--core-library&quot; /&gt;
+                  &lt;arg value=&quot;--output=${project.build.directory}/classes/classes.dex&quot; /&gt;
+                  &lt;arg value=&quot;--positions=lines&quot; /&gt;
+                  &lt;arg value=&quot;${project.build.directory}/dex-classes&quot; /&gt;
+                &lt;/java&gt;
+                
+                &lt;copy 
+                  file=&quot;${basedir}/src/main/webapp/WEB-INF/web.xml&quot;
+                  todir=&quot;${project.build.directory}/${project.artifactId}/WEB-INF&quot; /&gt;
+                
+                &lt;move includeEmptyDirs=&quot;false&quot; todir=&quot;${project.build.directory}/classes&quot;&gt;
+                  &lt;fileset dir=&quot;${project.build.directory}/generated-classes&quot;
+                     excludes=&quot;**/*.class&quot; /&gt;
+                  &lt;fileset dir=&quot;${project.build.directory}/generated-classes&quot;
+                     includes=&quot;com/zollty/oa/**/*.class&quot; /&gt;
+                &lt;/move&gt;
+
+                &lt;jar 
+                  basedir=&quot;${project.build.directory}/classes&quot;
+                  update=&quot;true&quot;
+                  strict=&quot;warn&quot;
+                  excludes=&quot;META-INF/maven/**,META-INF/*.SF,META-INF/*.DSA,META-INF/*.RSA&quot;
+                  destfile=&quot;D:/__SYNC/00-MOBILE0/classes.zip&quot; /&gt;
+              &lt;/tasks&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+   
+    &lt;!--This plugin&#39;s configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.--&gt;
+    &lt;pluginManagement&gt;
+      &lt;plugins&gt;
+        &lt;plugin&gt;
+          &lt;groupId&gt;org.eclipse.m2e&lt;/groupId&gt;
+          &lt;artifactId&gt;lifecycle-mapping&lt;/artifactId&gt;
+          &lt;version&gt;1.0.0&lt;/version&gt;
+          &lt;configuration&gt;
+            &lt;lifecycleMappingMetadata&gt;
+              &lt;pluginExecutions&gt;
+                &lt;pluginExecution&gt;
+                  &lt;pluginExecutionFilter&gt;
+                    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                    &lt;artifactId&gt;maven-dependency-plugin&lt;/artifactId&gt;
+                    &lt;versionRange&gt;[2.3,)&lt;/versionRange&gt;
+                    &lt;goals&gt;
+                      &lt;goal&gt;unpack-dependencies&lt;/goal&gt;
+                    &lt;/goals&gt;
+                  &lt;/pluginExecutionFilter&gt;
+                  &lt;action&gt;
+                    &lt;ignore&gt;&lt;/ignore&gt;
+                  &lt;/action&gt;
+                &lt;/pluginExecution&gt;
+                &lt;pluginExecution&gt;
+                  &lt;pluginExecutionFilter&gt;
+                    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+                    &lt;artifactId&gt;maven-antrun-plugin&lt;/artifactId&gt;
+                    &lt;versionRange&gt;[1.3,)&lt;/versionRange&gt;
+                    &lt;goals&gt;
+                      &lt;goal&gt;run&lt;/goal&gt;
+                    &lt;/goals&gt;
+                  &lt;/pluginExecutionFilter&gt;
+                  &lt;action&gt;
+                    &lt;ignore&gt;&lt;/ignore&gt;
+                  &lt;/action&gt;
+                &lt;/pluginExecution&gt;
+              &lt;/pluginExecutions&gt;
+            &lt;/lifecycleMappingMetadata&gt;
+          &lt;/configuration&gt;
+        &lt;/plugin&gt;
+      &lt;/plugins&gt;
+    &lt;/pluginManagement&gt;
+  &lt;/build&gt;</pre><p><br/></p><p>2、ijetty还支持native lib，在如下目录</p><p>/storage/emulated/0/jetty/lib</p><p>&nbsp;&nbsp;&nbsp;&nbsp;放置native的so库文件即可，例如我放置了 libsqlitejdbc.so 文件。</p><p><br/></p>

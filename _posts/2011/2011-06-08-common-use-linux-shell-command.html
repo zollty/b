@@ -1,9 +1,81 @@
 ---
 layout: ue
-title: 常用的Shell命令
+title: Shell编程笔记
 category: Linux系统与应用
 tags: Linux,Shell
 keywords: "Linux,Shell"
 ---
 
-<p>Linux doc &nbsp;2011 by: zollty</p><p>&nbsp;</p><p>1. cat命令:标准的输入、输出，显示文件。例如</p><p>cat -n test.c，输出每行编号</p><p>cat -b test.c，对空白行不编号</p><p>注意：Windows下所见的空白行不一定是真正的空白行，因为含有\r\n!只有用Vi或gedit等创建的原始文档中空出来的行才是真正的“空行”。</p><p>&nbsp;</p><p>-n输出行编号</p><p>-b对空白行不编号</p><p>-s大于两行的空行换成一行</p><p>-v显示出了TAB和换行符以外的字符标记^和M</p><p>-E display $at end of each line</p><p>-T display TABcharacters as ^I</p><p>-A equivalentto –vET</p><p>-e equivalentto –vE</p><p>&nbsp;</p><p>新建文件并输入内容：</p><p>cat &gt;f1</p><p>注意：使用cat命令进行输入时，而且只能用退格键(Backspace)来删除光标前一位置的字符。并且一旦按下回车键，该行输入的字符就不可修改。按Ctrl+D键结束输入。</p><p>&nbsp;</p><p>在文件末尾增加内容：</p><p>cat &gt;&gt;f1</p><p>然后就是接着输入内容，记住内容最后留一个空行。（以后写文档都养成最后留一个空行的习惯）</p><p>&nbsp;</p><p>2. wc命令:显示文件信息，参数如下</p><p>-c --bytes</p><p>-m --chars</p><p>-l --lines</p><p>-w –word counts</p><p>例：统计f1文件的行数，单词数和字符数，并将统计结果存放在countf1文件。</p><p>输入wc &lt; f1 &gt; countf1，再查看cat countf1，注意那个&lt;和&gt;并不是括号，而是定向符。</p><p>&nbsp;</p><p>&nbsp;</p><p>3. 分页显示目录目录中文件及目录</p><p>显示/etc目录中文件及目录（一律按名称排序）</p><p>ls /etc|more： 显示第一页，按空格键可查看下一页信息。</p><p>ls /etc|head –n 15：显示前15行</p><p>如何区分文件或者目录？答：看后缀，无后缀的一般是目录。</p><p>&nbsp;</p><p>4. 通配符的使用</p><p>最实用的通配符是：</p><p>* --可代表任意多个字符</p><p>? –代表一个字符</p><p>示例：</p><p>（i）ls /bin/c* &nbsp; &nbsp; &nbsp; (ii)ls /bin/c??</p><p>&nbsp;</p><p>不常用的：</p><p>ls /bin/[c,s,h]* ………………首字母为c或s或h</p><p>ls /bin/[!a-e]*………………首字母不是a、b、c、d、e</p><p>!!……………………………重复上一步操作。即执行ls /bin/[!a-e]*</p><p>&nbsp;</p><p>5. 设置手工启动图形化用户界面</p><p>在/etc/inittab文件中：</p><p>id：0-6分别代表：0代表关机， 6代表重启，5代表重启到图形界面。另外3代表多用户的字符界面，比较常用（5和3之间切换）。其他不用管。</p><p><br/></p>
+<p>Linux doc &nbsp;2011 by: zollty</p><p>（如无特殊说明，本文所有的shell都是基于bash shell，而非dash sh）</p><p style='line-height: 1;'><br/></p><p>有些linux的sh指向bash，两者等价，但有些则不一样。两者的区别参见：</p><p><a href="https://www.cnblogs.com/macrored/p/11548347.html">https://www.cnblogs.com/macrored/p/11548347.html</a></p><p><a href="https://www.jianshu.com/p/762d4cccee7e">https://www.jianshu.com/p/762d4cccee7e</a><br/></p><p style='line-height: 1;'><br/></p><p><strong>布尔类型的定义和判断</strong></p><pre class="brush:js;toolbar:false">the_world_is_flat=true
+# …do something interesting…
+if [ &quot;$the_world_is_flat&quot; = true ] ; then
+    echo &#39;Be careful not to fall off!&#39;
+fi</pre><p style='line-height: 1;'><br/></p><p><strong>字符串按位数截取</strong></p><p>语法：${string: start :length}</p><p>例如：</p><pre class="brush:bash;toolbar:false">url=&quot;c.zollty.com&quot;
+echo ${url: 2: 6}
+# 结果为zollty</pre><p style='line-height: 1;'><br/></p><p><strong>字符串正则表达式替换、分割</strong></p><p>替换格式：${string<strong>/</strong><span style="color: rgb(192, 0, 0);">/old</span><span style="color: rgb(255, 0, 0);">/new</span>}</p><p>示例如下：<br/></p><pre class="brush:bash;toolbar:false">#!/bin/bash
+ 
+string=&quot;hello,shell,split,test&quot;  
+array=(${string//,/ })  
+ 
+for var in ${array[@]}
+do
+   echo $var
+done</pre><p>再举个例子：string=&quot;hello=shell&quot;，将 ‘=’ 替换成 ‘,’ 如下</p><p>${string/=/,}</p><p style='line-height: 1;'><br/></p><p>读懂下面代码：</p><pre class="brush:bash;toolbar:false">#!/bin/bash
+for i in `seq 1 10`; do
+  node main.js &amp;&amp; s=$? &amp;&amp; break || s=$?;
+  echo &quot;Tried $i times. Waiting 5 secs...$?&quot;;
+  sleep 5;
+done;(exit $s)</pre><p><strong>知识点：$?</strong></p><p>$?代表上一次命令的执行状态，成功则为0，失败则不为0（通常为1或2）</p><p><strong>知识点：exit n&nbsp; （n=0,1,2...）<br/></strong></p><p>n=0 代表正常退出，否则不正常退出。</p><p><strong>知识点：与和非（&amp;&amp;和||）</strong></p><p>aa &amp;&amp; bb：代表左边的命令aa执行成功后，才执行右边的命令bb</p><p>aa || bb：和&amp;&amp;相反，左边的aa执行失败后，才执行右边的bb</p><p>上面的例子为 aa &amp;&amp; bb &amp;&amp; cc || dd 格式，意思是：</p><p>（aa &amp;&amp; bb &amp;&amp; cc） || dd，aa 成功执行bb，bb成功执行cc，无论aa、bb、cc哪个失败，dd都会执行。</p><p>注意：不要用 aa || bb &amp;&amp; cc，因为 aa失败了，bb会执行，然后cc也会执行；但如果aa成功了，bb不会执行，但是cc任然会执行。所以无论aa成功或失败，cc都会执行，这不是我们想要的。如果想aa成功时不执行cc，则应写成：</p><p>aa || (bb; cc)<br/></p><p>见下面的说明：<br/></p><p><strong>知识点：shell 小括号、花括号</strong></p><p>(aaa; bbb; ccc) 的意思是将多个命令作为一个整体执行，新开一个shell进程执行括号里面的脚本。</p><p>如果换成{aaa; bbb; ccc}，就是在当前进程中执行。</p><p>两者的区别：（重要！！）</p><pre class="brush:plain;toolbar:false">()只是对一串命令重新开一个子shell进行执行
+{}对一串命令在当前shell执行
+()和{}都是把一串的命令放在括号里面，并且命令之间用;号隔开
+()最后一个命令可以不用分号
+{}最后一个命令要用分号
+{}的第一个命令和左括号之间必须要有一个空格
+()里的各命令不必和括号有空格
+()和{}中括号里面的某个命令的重定向只影响该命令，但括号外的重定向则影响到括号里的所有命令。</pre><p style='line-height: 1;'><br/></p><p>现学现用：<strong>我们想让npm install执行失败后，打印出log信息，然后再退出</strong>，怎么办？</p><p>答案：</p><pre class="brush:bash;toolbar:false">npm install || s=$?
+if [ $s ]; then
+  cat /root/.npm/_logs/*.log
+  exit $s
+fi
+echo &#39;ok&#39;
+
+或者简写为
+npm install || { s=$?; cat /root/.npm/_logs/*.log; exit $s}
+echo &#39;ok&#39;
+
+或者简写为
+set -e
+npm install || (s=$?; cat /root/.npm/_logs/*.log; exit $s)
+echo &#39;ok&#39;</pre><p>注意后面那种写法，必须加上<strong>set -e</strong>，否则exit无法退出，后面的程序会继续执行。</p><p>不推荐最后那种写法。<span style="color: rgb(192, 0, 0);">中间那种写法更合适，因为花括号是在当前进程中执行，exit会退出当前进程。而后面那种写法使用的小括号，是新开一个进程，这样如果不设置 set -e，当前进程就不会结束</span>。<br/></p><p style='line-height: 1;'><br/></p><p><strong>bash的管道（ | ）问题</strong><br/></p><p>&nbsp; &nbsp; <span style="text-decoration: underline;">/bin/sh -c wget -O - https://some.site | <span style="text-decoration: underline; color: rgb(192, 0, 0);">wc -l &gt; /number</span></span></p><p>&nbsp; &nbsp; this only evaluates the exit code of <span style="color: rgb(192, 0, 0);">the last operation in the pipe to determine success.</span>&nbsp;</p><p>&nbsp; &nbsp; 上例中只要 wc -l 命令成功，build就成功了，即使 wget 命令失败了。</p><p>&nbsp; &nbsp; If you want the command to fail due to an error at any stage in the pipe, 设置 set -o pipefail &amp;&amp; to ensure that an unexpected error prevents the build from inadvertently succeeding. For example:</p><p>&nbsp; &nbsp; <span style="text-decoration: underline; color: rgb(192, 0, 0);">set -o pipefail</span><span style="text-decoration: underline;"> &amp;&amp; wget -O - https://some.site | wc -l &gt; /number</span></p><p>&nbsp; &nbsp; 注意：<span style="color: rgb(192, 0, 0);">不是所有的 shells 都支持 -o pipefail 选项</span>：比如 the dash shell on Debian-based images,&nbsp;</p><p>&nbsp; &nbsp; 建议使用下面的格式来显式声明/bin/bash 设置 pipefail 选项:</p><p>&nbsp; &nbsp; <span style="text-decoration: underline;"><span style="text-decoration: underline; color: rgb(192, 0, 0);">/bin/bash -c </span>set -o pipefail &amp;&amp; wget -O - https://some.site | wc -l &gt; /number</span></p><p style='line-height: 1;'><br/></p><p><strong>bash的set -e</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;set -e的意思是，根据每一个子命令的返回结果（exit状态码），来确定是否退出，如果状态码不为0，则退出整个进程。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;注意，通常不这样设置，因为某个子命令的状态码不为0，不代表这个命令执行异常。例如diff命令<br/></p><p>&nbsp;&nbsp;&nbsp; <span style="text-decoration: underline;">diff pom.xml pom.xml2</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果两个pom.xml不相同，则diff返回的状态码不为0，如果设置了 set -e，整个shell脚本就会退出。实际上diff不同是我们预料的结果，不应该退出shell进程。我曾经就被这个问题坑过！！</p><p>&nbsp;&nbsp;&nbsp;&nbsp;解决方案（<span style="color: rgb(192, 0, 0);">重要实践经验！</span>）：<span style="color: rgb(192, 0, 0);">设置set -e，同时在不希望exit非0退出的地方加上“||”</span>，例如：</p><pre class="brush:bash;toolbar:false">echo &#39;xxx&#39;
+diff aa.sh  bb.sh || { s=$?; echo &#39;aa and bb is diffrent&#39;; exit $s; }
+echo &#39;yyyy&#39;</pre><p style='line-height: 1;'><br/></p><p style='line-height: 1;'><br/></p><p><strong>获取参数</strong></p><p>1、$n（n=1,2,3...） 代表获取第n个参数。</p><p>2、start.sh &quot;$@&quot; 将所有参数（空格分割）原封不动传给 start.sh</p><p>3、start.sh &quot;${@:2}&quot; 将第一个除外的所有参数（空格分割）原封不动传给 start.sh</p><p style='line-height: 1;'><br/></p><div class="subject-title" onclick="toggleContent(this,'#3x7xvg');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p><strong>if-判断</strong></p></div><div id="3x7xvg" class="subject-content" style="display:none;"><p>如下所示<strong><br/></strong></p><pre class="brush:bash;toolbar:false">folder=&quot;/Top&quot;
+file=&quot;/Top/test.txt&quot;
+ 
+# -x 参数判断 $folder 是否存在并且是否具有可执行权限
+if [ ! -x &quot;$folder&quot;]; then
+ mkdir &quot;$folder&quot;
+fi
+ 
+# -d 参数判断 $folder 是否存在
+if [ ! -d &quot;$folder&quot;]; then
+ mkdir &quot;$folder&quot;
+fi
+ 
+# -f 参数判断 $file 是否存在
+if [ ! -f &quot;$file&quot; ]; then
+ touch &quot;$file&quot;
+fi
+
+# -n 判断一个&quot;变量&quot;是否有值
+if [ ! -n &quot;$file&quot; ]; then
+ echo &quot;$file 变量为空！&quot;
+ exit 0
+fi
+
+# 判断两个变量的字符串内容是否相同
+if [ &quot;$file1&quot; = &quot;$file2&quot; ]; then
+ echo &quot;$file1 equal $file2&quot;
+else
+ echo &quot;$file1 not equal $file2&quot;
+fi</pre><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#axz46g');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>在 Shell 脚本中调用另一个 Shell 脚本的三种方式</p></div><div id="axz46g" class="subject-content" style="display:none;"><p>有3种方式：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp; &nbsp; fork: 如果脚本有执行权限的话，path/to/foo.sh。如果没有，sh path/to/foo.sh。</p></li><li><p>&nbsp; &nbsp; exec: exec path/to/foo.sh</p></li><li><p>&nbsp; &nbsp; source: source path/to/foo.sh</p></li></ul><p><strong>fork</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;fork 是最普通的, 就是直接在脚本里面用 path/to/foo.sh 来调用foo.sh 这个脚本，比如如果是 foo.sh 在当前目录下，就是 ./foo.sh。运行的时候 terminal 会新开一个子 Shell 执行脚本 foo.sh，子 Shell 执行的时候, 父 Shell 还在。子 Shell 执行完毕后返回父 Shell。 子 Shell 从父 Shell 继承环境变量，但是子 Shell 中的环境变量不会带回父 Shell。</p><p><strong>exec</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;exec 与 fork 不同，不需要新开一个子 Shell 来执行被调用的脚本. 被调用的脚本与父脚本在同一个 Shell 内执行。但是使用 exec 调用一个新脚本以后, 父脚本中 exec 行之后的内容就不会再执行了。这是 exec 和 source 的区别.</p><p><strong>source</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;与 fork 的区别是不新开一个子 Shell 来执行被调用的脚本，而是在同一个 Shell 中执行. 所以被调用的脚本中声明的变量和环境变量, 都可以在主脚本中进行获取和使用。&nbsp;<br/></p><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#epcucx');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>awk的用法<br/></p></div><div id="epcucx" class="subject-content" style="display:none;"><p>例如</p><pre class="brush:bash;toolbar:false">out=$(runmqsc ${qmngr_name} )
+echo &quot;$out&quot; | awk &#39;/CURDEPTH/ {n=index($1, &quot;)&quot;);print substr($1,10,n-10)}&#39;</pre><p style='line-height: 1;'><br/></p><p style='line-height: 1;'><br/></p></div><script type="text/javascript">var toggleContent=function(that, id){var tx="－ (点击以下标题隐藏正文内容)";if($(id).css("display")!="none"){tx="＋ (点击以下标题显示正文内容)"}$(that).children(":first").text(tx);$(id).fadeToggle(100)};</script>

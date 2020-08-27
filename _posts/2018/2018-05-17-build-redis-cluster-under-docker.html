@@ -6,6 +6,7 @@ tags: Docker,Redis
 keywords: "Docker redis集群,Redis集群搭建"
 ---
 
+{% raw %}
 <p>首先选择redis版本，目前最新是5.0，<br/></p><p>5.0版本集群的创建工具是c语言写的，直接用redis-cli命令，不依赖于ruby，<br/></p><p>如果是4.0版本，创建集群需要用到ruby脚本：redis-trib.rb</p><p><br/></p><p><strong>一、首先获取redis docker官方镜像</strong></p><p>$ docker pull redis:5.0</p><p>或者&nbsp;</p><p>$ docker pull redis:4.0（大概25Mb）</p><p>4.0版本还需要获取 ruby 镜像备用</p><p>$ docker pull ruby（大概200Mb）</p><p><br/></p><p><strong>二、准备配置文件</strong></p><p>1、创建redis配置文件（redis-cluster.tmpl）</p><p>&nbsp; &nbsp; 我在路径/home下创建一个文件夹redis-cluster,在路径/home/redis-cluster下创建一个文件redis-cluster.tmpl，并把以下内容复制过去。（注：路径可自定义，我用的是/home/redis-cluster）</p><pre class="brush:plain;toolbar:false">port&nbsp;${PORT}
 protected-mode&nbsp;no
 cluster-enabled&nbsp;yes
@@ -83,3 +84,4 @@ S:&nbsp;d1b2d4c56db4818d236dd750de0fd28b59f9dcf8&nbsp;192.168.33.11:7003
 [OK]&nbsp;All&nbsp;16384&nbsp;slots&nbsp;covered.</pre><p>5.0版本类似，但是不用 ruby镜像，直接登录其中一个redis容器内，</p><p>1）首先确定好生成容器的ip</p><p>通过下面命令得到redis容器的ip地址：</p><pre class="brush:bash;toolbar:false">$&nbsp;for&nbsp;port&nbsp;in&nbsp;`seq&nbsp;7000&nbsp;7005`;&nbsp;do&nbsp;\
 &nbsp;&nbsp;&nbsp;&nbsp;echo&nbsp;-n&nbsp;&quot;$(docker&nbsp;inspect&nbsp;--format&nbsp;&#39;{{&nbsp;(index&nbsp;.NetworkSettings.Networks&nbsp;&quot;redis-net&quot;).IPAddress&nbsp;}}&#39;&nbsp;&quot;redis-${port}&quot;)&quot;:${port}&nbsp;&#39;&nbsp;&#39;&nbsp;;&nbsp;\
 done</pre><p>2）然后登陆其中一个redis容器</p><p>$docker exec -it redis-7000 bash</p><p>3）在容器中执行<br/></p><p>$ redis-cli --cluster create 上面获得的ip地址 --cluster-replicas 1</p><p><br/></p><p><strong>五、测试</strong></p><p>使用Redis客户端Redis-cli.exe来查看数据记录数，以及集群相关信息</p><p>命令 redis-cli –c –h ”地址” –p &quot;端口号&quot; ;&nbsp; c 表示集群</p><p>登录进去之后可以执行: cluster info，查看集群信息。</p><p><br/></p>
+{% endraw %}

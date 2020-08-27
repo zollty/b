@@ -1,0 +1,22 @@
+---
+layout: ue
+title: Linux和WIN10路由配置：有线和WIFI双网卡分流
+category: 计算机网络技术
+tags: 网卡
+keywords: "WIN10路由,有线和WIFI分流"
+---
+
+<p>环境：电脑同时连接有线网络（公司内网）和无线网络（手机热点连外网）<br/></p><p>目标：既能访问外网（WIFI），又能访问内网（有线），外网优先</p><p><br/></p><p>关键步骤：</p><p>1、首先，将 无线网卡的优先级设置为调高，有线网卡的优先级调低</p><p>&nbsp;&nbsp;&nbsp;&nbsp;打开网络适配器，找到网卡，然后点属性，找到IPv4的设置，然后点“高级”，找到 自动跃点，将其取消，设置 跃点值，值越小，优先级越高，比如一个设置为1，一个设置为10。<br/></p><p><br/></p><p>2、步骤1设置后，内网地址应该访问不了，按下面设置，将内网网段 绑定到 有线网卡上</p><p>确定自己要访问的内网网段，比如我想访问的内网网段为 172.16.55.*，转换成网段和子网标识就是：</p><p>172.16.55.0/24 或者&nbsp;172.16.55.0 mask 255.255.255.0，写法不同，两者等价。</p><p>然后 查看自己网卡的“默认网关”，Windows的话CMD输入ipconfig查看，我的为有线网卡的默认网关为172.16.50.1。</p><p><br/></p><p>以下是绑定网段到网卡的命令：</p><p><br/></p><p>Windows命令：（<a href="https://blog.csdn.net/wangzhen209/article/details/77748107" target="_blank">参考手册</a>）</p><p>route add 172.16.55.0 mask 255.255.255.0 172.16.50.1 -p</p><p><br/></p><p>Mac/Linux命令：</p><p>route -n add -net 172.16.55.0/24 172.16.50.1</p><p><br/></p><p>3、如果有内网域名要解析的话，怎么办</p><p>最简单的办法，就是先ping 一下这个域名，看看IP地址是多少，然后按上面的办法将IP段加入网卡绑定，并将域名与IP的映射关系，写在本地 hosts文件中。</p><p><br/></p><p>还有一个办法，就是将内网DNS地址，加入到 WIFI网卡的DNS服务器列表里，优先级放在最后。</p><p>怎么查看内网DNS地址，方法为：右键点击 有线网卡适配器，查看 状态，查看详情，里面有显示。</p><p>自定义DNS服务器时，第一个可以设置为 8.8.8.8，或者 114.114.114.114，这两个都是常用的公网DNS服务器。</p><p><br/></p><h3>Linux命令如下：<br/></h3><p>使用 ip route show 查看路由信息：</p><pre class="brush:plain;toolbar:false">default via 172.16.53.1 dev enp0s31f6  proto static  metric 100 
+default via 192.168.43.1 dev wlp58s0  proto static  metric 600 
+169.254.0.0/16 dev enp0s31f6  scope link  metric 1000 
+172.16.53.0/24 dev enp0s31f6  proto kernel  scope link  src 172.16.53.132  metric 100 
+172.16.55.2 via 172.16.53.1 dev enp0s31f6  proto dhcp  metric 100 
+192.168.43.0/24 dev wlp58s0  proto kernel  scope link  src 192.168.43.163  metric 600 
+172.17.0.0/16 dev docker0  proto kernel  scope link  src 172.17.0.1 linkdown 
+172.18.0.0/16 dev br-55f598a0c8bb  proto kernel  scope link  src 172.18.0.1 linkdown 
+172.19.0.0/16 dev br-9baab927990a  proto kernel  scope link  src 172.19.0.1 linkdown</pre><p>那两个proto kernel的metric 100的是有线网卡，600的是无线网卡。</p><p>然后有两个default，这样解析会优先使用metric小的那个。如果想用WIFI解析，则删掉一个default。</p><p><br/></p><p>route add/del的用法如下：</p><pre class="brush:plain;toolbar:false">Usage: inet_route [-vF] del {-host|-net} Target[/prefix] [gw Gw] [metric M] [[dev] If]
+       inet_route [-vF] add {-host|-net} Target[/prefix] [gw Gw] [metric M]
+                              [netmask N] [mss Mss] [window W] [irtt I]
+                              [mod] [dyn] [reinstate] [[dev] If]
+       inet_route [-vF] add {-host|-net} Target[/prefix] [metric M] reject
+       inet_route [-FC] flush      NOT supported</pre><p>可见，add的参数比del要多一些，add的参数有：</p><ul style="list-style-type: disc;" class=" list-paddingleft-2"><li><p>-host（目的地址是一个主机）或者-net（是网络）</p></li><li><p>Target（目的地址ip或者名称，例如 route add -net 172.16.53.0 或者 ）</p></li><li><p>netmask N（跟上网络掩码，可以表示一段网络地址，例如-net 172.16.0.0 netmask 255.255.0.0）<br/></p></li><li><p>gw Gw（Gw-网关IP，例如gw 172.16.53.1）</p></li><li><p>metric M（M-metric值，例如metric 1000）</p></li><li><p>dev If（If-网络接口名称，例如dev eth0）</p></li><li><p>还有几个参数不知道什么意思：irtt、mod、dyn、reinstate<br/></p></li></ul><p><br/></p><p>所以，删除defalut网卡路由的命令如下</p><p>sudo route del default gw 172.16.53.1 dev enp0s31f6 metric 100</p><p>如果想添加回来，只需要将上面的del改成add即可。<br/></p><p><br/></p><p>然后将内网ip端指向有线网卡网关即可，例如将172.16.53.*设置为有线网卡解析：</p><p>sudo route add -net 172.16.53.0 netmask 255.255.255.0 gw 172.16.53.1 dev enp0s31f6 metric 100<br/></p><p><br/></p><p>上面的设置只有本次启动有效，如果想永久生效，方法：修改/etc/rc.local ，添加上面的命令即可。<br/></p><p><br/></p>

@@ -1,0 +1,47 @@
+---
+layout: ue
+title: Keycloak现代化前端、移动端的接入说明
+category: 前端技术_JS、CSS等
+tags: Keycloak,SSO
+keywords: "Keycloak vue, Keycloak reactjs"
+---
+
+<p>&nbsp; &nbsp; 接上文《<a href="keycloak-get-starting.html" target="_blank">Keycloak通用接入手册（以Java为例）</a>》，前面所述的，都是针对于服务器端的接入说明。<br/></p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;而现代化的前端技术，已经具备了很强大的native处理能力，很幸运，Keycloak已经提供JavaScript Adapter，它可以用于现代化的前端、移动端APP接入，GitHub上可以找到很多 VueJS、ReactJS、React Native的接入例子。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;下面以 VueJS APP为例，说明如何接入。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;主要参考的官方教程：<a href="https://www.keycloak.org/docs/latest/securing_apps/index.html#javascript-adapter-reference" target="_blank">javascript-adapter-reference</a>。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;首先教程中说明一点：One important thing to note about using client-side applications is that the client has to be a public client as there is no secure way to store client credentials in a client-side application.</p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，据我所知，纯前端JS的权限控制，不应该作为安全控制的手段，后端APP还是需要做权限控制。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;比如，一个前后端分离的项目，前端 部署在端口为9999的服务器上，后端部署在 8080的服务器上，对Keycloak而言，这个两个不同的服务器，两个URL，对应于两个不同的client，所以，首先要在keycloak上新建两个client，基本信息如下：<br/></p><p>服务器端的client：</p><pre class="brush:js;toolbar:false">{
+&nbsp;&nbsp;clientId:&nbsp;&#39;backend-app&#39;,
+&nbsp;&nbsp;root-url:&nbsp;&#39;http://localhost:8080/myapp&#39;,
+&nbsp;&nbsp;Access_Type:&nbsp;private,
+&nbsp;&nbsp;secret:&nbsp;d4589683-0ce7-4982-bcd3-c48a12572f79
+}</pre><p>前端的client：<br/></p><pre class="brush:js;toolbar:false">{
+&nbsp;&nbsp;clientId:&nbsp;&#39;frontend-app&#39;,
+&nbsp;&nbsp;root-url:&nbsp;&#39;http://{ip}:9999&#39;,
+&nbsp;&nbsp;Access_Type:&nbsp;public
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;注意，前端client是public没有密码的，因为前面说了，前端接入keycloak的目的，并不是为了做安全控制，而且前端存放密码没有安全意义。</p><p>&nbsp;&nbsp;&nbsp;<strong>&nbsp;JS Adapter原理如下：</strong><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;keycloak.js会在页面嵌入一个 loginFrame，然后使用JS循环不断的检查token状态，如果没有token（没登录或者已登出），则会调用 kc.login方法使用&nbsp;window.location.replace(ssoLoginUrl)的方式跳转到登录页面。同理退出登录的话，会调用kc.logout方法跳转。（详见 <a href="https://www.npmjs.com/package/keycloak-js" target="_blank">keycloak.js</a> 源码）</p><p>&nbsp; &nbsp; <strong>与VueJS APP接入的要点如下：</strong></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>在每个单独的页面，引入keycloak并做初始化（以便建立起loginFrame）。</p></li><li><p>废掉之前的登录页面，以及登录拦截器（比如vue router里面的），因为它们已经没有作用了。</p></li><li><p>关于用户信息，只能从keycloak.js获得用户名，更详细的信息，建议还是调后端api从数据库获取。<br/></p></li></ul><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>以Vue UI框架为例，步骤如下</strong>：<br/></p><p>&nbsp; &nbsp; 1）第一步：npm install @dsb-norge/vue-keycloak-js --save</p><p>&nbsp;&nbsp;&nbsp;&nbsp;2）第二步：在main.js里面添加：<br/></p><pre class="brush:js;toolbar:false">import&nbsp;VueKeyCloak&nbsp;from&nbsp;&#39;@dsb-norge/vue-keycloak-js&#39;
+&nbsp;
+//&nbsp;You&nbsp;can&nbsp;also&nbsp;pass&nbsp;in&nbsp;options.&nbsp;Check&nbsp;options&nbsp;reference&nbsp;below.
+Vue.use(VueKeyCloak,&nbsp;options)</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;配置好options即可，按照这个组件的教程：<a href="https://www.npmjs.com/package/@dsb-norge/vue-keycloak-js">https://www.npmjs.com/package/@dsb-norge/vue-keycloak-js</a>，把&nbsp;new Vue(...) 放到onReady里面。如下所示：</p><pre class="brush:js;toolbar:false">Vue.use(VueKeyCloak,&nbsp;{
+&nbsp;&nbsp;config:&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;realm:&nbsp;&#39;demo&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;url:&nbsp;&#39;http://localhost:8180/auth/&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;clientId:&nbsp;&#39;fastvue&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;logoutRedirectUri:&nbsp;&#39;http://localhost:9527/#/login&#39;
+&nbsp;&nbsp;},
+&nbsp;&nbsp;onReady:&nbsp;(keycloak)&nbsp;=&gt;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Vue({
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;el:&nbsp;&#39;#app&#39;,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;router,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;store,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i18n,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;render:&nbsp;h&nbsp;=&gt;&nbsp;h(App)
+&nbsp;&nbsp;&nbsp;&nbsp;})
+&nbsp;&nbsp;}
+})</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;3）第三步（非必须，视项目情况），修改原来的vue router</p><p>&nbsp; &nbsp; 比如我的是在permission.js里面，有个router.beforeEach((to, from, next)，把它的登录判断逻辑改成</p><pre class="brush:js;toolbar:false">if&nbsp;(Vue.prototype.$keycloak.authenticated)&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;已登录
+&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;TODO&nbsp;
+}</pre><p>&nbsp; &nbsp; 4）第四步，修改 退出登录的 逻辑。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;我是把原来退出方法的直接改成：<br/></p><pre class="brush:js;toolbar:false">logout&nbsp;()&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;&nbsp;Vue.prototype.$keycloak.logoutFn()
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;这样就OK了，它会调用 window.location 跳转登录页面去。<br/></p><p><br/></p><h2 style="text-align: center;"><strong>前、后端项目对接</strong><br/></h2><p>&nbsp;&nbsp;&nbsp;&nbsp;前面分别把 前端 和 后端 对接了Keycloak，那么怎么把前后端连接起来呢？<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;思路如下：前端登录keycloak后，立即去后端登录一下，这样才能获得后端的session或token。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;第一步：<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;1）如果用的是token登录，则写一个sso登录的接口，前端调用后，得到这个token，然后每次请求带上这个token就行了。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;Fast Vue框架为例，改动如下：</p><p>&nbsp; &nbsp; 在调用GetUserInfo之前，增加一个调用SSO Login API登录，登录后将token保存下来。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;2）如果用的是session（cookie）登录，则配置 AJAX的 withCredentials = true，这样每次请求都会带上登录的cookie信息。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;以Fast Admin 和 Fast Vue框架为例，改动如下：<br/></p><p>&nbsp; &nbsp; 在前端ajax配置中，加上withCredentials = true</p><pre class="brush:js;toolbar:false">axios.create({
+&nbsp;&nbsp;baseURL:&nbsp;base_url,
+&nbsp;&nbsp;timeout:&nbsp;5000,&nbsp;
+&nbsp;&nbsp;withCredentials:&nbsp;true
+})</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;相应地，后端corsFilter（org.springframework.web.cors.CorsConfiguration）中也要加上：<br/></p><pre class="brush:java;toolbar:false">config.setAllowCredentials(true);</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;提醒，如果没有加 AllowedOrigin，也一定要加上，例如：</p><pre class="brush:java;toolbar:false">config.addAllowedOrigin(&quot;http://localhost:9527&quot;)&nbsp;//&nbsp;前端的地址</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;如果不懂Cors（跨域请求），参见这篇文章：<a href="http://newhtml.net/using-cors/">http://newhtml.net/using-cors/</a>&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;第二步：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;在后端keycloak配置中，加入<br/></p><pre class="brush:plain;toolbar:false">keycloak.cors=true</pre><p><br/></p><p>总结：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;以Fast Vue框架为例，总共5个步骤：</p><ol class="custom_num list-paddingleft-1"><li class="list-num-1-1 list-num-paddingleft-1"><p>npm install @dsb-norge/vue-keycloak-js --save</p></li><li class="list-num-1-2 list-num-paddingleft-1"><p>在main.js里面<span style="font-size: 16px;">配置vue-</span>keycloak</p></li><li class="list-num-1-3 list-num-paddingleft-1"><p>修改router，把以前的登录判断逻辑，改成根据keycloak状态来判断</p></li><li class="list-num-1-4 list-num-paddingleft-1"><p>修改 退出登录的 逻辑，直接调用$keycloak.logoutFn()</p></li><li class="list-num-1-5 list-num-paddingleft-1"><p>废掉原来的登录页面和代码，改成调用后端的sso-login API，获得token后保存即可</p></li></ol><p><br/></p><p>下面再提供两个例子：</p><p>ReactJS例子：</p><p><a href="https://github.com/dasniko/keycloak-reactjs-demo">https://github.com/dasniko/keycloak-reactjs-demo</a></p><p>AngularJS例子：</p><p><a href="https://github.com/iuliazidaru/keycloak-spring-boot-rest-angular-demo">https://github.com/iuliazidaru/keycloak-spring-boot-rest-angular-demo</a> </p><p><br/></p><p>更多例子参见GitHub：</p><p><a href="https://github.com/search?l=JavaScript&p=2&q=keycloak&type=Repositories">https://github.com/search?l=JavaScript&amp;p=2&amp;q=keycloak&amp;type=Repositories</a></p><p>更多细节参见官方文档：</p><p><a href="https://www.keycloak.org/docs/latest/securing_apps/index.html#_javascript_adapter">https://www.keycloak.org/docs/latest/securing_apps/index.html#_javascript_adapter</a></p><p><br/></p>
