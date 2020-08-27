@@ -43,7 +43,7 @@ layout: base
     <h4 id="{{ this_word | cgi_escape | remove: "%" }}">{{ this_word }}</h4>
     <ul>
 {% for tagPost in site.tags %}{% assign kkey = tagPost | first %}{% assign tagArr = kkey | split:',' | sort %}{% if tagArr contains this_word %}
-{% for post in site.tags[kkey] %}{% if post.title != null %}<li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
+{% for post in site.tags[kkey] %}{% if post.title != null %}<li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a href="{{ site.baseurl }}{{ post.url }}" target="_blank">{{ post.title }}</a></li>
 {% endif %}{% endfor %}{% endif %}{% endfor %}
     </ul>
 {% endunless %}{% endfor %}

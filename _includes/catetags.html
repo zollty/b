@@ -1,15 +1,16 @@
 ﻿<div class="article-footer clearfix">
         <div class="article-catetags">
             <div class="article-categories">
+                <span class="aside3-t-date">{{ page.date | date:"%Y年%m月%d日" }}</span>
                 <i class="fa fa-th-list"></i>
                 {% for category in page.categories %} 
-                <a class="pjaxlink" href="{{ site.baseurl }}/categories#{{ category | cgi_escape | remove: "%" }}">{{ category }}</a>
+                <a href="{{ site.baseurl }}/categories#{{ category | cgi_escape | remove: "%" }}">{{ category }}</a>
                 {% endfor %}
             </div>
             <div class="article-tags">
                 <i class="fa fa-tags"></i>
                 {% for tag in page.tags %} 
-                <a class="pjaxlink" href="{{ site.baseurl }}/tags#{{ tag | cgi_escape | remove: "%" }}">{{ tag }}</a>
+                <a href="{{ site.baseurl }}/tags#{{ tag | cgi_escape | remove: "%" }}">{{ tag }}</a>
                 {% endfor %}
             </div>
         </div>

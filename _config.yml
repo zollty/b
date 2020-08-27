@@ -5,12 +5,14 @@ paginate_path: '/index:num'
 timezone:      Asia/Shanghai
 
 # Conversion
-lsi: true # 在github中是无效的
-highlighter: pygments
-markdown: rdiscount
+lsi: false # 在github中是无效的
+highlighter: rouge
+markdown: kramdown
 
 # Serving
 baseurl: /b # does not include hostname
+# public_url: ../public/
+public_url: http://s.h230.cn/my/
 # cdn base url
 cdn_base_url:  http://s.h230.cn
 assets_url: http://s.h230.cn/my/
@@ -44,7 +46,7 @@ ga:
 
 # comments 设置
 comments:
-  show: true
+  show: false
   duoshuo:
     name: zollty
   disqus:
@@ -65,3 +67,6 @@ locals:
   archive: 归档
   category: 分类
   newest: 最新文章
+
+plugins:
+  - jekyll-paginate

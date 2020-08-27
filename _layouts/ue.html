@@ -1,25 +1,58 @@
----
-layout: base
----
-<div class="row">
-  <div class="at-wrapper">
-    <div class="aside3-title">{{ page.title }}</div>
-    <div class="aside3-t-date">{{ page.date | date:"%Y年%m月%d日" }}</div>
-  </div>
-  <div class="col-lg-2"></div>
-  <div class="col-lg-8 col-md-12 col-sm-12 col-xs-12 aside3">
-    <div id="content">
-      <div id="inner-cont">
-        {{ content }}
+<!doctype html>
+<html>
+<head>
+  {% include header.html %}
+  <link rel="stylesheet" href="http://cdn.staticfile.org/simple-line-icons/1.0.0/css/simple-line-icons.min.css">
+</head>
+<body>
+  {% include zs-nav.html %}
+  <div id="base-wrapper" class="container">
+    <div class="row">
+      <div class="aside3">
+        <div id="pjax">
+            <div class="row">
+
+              <div class="col-lg-3 col-md-2"></div>
+              <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12 aside3">
+                <div id="content">
+
+                  <div class="at-wrapper">
+                    <div class="aside3-title">{{ page.title }}</div>
+                    {% include catetags.html %}
+                  </div>
+
+                  <div id="inner-cont">
+                    {{ content }}
+                  </div>
+                </div>
+
+                {% include related-posts.html %}
+            {% if site.comments.show == true and page.comments != false %}
+                {% include comments.html %}
+            {% endif %}
+                <div style="text-align: center;">
+                    © 2009-<script>document.write(new Date().getFullYear());</script> Zollty.com 版权所有。<a href="http://www.beian.miit.gov.cn/" style="color: #848488;" onclick="javascript:return false;">渝ICP备20008982号</a>
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-2"></div>
+            </div>
+        </div>
       </div>
     </div>
-    <hr>
-
-    {% include catetags.html %}
-    {% include related-posts.html %}
-{% if site.comments.show == true and page.comments != false %}
-    {% include comments.html %}
-{% endif %}
   </div>
-  <div class="col-lg-2"></div>
-</div>
+
+  <div class="scroll-to-top">
+    <i class="icon-arrow-up"></i>
+  </div>
+
+  <!-- 图片弹出窗 -->
+  <div id="outerdiv"
+      style="position: fixed; top: 0; left: 0; background: rgba(0, 0, 0, 0.7); z-index: 2; width: 100%; height: 100%; display: none;">
+      <div id="innerdiv" style="position: absolute;">
+          <img id="bigimg" style="border: 5px solid #fff;" src="" />
+      </div>
+  </div>
+
+  {% include footer.html %}
+</body>
+</html>
