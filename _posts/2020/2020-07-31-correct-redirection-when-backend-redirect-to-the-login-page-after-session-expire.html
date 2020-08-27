@@ -1,0 +1,73 @@
+---
+layout: ue
+title: 解决AJAX在用户登录失效后返回登录页面的问题
+category: 前端技术_JS、CSS等
+tags: AJAX
+keywords: "AJAX登录页面"
+---
+
+<p>&nbsp; &nbsp; 对于全站AJAX的应用，当然不存在redirect重定向到登录页面的做法（建议直接返回HTTP Code 401），但是对于某些前后端没有分离的应用，当用户session失效时，后端可能会重定向到登录页面。那对于ajax请求，后端重定向后，返回的ajax内容是一个html页面，怎么办呢？<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;总体的思路是在ajax工具的拦截器中做一些特殊的判断。</p><p>1、jquery ajax的具体解决办法（示例）如下：</p><pre class="brush:js;toolbar:false">//全局配置
+$.ajaxSetup({
+    dataType: &quot;json&quot;,
+    contentType: &quot;application/json&quot;,
+    cache: false,
+    complete: function (jqXHR, status) {
+      if(jqXHR.status==200) {
+        return;
+      }
+      if(jqXHR.status==401) {
+        var loginPage = &#39;sys/logout&#39;;
+        // 处理iframe页面
+        if (top) {
+          top.location = loginPage
+        } else if (parent) {
+          parent.location = loginPage
+        } else {
+          window.location = loginPage
+        }
+      }
+      if(jqXHR.status==403) {
+        alert(&#39;对不起，你没有权限，若有疑问请联系管理员。&lt;br/&gt;（Access is not allowed. HTTP CODE: 403）&#39;);
+      }
+      if(jqXHR.status==500) {
+        alert(&#39;请求出错啦，请稍后再试试看。&lt;br/&gt;（Server internal error. HTTP CODE: 500）&#39;);
+      }
+      if(jqXHR.getResponseHeader(&quot;content-type&quot;) == &quot;text/html&quot;) {
+        document.write(jqXHR.responseText);
+        document.close();
+      }
+  }
+});</pre><p>代码说明，注意到最后一个if，判断如果ajax返回的是一个页面，则直接document.write显示（如果是登录页，就会直接替换到当前的其他页面）。<br/></p><p><br/></p><p>2、axios的判断方法如下（原理一样）：</p><pre class="brush:js;toolbar:false">axiosInstance.interceptors.response.use(
+  response =&gt; {
+    console.log(response)
+    // session 超时....
+    if (response.status === 401 
+        || response.headers[&#39;content-type&#39;] === &#39;text/html&#39;) {
+
+      store.dispatch(&#39;FedLogOut&#39;)
+    } else {
+      return response
+    }
+  },
+  error =&gt; {
+    console.log(error)
+    // 若path为登录url，则跳转
+    if(error.response.path=&#39;/login.html&#39;) {
+      store.dispatch(&#39;FedLogOut&#39;)
+    }
+    return Promise.reject(error)
+  }
+)</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;原理同上面一样，只不过在error处，也做了一个判断。因为后端页面重定向时，在axios中，是不会执行response =&gt;{...}的，但是error=&gt;{...}函数会执行。这个方法官方文档没说明，也是我摸索了十几分钟才试出来的。特此记录分享出来。<br/></p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，<strong>后端也有进一步优化的空间</strong>——那就是精确判断Request请求是否为AJAX类型。如果是AJAX请求则未登录时返回401状态码，如果不是AJAX请求，则重定向到登录页面。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;优化空间在于，怎么尽量准确地判断请求是否为AJAX类型？我写了一个Java方法如下：<br/></p><pre class="brush:java;toolbar:false">/**
+ * 判断是否为Ajax类型的请求（支持jquery，其他方式未测试过）
+ */
+public static boolean isAjaxRequest(HttpServletRequest request) {
+    String header = request.getHeader(&quot;X-Requested-With&quot;);
+    if (header != null &amp;&amp; &quot;XMLHttpRequest&quot;.equals(header)) {
+        return true;
+    }
+    return false;
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;注意看代码注释，很显然，这个方法不够准确，甚至在某些情况下完全失效。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;那怎么办呢，可以根据Header内容来判断，通常AJAX请求的header里面有一些特点的内容，这有助于精确判断请求是否为AJAX类型。另外，判断header中accept的值，如果是类似下面的格式（以application/json开头），通常都是AJAX请求：<br/></p><pre class="brush:java;toolbar:false;">// ajax
+application/json, text/javascript, */*; q=0.01
+application/json, text/plain, */*
+// 非ajax
+text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3</pre><p><br/></p>

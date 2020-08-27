@@ -1,0 +1,21 @@
+---
+layout: ue
+title: The valid characters are defined in RFC 7230 and RFC 3986
+category: Java框架和组件
+tags: Tomcat
+keywords: "RFC 7230 and RFC 3986"
+---
+
+<p>针对Tomcat Server报错： “The valid characters are defined in RFC 7230 and RFC 3986”<br/></p><p><br/></p><p>解决方案大全：</p><p>1、针对于SpringBoot jar启动的项目：</p><p>直接在yml中配置：</p><pre class="brush:plain;toolbar:false">server.tomcat.relaxedQueryChars=&lt;,&gt;, [,\,],^,`,{,|,}</pre><p><br/></p><p>2、针对tomcat war包部署的任何项目：</p><p>修改server.xml文件，如下：</p><pre class="brush:xml;toolbar:false">&lt;Connector port=&quot;8084&quot; protocol=&quot;HTTP/1.1&quot; 
+    relaxedPathChars=&quot;[]|&quot; relaxedQueryChars=&quot;[]|{}^&amp;#x5c;&amp;#x60;&amp;quot;&amp;lt;&amp;gt;&quot; 
+    useBodyEncodingForURI=&quot;true&quot; connectionTimeout=&quot;20000&quot; redirectPort=&quot;8443&quot; 
+    URIEncoding=&quot;UTF-8&quot;/&gt;</pre><p><br/></p><p>3、重载spring boot autoconfigure（<span style="color: rgb(192, 0, 0);">非常不建议这么做</span>）</p><pre class="brush:java;toolbar:false">@Bean
+@ConditionalOnClass(name = &quot;org.apache.catalina.startup.Tomcat&quot;)
+public ConfigurableServletWebServerFactory webServerFactory() {
+    // 可选字符：&lt; &gt; [ \ ] ^ ` { | }
+    // 等价于yml配置：server.tomcat.relaxedQueryChars=&lt;,&gt;, [,\,],^,`,{,|,}
+    TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+    factory.addConnectorCustomizers((TomcatConnectorCustomizer) connector -&gt; 
+            connector.setProperty(&quot;relaxedQueryChars&quot;, &quot;|{}[]\\&quot;));
+    return factory;
+}</pre><p><br/></p>

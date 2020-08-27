@@ -1,0 +1,9 @@
+---
+layout: ue
+title: Docker容器化CI/CD Pipeline，加快项目编译构建速度的方法
+category: 其他语言和技术
+tags: Docker
+keywords: "Docker"
+---
+
+<p>名词解释：<br/></p><p>所谓“容器化Pipeline”，是指 CI/CD流水线 <span style="color: rgb(192, 0, 0);">运行在Kubernetes容器云平台上，而非运行在虚拟机或物理机上</span>。<br/></p><p>加快项目构建在容器化流水线中的构建速度，本质是利用好缓存（或本地仓库），不要让每次编译构建都去拉包。</p><p><br/></p><h3>方法一：外挂共享存储卷</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;针对 类似于 Maven（Java）构建的项目（所有项目共享本地仓库），这种方法比较简单有效。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;以Maven为例，在mvn构建容器中，直接从host或者远程块设备上mount一个目录进去作为Maven的repository目录（默认路径为~/.m2/repository）。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(192, 0, 0);">缺点：</span>必须依赖于容器共享存储，且需要支持多容器并发读写。</p><h3>方法二：使用额外的镜像来作为本地仓库</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;针对 类似于 NPM（NodeJS）构建的项目（每个项目有自己的私有仓库），这种方法比较好。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;其实也可以采用方法一，只是需要为每个项目分配不同的存储。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;下面说的方法，彻底避免了方法一的缺点。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;先写一个Dockerfile，用项目的package.json去执行一下，得到一个用于构建该项目的“编译镜像”，里面包含了执行package.json时缓存的包。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;然后再用这个“编译镜像”，去正式构建项目（可以使用Docker的<span style="color: rgb(192, 0, 0);">分阶段构建</span>）。构建项目时，也不怕package.json有更新，因为即便是有更新，也只是个别组件的局部更新；<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果package.json真的有重大更新，则重新制作“编译镜像”就行了。</p><p><br/></p>

@@ -1,0 +1,43 @@
+---
+layout: ue
+title: Tomcat启动卡住、无法访问问题解决思路
+category: Java框架和组件
+tags: Tomcat
+keywords: "Tomcat卡住, Tomcat无法访问"
+---
+
+<p><strong>现象如下：</strong><br/></p><p>1、项目启动日志正常，Spring或者MVC框架也正常加载完成。但是对外无法访问，何解？<br/></p><p>2、Tomcat无法正常关闭，因为shutdown port不可用。只能kill。<br/></p><p>3、Jstack内容太多，很难查出问题，但基本上可以确认项目所有bean、线程都是正常的。</p><p>4、注意到一个细节，Tomcat正常启动和奇怪异常之间，日志最后有一点差别：正常启动后，tomcat最后会打印如下</p><pre class="brush:plain;toolbar:false">Aug 10, 2020 1:47:03 PM org.apache.coyote.AbstractProtocol start
+INFO: Starting ProtocolHandler [&quot;http-nio-9500&quot;]</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;异常启动时，没有这两行信息（但是9500端口是有的）。除此之外，其他日志完全相同。<br/></p><p><br/></p><p><strong>排查思路：</strong></p><p>1、框架、组件问题？会不会是框架、或组件（比如Log）某处<strong>线程阻塞</strong>了？</p><p>&nbsp;&nbsp;&nbsp;&nbsp;由于项目代码，包括框架和组件，都是我完全可控的（源码级别的熟悉），所以简单分析了一遍之后，我可以肯定框架和组件没有问题。<br/></p><p>2、Tomcat自身问题（<strong>某个版本的Tomcat在某个Linux系统上触发了一个bug</strong>？）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;升级Tomcat到最新版本，问题依旧。<br/></p><p>3、既然是环境问题，那很可能与项目无关，<strong>将项目换成一个简单servlet项目</strong>，问题也应该一模一样。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;去掉项目复杂的内容，仅保留简单的servlet，<strong>然后排查Jstack</strong>，此时jstack内容很少，很容易定位问题。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;于是我发现下面一段线程信息，根据我的经验，似曾相识：<br/></p><pre class="brush:plain;toolbar:false">&quot;localhost-startStop-1&quot; #13 daemon prio=5 os_prio=0 tid=0x00007f2fbc1db000 nid=0x6243 runnable [0x00007f2ff0f11000]
+   java.lang.Thread.State: RUNNABLE
+	at java.io.FileInputStream.readBytes(Native Method)
+	at java.io.FileInputStream.read(FileInputStream.java:255)
+	at sun.security.provider.SeedGenerator$URLSeedGenerator.getSeedBytes(SeedGenerator.java:539)
+	at sun.security.provider.SeedGenerator.generateSeed(SeedGenerator.java:144)
+	at sun.security.provider.SecureRandom$SeederHolder.&lt;clinit&gt;(SecureRandom.java:203)
+	at sun.security.provider.SecureRandom.engineNextBytes(SecureRandom.java:221)
+	- locked &lt;0x00000000e362dc00&gt; (a sun.security.provider.SecureRandom)
+	at java.security.SecureRandom.nextBytes(SecureRandom.java:468)
+	at java.security.SecureRandom.next(SecureRandom.java:491)
+	at java.util.Random.nextInt(Random.java:329)
+	at org.apache.catalina.util.SessionIdGeneratorBase.createSecureRandom(SessionIdGeneratorBase.java:269)
+	at org.apache.catalina.util.SessionIdGeneratorBase.getRandomBytes(SessionIdGeneratorBase.java:203)
+	at org.apache.catalina.util.StandardSessionIdGenerator.generateSessionId(StandardSessionIdGenerator.java:34)
+	at org.apache.catalina.util.SessionIdGeneratorBase.generateSessionId(SessionIdGeneratorBase.java:195)
+	at org.apache.catalina.util.SessionIdGeneratorBase.startInternal(SessionIdGeneratorBase.java:289)
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
+	- locked &lt;0x00000000e362ccf0&gt; (a org.apache.catalina.util.StandardSessionIdGenerator)
+	at org.apache.catalina.session.ManagerBase.startInternal(ManagerBase.java:626)
+	at org.apache.catalina.session.StandardManager.startInternal(StandardManager.java:350)
+	- locked &lt;0x00000000edb4ee70&gt; (a org.apache.catalina.session.StandardManager)
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
+	- locked &lt;0x00000000edb4ee70&gt; (a org.apache.catalina.session.StandardManager)
+	at org.apache.catalina.core.StandardContext.startInternal(StandardContext.java:5184)
+	- locked &lt;0x00000000ed08dd60&gt; (a org.apache.catalina.core.StandardContext)
+	at org.apache.catalina.util.LifecycleBase.start(LifecycleBase.java:183)
+	- locked &lt;0x00000000ed08dd60&gt; (a org.apache.catalina.core.StandardContext)
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1412)
+	at org.apache.catalina.core.ContainerBase$StartChild.call(ContainerBase.java:1402)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;下面这两句是我熟悉的：</p><p><span style="color: rgb(192, 0, 0);">java.io.FileInputStream.readBytes(Native Method)</span></p><p><span style="color: rgb(192, 0, 0);">java.security.SecureRandom.nextBytes</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Tomcat确实有个bug，在执行SecureRandom可能非常缓慢（甚至卡住）。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;触发这个Bug的前提是，项目中使用了随机数Random类。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;于是百度一下，具体原因及解决方案就出来了：<br/></p><p><br/></p><p>原因：</p><p>1、SecureRandom 这个 jre 的工具类的问题。</p><p><em>&nbsp;&nbsp;&nbsp;&nbsp;Linux 中的随机数可以从两个特殊的文件中产生，一个是 /dev/urandom，另外一个是 /dev/random。他们产生随机数的原理是利用当前系统的熵池来计算出固定一定数量的随机比特，然后将这些比特作为字节流返回。熵池就是当前系统的环境噪音，熵指的是一个系统的混乱程度，系统噪音可以通过很多参数来评估，如内存的使用，文件的使用量，不同类型的进程数量等等。如果当前环境噪音变化的不是很剧烈或者当前环境噪音很小，比如刚开机的时候，而当前需要大量的随机比特，这时产生的随机数的随机效果就不是很好了。</em></p><p><em>&nbsp;&nbsp;&nbsp;&nbsp;这就是为什么会有 /dev/urandom 和 /dev/random 这两种不同的文件，后者在不能产生新的随机数时会阻塞程序，而前者不会（ublock），当然产生的随机数效果就不太好了，这对加密解密这样的应用来说就不是一种很好的选择。/dev/random 会阻塞当前的程序，直到根据熵池产生新的随机字节之后才返回，所以使用 /dev/random 比使用 /dev/urandom 产生大量随机数的速度要慢。<br/></em></p><p><em>&nbsp;&nbsp;&nbsp;&nbsp;SecureRandom generateSeed&nbsp; 使用 /dev/random 生成种子。但是 /dev/random 是一个阻塞数字生成器，如果它没有足够的随机数据提供，它就一直等，这迫使 JVM 等待。键盘和鼠标输入以及磁盘活动可以产生所需的随机性或熵。但在一个服务器缺乏这样的活动，可能会出现问题。</em></p><p>2、Tomcat 7/8 都使用 org.apache.catalina.util.SessionIdGeneratorBase.createSecureRandom 类产生安全随机类 SecureRandom 的实例作为会话 ID。</p><p><br/></p><p>解决方案：</p><p>1、启动JVM参数中添加：-Djava.security.egd=file:/dev/./urandom 即可。</p><p><br/></p><p>2. 修改JVM配置</p><p>打开 $JAVA_PATH/jre/lib/security/java.security 这个文件，找到下面的内容：</p><pre class="brush:plain;toolbar:false">securerandom.source=file:/dev/random</pre><p>替换成：</p><pre class="brush:plain;toolbar:false">securerandom.source=file:/dev/./urandom</pre><p><br/></p>

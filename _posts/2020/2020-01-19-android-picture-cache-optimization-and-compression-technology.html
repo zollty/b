@@ -1,0 +1,30 @@
+---
+layout: ue
+title: Android图片缓存优化和压缩技术说明
+category: Android、iOS软件开发
+tags: Android
+keywords: "Android,图片压缩,图片缓存"
+---
+
+<p>1、为什么要缓存图片？<br/></p><p>这个机制并非是处理内存占据大小的，而是优化用户体验，节省流量的（去网络获取，这种耗时长且损耗流量）。</p><p>PS: 由于我们的图片都是直接读取本地文件，所以，缓存图片意义不是很大。但官方既然这样设计了，估计还是有利于性能提升的。</p><p><br/></p><p>2、为什么要压缩图片？</p><p>Android根据设备屏幕尺寸和dpi的不同，给系统分配的单应用程序内存大小也不同，具体如下表：</p><p>屏幕尺寸<span style="white-space:pre">	</span>DPI<span style="white-space:pre">	</span>应用内存</p><pre class="brush:plain;toolbar:false">small/normal/large	ldpi/mdpi	16MB
+small/normal/large	tvdpi/hdpi	32MB
+small/normal/large	xhdpi	64MB
+small/normal/large	400dpi	96MB
+small/normal/large	xxhdpi	128MB
+xlarge	mdpi	32MB
+xlarge	tvdpi/hdpi	64MB
+xlarge	xhdpi	128MB
+xlarge	400dpi	192MB
+xlarge	xxhdpi	256MB</pre><p>现在一些新款的手机，可以到192MB或者256MB，一些较老的（比如Android 4.2，2G内存），建议控制在64M以内。</p><p><br/></p><p>显示图片，有两种方式，第一种Android自带的&lt;ImageView&gt;标签，如下：</p><p>&lt;ImageView android:id=&quot;@+id/cover&quot; android:src=&quot;@drawable/default_cover&quot;&gt;</p><p>第二种，绘图：Canvas.drawBitmap(bitmap)</p><p><br/></p><p>第一种是否占用APP内存，不得而知。但第二种Bitmap是占用内存的。</p><p><br/></p><p>Bitmap即位图，图片定义为由像素点组成，每个像素点可以由多种色彩表示。</p><p>Bitmap占用的内存为：像素总数 * 每个像素占用的内存。在Android中，Bitmap有四种像素类型：ARGB_8888、ARGB_4444、ARGB_565、ALPHA_8，他们每个像素占用的字节数分别为4、2、2、1。</p><p>具体来说：</p><p>ARGB_8888：ARGB分别代表的是透明度,红色,绿色,蓝色，每个值分别用8bit来记录,也就是一个像素会占用4byte,共32bit。</p><p>ARGB_4444：ARGB的是每个值分别用4bit来记录,一个像素会占用 2byte,共16bit.</p><p>RGB_565：R=5bit,G=6bit,B=5bit，不存在透明度,每个像素会占用2byte, 共16bit.</p><p>ALPHA_8:该像素只保存透明度,会占用1byte,共8bit.</p><p><br/></p><p>在实际应用中而言,建议使用ARGB_8888以及RGB_565。如果你不需要透明度,选择RGB_565,可以减少一半的内存占用。</p><p><br/></p><p>一张1920*1080的分辨率图片，使用默认的ARGB_8888，那么大小是：1920*1080*（32/8）/1024/1024 = 7.91M</p><p><br/></p><p>这样看来，一张8M的图片，还是不至于导致内存溢出（OOM），但是，倘若一个歌曲列表中，20首歌封面都显示原图，那就是160MB。</p><p><br/></p><p>所以，要根据使用场景的图片尺寸，进行压缩：歌曲列表中的cover，都是小图，即使压缩很多倍，视觉上也没什么影响；但歌曲轮播图，是大图，压缩严重了，就影响视觉了。</p><p><br/></p><p>图片缓存和压缩的实现细节是：</p><p>1、使用SQLite（covercache.db）存储图片缓存，存储格式为blob，获取是直接select by id。</p><p>2、使用图片压缩技术（BitmapFactory.Options），设置了两个级别的最大像素（SMALL:44sp, LARGE:200sp），压缩比例计算公式如下：</p><pre class="brush:java;toolbar:false">int sampleSize=1; // 100%
+long hasPixels = bopts.outHeight * bopts.outWidth;
+if(hasPixels &gt; maxPxCount) {
+  sampleSize = Math.round((int)Math.sqrt((float) hasPixels / (float) maxPxCount));
+}</pre><p>假设图片尺寸为1920*1080，压缩后：</p><p>sampleSize=平方根(1920*1080/200)=102</p><p>注意，实际生效的inSampleSize只能是2的次方，如计算结果是7会按4进行压缩，计算结果是15会按8进行压缩。</p><p>所以，LARGE级别的图片，实际压缩是64倍。</p><p><br/></p><p>图片压缩的核心代码如下：</p><pre class="brush:java;toolbar:false">BitmapFactory.Options bopts = new BitmapFactory.Options();
+bopts.inPreferredConfig&nbsp; = Bitmap.Config.RGB_565;
+bopts.inJustDecodeBounds = true;
+
+final int inSampleSize&nbsp; &nbsp;= getSampleSize(sampleInputStream, bopts, maxPxCount);
+/* reuse bopts: we are now REALLY going to decode the image */
+bopts.inJustDecodeBounds = false;
+bopts.inSampleSize&nbsp; &nbsp; &nbsp; &nbsp;= inSampleSize;
+Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null, bopts);</pre><p><br/></p><p>图片压缩技术说明：</p><p>将这个参数的inJustDecodeBounds属性设置为true就可以让解析方法禁止为bitmap分配内存，返回值也不再是一个Bitmap对象，而是null。虽然Bitmap是null了，但是BitmapFactory.Options的Width、Height和MimeType属性都会被赋值。这个技巧让我们可以在加载图片之前就获取到图片的长宽值和MIME类型，从而根据情况对图片进行压缩。</p><p>由于不需要透明度，设置inPreferredConfig为RGB_565，可以减少一半的内存占用。</p><p><br/></p>

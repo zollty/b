@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 解决Windows剪切、删除、移动海量文件时，速度慢和卡死的问题
+category: 电脑、手机_无难事
+tags: Windows
+keywords: "Windows"
+---
+
+<p>问题现状：<br/></p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>高端配置台式电脑，开机，然后立即剪切一个有8万文件的目录到另一个盘，执行到2%的时候就卡住了，等了10分钟没任何进度。</p></li><li><p>用另一个文件夹同步工具，将剩下的98%同步过去，仅仅花费了2分钟左右，而且有操作历史，可以看到复制后两边文件完全一致（包括文件的时间截）。</p></li><li><p>用windows自带的SHIFT+DEL彻底删除功能，删了30秒钟，总进度不到2%，果断取消。</p></li><li><p>换成了CMD命令直接去删（rd 文件夹 /s /q），8万个文件，10秒不到就删完了。</p></li></ol><p><br/></p><p>下面是终极解决方案：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果在命令行或 cmd 批处理文件通过 move 移动文件夹的时候，移动的文件夹是跨驱动器的，那么将会显示拒绝访问<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;解决方案：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过先复制文件夹到另一个驱动器，然后删除文件夹，<br/></p><p>&nbsp; &nbsp; ——复制文件夹可以使用 xcopy 的方法<br/></p><p>&nbsp; &nbsp;——复制文件，无论文件夹里面的文件是否隐藏文件。复制文件夹里面的子文件夹，无论子文件夹是否空的。忽略提示需要覆盖的文件，可以使用下面代码：<br/></p><p><strong>&nbsp;&nbsp;&nbsp;&nbsp;xcopy 原有的文件夹 移动到的文件夹&nbsp; /H /E /Y&nbsp;</strong><br/></p><p>（注意：复制后不会保留外层目录，需要自己先建好）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;然后通过 rd 删除文件夹，在 rd 可以使用 /s /q 除目录本身外，还将删除指定目录下的所有子目录和文件，安静模式，带 /S 删除目录树时不要求确认：</p><p><strong>&nbsp;&nbsp;&nbsp;&nbsp;rd 原有的文件夹 /s /q</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;这样就可以做到移动文件夹到另一个服务器。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;在 cmd 对于参数是不区分大写和小写，如 /s 和 /S 是相同的。<br/></p><p><br/></p><p>简记方式：</p><p><strong>拷贝：xcopy-hey&nbsp; &nbsp; 源 ——&gt; 目标</strong></p><p><strong>删除：rdsq（“入党申请”） 目标</strong></p><p><br/></p>

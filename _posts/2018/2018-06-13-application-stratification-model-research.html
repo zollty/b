@@ -2,8 +2,76 @@
 layout: ue
 title: 应用分层模型研究
 category: 系统架构和设计
-tags: 分层模型
+tags: [分层模型]
 keywords: "应用分层,分层模型"
 ---
 
-<p><br/></p><p>常见应用框架 分层模型说明</p><p>调用层次：(控制层-可选)——&gt;业务逻辑层——&gt;数据处理层</p><p><br/></p><p>1、控制层：非必须，可选，一般由框架层面统一处理。<br/>&nbsp; &nbsp; 此层由一系列拦截器（可以是前置、后置、环绕等类型的拦截器）组成，用于拦截请求，对请求进行统一的解析和处理，然后决定是否继续执行，决定后续应该调用哪些业务逻辑对象的业务方法来处理请求，并将业务层的处理结果，进行统一加工，再返回给请求发起方。</p><p><br/></p><p>2、业务逻辑层：真正处理业务请求，调动各种资源（mq、redis、mysql等）和子处理逻辑</p><p>&nbsp; &nbsp; 当然，业务逻辑的粒度有粗有细，所以这一层又可以进一步划分。划分方式也多种多样，具体举两例：</p><p>1）分为manage——&gt;service两层，service分为很多技术种类，每种Service只处理一个技术种类的数据，比如操作redis，mysql，mq等。而manage是调用各种service（RedisService, MySqlService...），来封装一个更粗粒度的业务逻辑。按 数据的技术种类 来划分Service的好处在于，从技术上可以对Service进行一些统一的封装和处理，劣势是Service是从技术角度区分的，通常它不是一个完整的业务逻辑，这样业务被打散，不便于从业务视角进行开发。</p><p>2）同样分为manage——&gt;service两层，但是service的定义不一样，Service定义为细粒度的业务逻辑，它的所有接口方法都是一个完整可用的业务逻辑，可以直接对外提供服务，而manage和service类似，只是manage封装的是更粗粒度、更复杂的业务流程。好处是，按业务逻辑视角进行开发和测试，目标清晰，劣势是service里面可能混杂了对多种数据的交叉业务处理（比如有redis的数据处理、mq的数据处理，还有mysql的数据处理），不便于统一升级、重构和排查问题。</p><p><br/></p><p>3、数据处理层：该层就是为了解决业务逻辑层的数据处理问题</p><p>&nbsp; &nbsp; 如果没有数据处理层，就会像上面举例提到的那样，可能要在业务逻辑里面，直接处理多种数据。数据处理层，就是专门来处理某一个技术类型的数据，它是按数据的技术类型区分的，比如针对MySQL、mq、redis。</p><p>&nbsp; &nbsp; 值得说明的是，数据处理层，针对某个技术类型，它又有可能有多层，但是他们是一个整体，只要都是在处理同一个类型的数据，就应该视为同一层。比如数据库层，通常内部又有mybatis封装层——&gt;mybatis层——&gt;jdbc驱动层，也有一些公司把数据处理层分为：数据管理层（data managing layer，负责管理多个数据）——&gt;数据处理层（data processing layer，负责组装和处理数据）——&gt;数据访问层或者持久层（data access layer，data persistence layer）或者ORM层（Object Relational Mapping）（屏蔽数据驱动层的原始数据格式，负责将数据进行包装成自定义的Java POJO对象）——&gt;数据通信层或者数据驱动层（data communicating layer，负责处理数据协议，和远程数据源交互）。</p><p>&nbsp; &nbsp;&nbsp;该层用到Mybatis技术、通用Mapper技术和Spring相关技术（<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#orm">https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#orm</a>）。</p><p><br/></p><p>注意：参数校验应该放在哪一层？</p><p>&nbsp; &nbsp; 从根本上讲，方法的参数校验，与分层无关，究竟是否要做参数校验，取决于方法的使用场景：方法的调用方是谁？每个参数是否需要校验，校验的规则是什么？</p><p>&nbsp; &nbsp; 按照上面的分层定义，控制层更趋向于统一的管理，它跟具体的业务关系不大，所以它不应该参与到具体的业务参数的校验中，但是在控制层中，可以做一些通用的、统一的校验。</p><p>&nbsp; &nbsp; 业务逻辑层，显然，应该要对参数进行校验的，参数合不合格，直接影响到后续的执行，所以，首当其冲，就应该对参数进行业务上的校验。业务层，根据业务规则，可以在每个服务的入口处 进行参数校验。</p><p>&nbsp; &nbsp; &nbsp;数据处理层，同样，这一层是相对较独立和公用的层，它和具体的业务逻辑是间接的关系，所以，在这一层，为了提高效率，可以信任调用方已经做过参数校验，在这里就不用再做参数校验了，即，“将参数校验前置”，这样还有一个好处是，参数不会重复校验。但是，如果将参数校验前置，那么每个调用方都需要写一遍参数校验的代码，会增加一些复杂性。所以，在复杂性和性能之间权衡，如果参数校验十分必要，而且规则特殊，而且本身执行速度快故不需要前置校验，那么还是应该在当前方法做校验——典型的例子就是 工具类，在工具类里面通常会对参数进行校验。但是对于数据处理层的方法，通常都是有较大的性能开销的，还是建议将参数校验前置，当然，不能一概而论，一切要在理解原理的基础上做决定。</p><p><br/></p><p>下面说明，我开发的Fast框架，它的每一层具体内容：</p><p><br/></p><p>控制层：</p><p>&nbsp; &nbsp; fast-mini版无控制层；</p><p>&nbsp; &nbsp; fast-web版控制层由Fast框架基于Spring封装，提供了参数、异常和返回值的自动处理，另外，它有一个“web层”controller，仅仅是对参数进行检查和加工；</p><p>&nbsp; &nbsp; fast-dubbo版控制层由Fast框架基于dubbo封装，提供了参数、异常和返回值的自动处理。</p><p><span style="color: rgb(192, 0, 0);">&nbsp;（在这一层，开发完全不需要写代码）</span></p><p><br/></p><p>Web层：</p><p>&nbsp; &nbsp; 这是一个特殊的层，偏向于控制层，但是也有一些和Web相关的业务逻辑。在Web层，只做跟UI交互和Web API相关的操作。</p><p>&nbsp; &nbsp; 理论上讲，1）它是在UI层的基础上对出参、入参进一步加工（其实也可以放到UI层，在JS里面做这些工作，只是麻烦一些）；</p><p>&nbsp; &nbsp; 2）它是把一部分和Web相关的业务操作独立出来，比如操作Session、HttpServletRequest、HttpServletResponse等；</p><p>&nbsp; &nbsp; 3）对于Spring等MVC框架，Web层还充当了配置请求和Action方法的映射路由关系。</p><p><br/></p><p>业务逻辑层：</p><p>&nbsp; &nbsp; fast-demo版，由于功能简单，都没有默认的业务逻辑层，开发者可以根据自己需要自由编写，根据上面的分层模型定义，业务逻辑层可以有一层（Service层）或者两层（Manage层+Service层），如果是对远程提供服务（RPC），则必须编写接口（Interface），如果只是单体应用的内部服务，可以不编写接口，但是建议都编写接口，以便以后对外提供服务。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，所有代码，都需要开发自己编写）</span></p><p><br/></p><p>数据持久层（data persistence layer，包名com..dao.*Mapper）：</p><p>&nbsp; &nbsp; 该层由一系列负责操纵数据表实体（*Entity）的*Mapper类组成，这些类负责把数据进行持久化，一般是把数据保存到数据库中。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，自动生成的代码，能满足日常80%的功能，开发基本上不需要写代码）</span></p><p><br/></p><p>数据管理层（data managing layer，包名com..dms.*Dms）：</p><p>&nbsp; &nbsp; 该层由一系列的*Dms（Data Manage Service）类组成，调用一个或多个数据持久层服务，以实现对持久层的数据进行组合和加工，并保证事务一致性。</p><p>&nbsp; &nbsp; 之所以要专门设计一个数据管理层，是因为我们用的Mybatis，而且架构上要求Mapper职责要简单，尽量把数据的处理逻辑放到Java程序中处理，而不是交给数据库，下面摘录了 达达科技《<a href="https://tech.imdada.cn/2015/11/04/%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%BC%98%E5%8C%96%E4%B9%8B%E8%B7%AF/" target="_blank" title="高性能服务端优化之路">高性能服务端优化之路</a>》 文里的一段话：“经验教训....使我们制定了SQL最佳实践，其中一条便是程序中禁用或少用join，而应该在程序中组装数据，让SQL更简单”。我们使用的Mybatis，在Mapper中不适合组装数据，所以单独设计一个数据管理层来干这个事情，顺便处理数据库事务。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，自动生成的代码，能满足日常70%的场景，开发只需要编写少量代码）</span></p><p><br/></p>
+{% raw %}
+<p><br/></p><p>常见应用框架 分层模型说明</p><p>调用层次：(控制层-可选)——&gt;业务逻辑层——&gt;数据处理层</p><p><br/></p><p>1、控制层：非必须，可选，一般由框架层面统一处理。<br/>&nbsp; &nbsp; 此层由一系列拦截器（可以是前置、后置、环绕等类型的拦截器）组成，用于拦截请求，对请求进行统一的解析和处理，然后决定是否继续执行，决定后续应该调用哪些业务逻辑对象的业务方法来处理请求，并将业务层的处理结果，进行统一加工，再返回给请求发起方。</p><p><br/></p><p>2、业务逻辑层：真正处理业务请求，调动各种资源（mq、redis、mysql等）和子处理逻辑</p><p>&nbsp; &nbsp; 当然，业务逻辑的粒度有粗有细，所以这一层又可以进一步划分。划分方式也多种多样，具体举两例：</p><p>1）分为manage——&gt;service两层，service分为很多技术种类，每种Service只处理一个技术种类的数据，比如操作redis，mysql，mq等。而manage是调用各种service（RedisService, MySqlService...），来封装一个更粗粒度的业务逻辑。按 数据的技术种类 来划分Service的好处在于，从技术上可以对Service进行一些统一的封装和处理，劣势是Service是从技术角度区分的，通常它不是一个完整的业务逻辑，这样业务被打散，不便于从业务视角进行开发。</p><p>2）同样分为manage——&gt;service两层，但是service的定义不一样，Service定义为细粒度的业务逻辑，它的所有接口方法都是一个完整可用的业务逻辑，可以直接对外提供服务，而manage和service类似，只是manage封装的是更粗粒度、更复杂的业务流程。好处是，按业务逻辑视角进行开发和测试，目标清晰，劣势是service里面可能混杂了对多种数据的交叉业务处理（比如有redis的数据处理、mq的数据处理，还有mysql的数据处理），不便于统一升级、重构和排查问题。</p><p><br/></p><p>3、数据处理层：该层就是为了解决业务逻辑层的数据处理问题</p><p>&nbsp; &nbsp; 如果没有数据处理层，就会像上面举例提到的那样，可能要在业务逻辑里面，直接处理多种数据。数据处理层，就是专门来处理某一个技术类型的数据，它是按数据的技术类型区分的，比如针对MySQL、mq、redis。</p><p>&nbsp; &nbsp; 值得说明的是，数据处理层，针对某个技术类型，它又有可能有多层，但是他们是一个整体，只要都是在处理同一个类型的数据，就应该视为同一层。比如数据库层，通常内部又有mybatis封装层——&gt;mybatis层——&gt;jdbc驱动层，也有一些公司把数据处理层分为：数据管理层（data managing layer，负责管理多个数据）——&gt;数据处理层（data processing layer，负责组装和处理数据）——&gt;数据访问层或者持久层（data access layer，data persistence layer）或者ORM层（Object Relational Mapping）（屏蔽数据驱动层的原始数据格式，负责将数据进行包装成自定义的Java POJO对象）——&gt;数据通信层或者数据驱动层（data communicating layer，负责处理数据协议，和远程数据源交互）。</p><p>&nbsp; &nbsp;&nbsp;该层用到Mybatis技术、通用Mapper技术和Spring相关技术（<a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#orm">https://docs.spring.io/spring/docs/current/spring-framework-reference/data-access.html#orm</a>）。</p><p><br/></p><p>注意：参数校验应该放在哪一层？</p><p>&nbsp; &nbsp; 从根本上讲，方法的参数校验，与分层无关，究竟是否要做参数校验，取决于方法的使用场景：方法的调用方是谁？每个参数是否需要校验，校验的规则是什么？</p><p>&nbsp; &nbsp; 按照上面的分层定义，控制层更趋向于统一的管理，它跟具体的业务关系不大，所以它不应该参与到具体的业务参数的校验中，但是在控制层中，可以做一些通用的、统一的校验。</p><p>&nbsp; &nbsp; 业务逻辑层，显然，应该要对参数进行校验的，参数合不合格，直接影响到后续的执行，所以，首当其冲，就应该对参数进行业务上的校验。业务层，根据业务规则，可以在每个服务的入口处 进行参数校验。</p><p>&nbsp; &nbsp; &nbsp;数据处理层，同样，这一层是相对较独立和公用的层，它和具体的业务逻辑是间接的关系，所以，在这一层，为了提高效率，可以信任调用方已经做过参数校验，在这里就不用再做参数校验了，即，“将参数校验前置”，这样还有一个好处是，参数不会重复校验。但是，如果将参数校验前置，那么每个调用方都需要写一遍参数校验的代码，会增加一些复杂性。所以，在复杂性和性能之间权衡，如果参数校验十分必要，而且规则特殊，而且本身执行速度快故不需要前置校验，那么还是应该在当前方法做校验——典型的例子就是 工具类，在工具类里面通常会对参数进行校验。但是对于数据处理层的方法，通常都是有较大的性能开销的，还是建议将参数校验前置，当然，不能一概而论，一切要在理解原理的基础上做决定。</p><p><br/></p><p>下面说明，我开发的Fast框架，它的每一层具体内容：</p><p><br/></p><p>控制层：</p><p>&nbsp; &nbsp; fast-mini版无控制层；</p><p>&nbsp; &nbsp; fast-web版控制层由Fast框架基于Spring封装，提供了参数、异常和返回值的自动处理，另外，它有一个“web层”controller，仅仅是对参数进行检查和加工；</p><p>&nbsp; &nbsp; fast-dubbo版控制层由Fast框架基于dubbo封装，提供了参数、异常和返回值的自动处理。</p><p><span style="color: rgb(192, 0, 0);">&nbsp;（在这一层，开发完全不需要写代码）</span></p><p><br/></p><p>Web层：</p><p>&nbsp; &nbsp; 这是一个特殊的层，偏向于控制层，但是也有一些和Web相关的业务逻辑。在Web层，只做跟UI交互和Web API相关的操作。</p><p>&nbsp; &nbsp; 理论上讲，1）它是在UI层的基础上对出参、入参进一步加工（其实也可以放到UI层，在JS里面做这些工作，只是麻烦一些）；</p><p>&nbsp; &nbsp; 2）它是把一部分和Web相关的业务操作独立出来，比如操作Session、HttpServletRequest、HttpServletResponse等；</p><p>&nbsp; &nbsp; 3）对于Spring等MVC框架，Web层还充当了配置请求和Action方法的映射路由关系。</p><p><br/></p><p>业务逻辑层：</p><p>&nbsp; &nbsp; fast-demo版，由于功能简单，都没有默认的业务逻辑层，开发者可以根据自己需要自由编写，根据上面的分层模型定义，业务逻辑层可以有一层（Service层）或者两层（Manage层+Service层），如果是对远程提供服务（RPC），则必须编写接口（Interface），如果只是单体应用的内部服务，可以不编写接口，但是建议都编写接口，以便以后对外提供服务。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，所有代码，都需要开发自己编写）</span></p><p><br/></p><p>数据持久层（data persistence layer，包名com..dao.*Mapper）：</p><p>&nbsp; &nbsp; 该层由一系列负责操纵数据表实体（*Entity）的*Mapper类组成，这些类负责把数据进行持久化，一般是把数据保存到数据库中。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，自动生成的代码，能满足日常80%的功能，开发基本上不需要写代码）</span></p><p><br/></p><p>数据管理层（data managing layer，包名com..dms.*Dms）：</p><p>&nbsp; &nbsp; 该层由一系列的*Dms（Data Manage Service）类组成，调用一个或多个数据持久层服务，以实现对持久层的数据进行组合和加工，并保证事务一致性。</p><p>&nbsp; &nbsp; 之所以要专门设计一个数据管理层，是因为我们用的Mybatis，而且架构上要求Mapper职责要简单，尽量把数据的处理逻辑放到Java程序中处理，而不是交给数据库，下面摘录了 达达科技《<a href="https://tech.imdada.cn/2015/11/04/%E9%AB%98%E6%80%A7%E8%83%BD%E6%9C%8D%E5%8A%A1%E7%AB%AF%E4%BC%98%E5%8C%96%E4%B9%8B%E8%B7%AF/" target="_blank" title="高性能服务端优化之路">高性能服务端优化之路</a>》 文里的一段话：“经验教训....使我们制定了SQL最佳实践，其中一条便是程序中禁用或少用join，而应该在程序中组装数据，让SQL更简单”。我们使用的Mybatis，在Mapper中不适合组装数据，所以单独设计一个数据管理层来干这个事情，顺便处理数据库事务。</p><p>&nbsp;<span style="color: rgb(192, 0, 0);">（在这一层，自动生成的代码，能满足日常70%的场景，开发只需要编写少量代码）</span></p><p><br/></p><h3>下面举例说明我的分层思路</h3><p><br/></p><p><strong>1、分层模式（一）</strong></p><p>按 <span style="color: rgb(192, 0, 0);">入口模块（project）</span>、<span style="color: rgb(192, 0, 0);">业务模块（project-biz）</span>划分。</p><p>其中，业务模块<span style="color: rgb(192, 0, 0);">可以按业务划分多个</span>，例如 <span style="color: rgb(192, 0, 0);">账户模块（project-biz-account)</span>、<span style="color: rgb(192, 0, 0);">支付模块（project-biz-payment)</span></p><p>其余，可选的有<span style="color: rgb(192, 0, 0);"> api模块</span> 和 <span style="color: rgb(192, 0, 0);">common模块</span>。&nbsp;</p><pre class="brush:plain;toolbar:false">project-parent
+│  
+├───project (主入口模块/启动模块/打包模块)
+│   │
+│   ├───app (应用配置)
+│   │   ├───db
+│   │   └───redis
+│   │
+│   └───AppStarter.java
+│
+├───project-api（对外提供的api jar包，非必须）
+│  
+├───project-biz-account（业务模块，账户）
+│   
+├───project-biz-payment（业务模块，支付）
+│   │
+│   ├───client（RPC consumer，redis，mq，非必须）
+│   │
+│   ├───common
+│   │   └───tool
+│   │
+│   ├───dao
+│   │   └───xml
+│   │
+│   ├───dms
+│   │
+│   ├───entity
+│   │
+│   ├───service
+│   │
+│   ├───server（RPC producer，非必须）
+│   │
+│   └───web（http rest api，非必须）
+│  
+└───project-common（通用工具、组件，非必须）</pre><p><span style="color: rgb(192, 0, 0);">分层模式（一）的优势：</span><br/></p><p>1、高业务内聚，业务代码（web、service、dao等）都在一个工程中，编程时不用切换。</p><p>2、配置分离，项目的配置，都在主入口模块（启动模块/打包模块）中。biz层一般没有项目配置。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;我的点评：<span style="color: rgb(192, 0, 0);">推荐技术简单、但业务复杂的项目，使用这种分层模式。其实我们有很大一部分项目，属于这类项目。</span><br/></p><p><br/></p><p><strong>2、分层模式（二）</strong></p><p>分层如下：</p><pre class="brush:plain;toolbar:false">project-parent
+│  
+├───project (主入口模块/启动模块/打包模块，别名main、app、assembly、bootstrap)
+│
+├───project-api（对外提供的api jar包，非必须）
+│   
+├───project-facade（开放接口及请求处理层，controller、producer等）
+│   
+├───project-biz（业务逻辑层，最外层的、“业务级别”的service）
+│   
+├───project-integration（数据处理层，组合多个dao方法，以及mq、redis、rpc consumer等数据管理，事务处理）
+│   
+├───project-dal（数据持久层，table实体映射及sql操作与java对象的映射）
+│  
+└───project-common（通用工具、组件，非必须）</pre><p>分层说明：</p><p>&nbsp; &nbsp; 1、facade层为必须，哪怕只是单纯将service透传、暴露出来。</p><p>&nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; 2、biz层，业务逻辑层，为最外层的、“业务级别”的service。</p><p>&nbsp; &nbsp; &nbsp; 对于业务简单的项目，这一层也只是对integration层甚至dal层的透传（非必须）</p><p>&nbsp; &nbsp; &nbsp; 但是对于业务复杂的项目，这一层将起到“业务编排”作用。</p><p>&nbsp; &nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; 3、integration层，别名manager，它从技术手段上进行数据的加工处理。它算是最底层的service，<span style="color: rgb(192, 0, 0);">容易和biz层混淆！</span>，这里给出一种终极分辨方法：</p><p>&nbsp; &nbsp; &nbsp; (a)判断【程序逻辑是否在纯Java代码中即可处理、与任何数据中间件无关】，若是，继续执行下面的(b)判断，若否，直接放在integration层；</p><p>&nbsp; &nbsp; &nbsp; (b)判断【程序逻辑是否为基础的业务逻辑、可以被多个biz层业务方法调用】，若是，放在integration层，若否，放在biz层。</p><p>&nbsp; &nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; 4、common层，切勿滥用！！</p><p>&nbsp; &nbsp; &nbsp; 只有全项目公用的基础工具、组件才有资格放在里面。如果某工具只是在某业务代码使用，则建议放在对应业务层而不是common层。</p><p>&nbsp; &nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; 5、<span style="color: rgb(192, 0, 0);">对于简单小项目，比如普通后管系统、CRUD项目，这种分层太过于麻烦！</span>，可以将facade、biz、integration三个模块合并成一个模块（biz）。</p><p>&nbsp; &nbsp;&nbsp;</p><p>&nbsp; &nbsp; 6、分层调用逻辑：顶层可以调用底层的任意方法（main~~<span style="color: rgb(192, 0, 0);">facade~~biz~~integration~~dal</span>,common,api），反之则不允许。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;我的点评：在阿里的《Java开发手册》中，就是采用的这种分层结构，但是它的integration模块，名叫manager，这里是一个意思。这里的facade对应的是开发接口及Web层。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;这种分层模式，是 “技术内聚” 而 非“业务内聚”，也就说，一个业务的代码，分散在多个模块中。另外，对于简单的CRUD项目，biz、integration（manager）傻傻分不清，因为简单CRUD项目，没有多少逻辑，Controller调用dao就完事儿，什么biz、integration根本没用，就是用来增加工作量的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;我个人更推荐的是业务内聚的工程结构（分层模式一），其实对于分层模式二，完全可以通过package来划分。注意到分层模式一biz项目下面的package分类：<br/></p><pre class="brush:plain;toolbar:false">project-biz
+│
+├───client（RPC consumer，redis，mq，非必须）
+│
+├───common
+│   └───tool
+│
+├───dao
+│   └───xml
+│
+├───dms
+│
+├───entity
+│
+├───service
+│
+├───server（RPC producer，非必须）
+│
+└───web（http rest api，非必须）</pre><p>在这个分类中：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>web+server 等价于 facade层；</p></li><li><p>service 等价于 biz层；</p></li><li><p>dms+client 等价于 integration(manager)层；<br/></p></li><li><p>dao+entity 等价于 dal层。</p></li></ul><p>&nbsp;</p><p>&nbsp;&nbsp;&nbsp;而且这种以package来划分的方式比起用maven module来划分更加灵活，如果新增了一个业务，仿照这个package目录结构新建一个空工程即可。</p><p><br/></p><p><br/></p><p><br/></p>
+{% endraw %}
