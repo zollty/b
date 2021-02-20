@@ -3,7 +3,7 @@ title: 首页
 layout: base
 ---
 
-<div class="aside3-index at-wrapper">文章列表</div>
+<div class="aside3-index at-wrapper" style="padding-left:12px">文章列表</div>
             <div class="pagi">
                 <div class="row">
                     <div class="col-md-6">
@@ -12,7 +12,7 @@ layout: base
         <li class="pagi-list-seperator" id="{{this_year}}-{{this_month}}">{{this_year}}年-{{this_month}}月</li>{% endif %}
         <li class="pagi-list-item">
             <time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date:"%m-%d" }}</time> &raquo;
-            <a class="pjaxlink" href="{{ site.baseurl }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a>
+            <a href="{{ site.baseurl }}{{ post.url }}" target="_blank" title="{{ post.title }}">{{ post.title }}</a>
         </li>
 {% if forloop.last %}
     </ul>

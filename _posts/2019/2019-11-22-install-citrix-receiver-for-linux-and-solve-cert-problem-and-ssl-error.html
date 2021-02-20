@@ -1,12 +1,14 @@
 ---
 layout: ue
 title: Citrix Receiver for Linux安装和cert证书添加解决SSL错误
-category: 其他语言和技术
-tags: Citrix
+category: 运维与基础设施
+tags: [Citrix]
 keywords: "Citrix"
 ---
 
+{% raw %}
 <h3>Citrix Receiver for Linux安装</h3><p>根据官方的建议，使用 Citrix Workspace app 代替 Citrix Receiver ，前者完全兼容后者。</p><p>安装官方教程：（下载linux安装包，比如xxx.deb，直接安装即可）</p><p><a href="https://docs.citrix.com/zh-cn/receiver/linux/current-release/install/customize.html">https://docs.citrix.com/zh-cn/receiver/linux/current-release/install/customize.html</a><br/></p><p>下载地址：<a href="https://www.citrix.com/downloads/workspace-app/linux/workspace-app-for-linux-latest.html">https://www.citrix.com/downloads/workspace-app/linux/workspace-app-for-linux-latest.html</a><br/></p><p><br/></p><p>可以安装web版，也可以安装完整包 full packages。我是安装的完整版。</p><p><br/></p><p>安装目录：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;特权用户（root）安装默认安装到 /opt/Citrix/ICAClient。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;非特权用户安装的默认目录为 $HOME/ICAClient/platform。platform 变量是系统针对安装的操作系统生成的标识符。例如，Linux/x86 平台中的目录为 $HOME/ICAClient/linuxx86。</p><p><br/></p><p>卸载方法：</p><ol style="list-style-type: decimal;" class=" list-paddingleft-2"><li><p>键入 $ICAROOT/setupwfc 并按 Enter 键运行安装程序。<br/></p></li><li><p>要删除客户端，请键入 2 并按 Enter 键。</p></li></ol><p><br/></p><h3>连接https桌面服务器，并添加证书</h3><p><br/></p><p>网页版，如果不添加证书，浏览器是打不开https地址的。</p><p>桌面版，如果不添加证书，连接时会报错：<span style="color: rgb(192, 0, 0);">您尚未选择信任服务器安全证书的颁发者(SSL 错误61)</span></p><p><br/></p><p>第一步：建议用firefox浏览器，执行下面操作，即可打开内部服务器https地址：</p><pre class="brush:bash;toolbar:false">sudo ln -s /usr/share/ca-certificates/mozilla/* /opt/Citrix/ICAClient/keystore/cacerts
 sudo /opt/Citrix/ICAClient/util/ctx_rehash</pre><p>注意确认上面的具体路径。</p><p><br/></p><p>第二步：解决桌面版连接时SSL错误61的问题</p><p>现有 证书 xxxx.cer 需要添加到 citrix的证书信任列表中<br/><br/>如果是 *.cer格式证书，则需要转换成 *.pem格式，命令如下：<br/></p><pre class="brush:bash;toolbar:false">#转换格式 .cer 到 .pem
 openssl x509 -outform pem -in fmhjroot.cer -out fmhjroot.pem</pre><p>相关证书转换参见:http://netkiller.github.io/cryptography/openssl/format.html<br/></p><p>然后将 xxxx.pem证书拷贝到citrix证书目录下，再执行ctx_rehash：</p><pre class="brush:bash;toolbar:false">sudo cp xxx.pem /opt/Citrix/ICAClient/keystore/cacerts/
 sudo /opt/Citrix/ICAClient/util/ctx_rehash</pre><p><br/></p><p><br/></p><p>另外，如果上面方法不行，可以将证书放在，linux系统公共目录，（我没试过），操作如下：</p><ol style="list-style-type: decimal;" class=" list-paddingleft-2"><li><p>将证书放在 /usr/local/share/ca-certificates 中信任的位置</p></li><li><p>执行 sudo update-ca-certificates<br/>你应该在这里看到一些东西：<br/>&nbsp;&nbsp;&nbsp; 1 added, 0 removed; done. Running hooks in/etc/ca-certificates/update.d.... Adding debian:SymantecClass3SecureServerCA-G4.pem<br/></p></li><li><p>使用 Google Chrome 而不是 Firefox</p></li></ol><p><br/></p><p>参考文章：</p><p><a href="https://www.helplib.com/ubuntu/article_157559">https://www.helplib.com/ubuntu/article_157559</a><br/></p><p><br/> </p>
+{% endraw %}

@@ -1,11 +1,12 @@
 ---
 layout: ue
 title: Kubernetes开发环境一键安装教程
-category: 其他语言和技术
-tags: Kubernetes
+category: 运维与基础设施
+tags: [Kubernetes]
 keywords: "Kubernetes安装"
 ---
 
+{% raw %}
 <p>鉴于之前玩熟了<a href="https://www.baidu.com/s?wd=Vagrant&tn=24004469_oem_dg&rsv_dl=gh_pl_sl_csd" target="_blank">Vagrant</a>，就想到使用Vagrant这个神器来一键安装Kubernetes，不出所料，果然已经有高人封装好了Vagrant Kubernetes的安装文件（相关配置和脚本），就是这个项目：<a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster</a>，在这里，简单总结一下。<br/></p><p>Kubernetes 需要一个至少包含三个节点的分布式系统。</p><table width="898"><thead><tr style="border-top: 1px solid rgb(198, 203, 209);" class="firstRow"><th style="padding: 6px 13px; border-color: rgb(223, 226, 229);">IP</th><th style="padding: 6px 13px; border-color: rgb(223, 226, 229);">Hostname</th><th style="padding: 6px 13px; border-color: rgb(223, 226, 229);">Componets</th></tr></thead><tbody><tr style="border-top: 1px solid rgb(198, 203, 209);"><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">172.17.8.101</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">node1</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">kube-apiserver, kube-controller-manager, kube-scheduler, etcd, kubelet, docker, flannel, dashboard</td></tr><tr style="background-color: rgb(246, 248, 250); border-top: 1px solid rgb(198, 203, 209);"><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">172.17.8.102</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">node2</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">kubelet, docker, flannel、traefik</td></tr><tr style="border-top: 1px solid rgb(198, 203, 209);"><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">172.17.8.103</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">node3</td><td style="padding: 6px 13px; border-color: rgb(223, 226, 229);">kubelet, docker, flannel</td></tr></tbody></table><p><br/></p><p><strong>前提条件</strong></p><p>提前安装好 Vagrant 和 Virtualbox</p><p>已经对Vagrant 有基本的了解。</p><p>电脑内存不小于 8 GB，最好是&gt;8G（刚好够用）。</p><p><br/></p><p><strong>准备工作</strong></p><p>1、提前下载好 kubernetes 的安装包（kubernetes-server-linux-amd64.tar.gz），v1.9~v1.13都可以，我用的是v1.11版本。</p><p>2、下载这个仓库的文件：<a href="https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster">https://github.com/rootsongjc/kubernetes-vagrant-centos-cluster</a>（网速好的话可以直接clone下来）</p><p>3、提前下载好 centos7的Vagrant box文件。</p><p><br/></p><p>根据实际情况修改配置：</p><p>1、查看从git上下载来的Vagrantfile文件，找到里面的&nbsp;node.vm.box，修改成自己的centos7的box名称。</p><p>2、根据自己电脑的内存修改&nbsp;vb.memory，我的是8G，修改成了2048</p><p><br/></p><p><strong>一键安装</strong></p><p>cd 到Vagrantfile文件所在的目录，执行vagrant up即可。</p><p><br/></p><p><strong>安装脚本解读</strong></p><pre class="brush:plain;toolbar:false">更改时区
 用&nbsp;163&nbsp;yum&nbsp;源&nbsp;替代CentOS&nbsp;自带的
 安装NTP，并通过&nbsp;NTP&nbsp;同步时间
@@ -251,3 +252,4 @@ kubectl&nbsp;delete&nbsp;secret&nbsp;kubernetes-dashboard-certs&nbsp;-n&nbsp;kub
 kubectl&nbsp;create&nbsp;secret&nbsp;generic&nbsp;kubernetes-dashboard-certs&nbsp;--from-file=certs&nbsp;-n&nbsp;kube-system
 #re-install&nbsp;dashboard
 kubectl&nbsp;delete&nbsp;pods&nbsp;$(kubectl&nbsp;get&nbsp;pods&nbsp;-n&nbsp;kube-system|grep&nbsp;kubernetes-dashboard|awk&nbsp;&#39;{print&nbsp;$1}&#39;)&nbsp;-n&nbsp;kube-system</pre><p>然后获取admin token登录 https://172.17.8.101:8443</p><p>获取命令：<br/></p><pre class="brush:bash;toolbar:false">kubectl&nbsp;-n&nbsp;kube-system&nbsp;describe&nbsp;secret&nbsp;`kubectl&nbsp;-n&nbsp;kube-system&nbsp;get&nbsp;secret|grep&nbsp;admin-token|cut&nbsp;-d&nbsp;&quot;&nbsp;&quot;&nbsp;-f1`|grep&nbsp;&quot;token:&quot;|tr&nbsp;-s&nbsp;&quot;&nbsp;&quot;|cut&nbsp;-d&nbsp;&quot;&nbsp;&quot;&nbsp;-f2</pre><p><br/></p><p>2、重新启动</p><p>根据 上面的脚本解读可知，dashboard和coreDNS等addons并没有设置为跟随系统自动启动，故重启时需要手动执行启动，启动方式脚本里面都有。</p><p><br/></p>
+{% endraw %}

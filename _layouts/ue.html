@@ -2,7 +2,6 @@
 <html>
 <head>
   {% include header.html %}
-  <link rel="stylesheet" href="http://cdn.staticfile.org/simple-line-icons/1.0.0/css/simple-line-icons.min.css">
 </head>
 <body>
   {% include zs-nav.html %}
@@ -31,7 +30,7 @@
                 {% include comments.html %}
             {% endif %}
                 <div style="text-align: center;">
-                    © 2009-<script>document.write(new Date().getFullYear());</script> Zollty.com 版权所有。<a href="http://www.beian.miit.gov.cn/" style="color: #848488;" onclick="javascript:return false;">渝ICP备20008982号</a>
+                    © 2009-{{ site.page_year }} Zollty.com 版权所有。<a href="http://www.beian.miit.gov.cn/" style="color: #848488;" onclick="javascript:return false;">渝ICP备20008982号</a>
                 </div>
               </div>
               <div class="col-lg-3 col-md-2"></div>
@@ -54,5 +53,13 @@
   </div>
 
   {% include footer.html %}
+<script type="text/javascript">
+var pageDate = Date.parse("{{ page.date }}");
+var dateTimeMs = 86400000;// 1000*60*60*24;
+var overDays = (new Date().getTime()-pageDate) / dateTimeMs;
+if(overDays > 120) {
+  $("#content").after('<div class="bremind">友情提醒：本文发表距今已超过&lt;<span style="color: #da1454">'+ Math.round(overDays) +'天</span>&gt;，某些数据、描述可能已经过时。</div>');
+}
+</script>
 </body>
 </html>

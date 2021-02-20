@@ -1,0 +1,11 @@
+---
+layout: ue
+title: npm全局安装 require报错Cannot find module
+category: 技术/开发工具
+tags: [NodeJS]
+keywords: "NodeJS,NPM"
+---
+
+{% raw %}
+<p>原因：没有设置系统环境变量NODE_PATH，项目内读取不到全局包。<br/></p><p>解决方案：</p><p>输入以下命令，查看全局包路径，</p><p>npm root -g</p><p>C:\Users\zollty-pc\AppData\Roaming\npm\node_modules</p><p><br/></p><p>然后添加一个环境变量NODE_PATH=上述路径。</p><p><br/></p><p>添加后，重启一下console、IDE、系统（依次尝试），我重启到IDE层次就可以，实在不行重启下操作系统。</p><p><br/></p><p><br/></p>
+{% endraw %}

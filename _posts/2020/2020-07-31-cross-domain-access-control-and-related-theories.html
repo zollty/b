@@ -1,0 +1,59 @@
+---
+layout: ue
+title: 跨域请求Access-Control问题及相关理论大全
+category: 计算机网络技术
+tags: [跨域请求]
+keywords: "跨域请求,Access-Control"
+---
+
+{% raw %}
+<p><strong>本文涉及三个核心知识：</strong><br/></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><span style="color: rgb(192, 0, 0);">CORS 及 HTTP的&nbsp;Access-Control</span></p></li><li><p><span style="color: rgb(192, 0, 0);">浏览器的&nbsp;preflight request</span></p></li><li><p><span style="color: rgb(192, 0, 0);">HTTP的OPTIONS方法的作用</span></p></li></ul><p>及一个故事（我为什么三个小时没查出CORS失败）</p><p><br/></p><p>先别急，必须来弄懂上面的三个知识。</p><p>第一个，<strong>CORS 及 HTTP的 Access-Control</strong>，推荐看下面这两篇文章：</p><p>CORS：<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS</a></p><p>Access_control_CORS：<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Access_control_CORS</a></p><p>&nbsp;&nbsp;&nbsp;&nbsp;讲解如下：</p><p>1、CORS的来源及背景：出于安全原因，<span style="text-decoration: underline;">浏览器</span>默认限制了从脚本启动的跨域HTTP请求。并在<a href="https://fetch.spec.whatwg.org/" target="_blank">Fetch</a>规范中定义了CORS（跨源资源共享）方案；</p><p>2、CORS的实现途径：浏览器的XMLHttpRequest 或 Fetch API的调用；</p><p>3、CORS的底层实现方法：使用携带CORS信息的HTTP标头（例如，Request使用Origin: https://foo.example，Response使用Access-Control-Allow-Origin: *）；</p><p>4、具体实现上，分两种情况：一种是简单请求（GET、HEAD、POST，且Header符合CORS安全列出的请求标头），第二种是非简单请求。对于后者，浏览器在发送正式请求之前，会发起一个preflight request（预请求），这个HTTP请求的Method类型为OPTIONS。如下图所示：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<img class="pimg"  src="http://s.h230.cn/my/img/20200731/1596165086606057541.png" title="1596165086606057541.png" alt="1596165086606057541.png" width="566" height="326"/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;可以看到，针对这个POST调用，浏览器发起了两次HTTP请求，第一次Method为OPTIONS。Response返回的信息有：<br/></p><pre class="brush:plain;toolbar:false;">Access-Control-Allow-Origin: http://foo.example
+Access-Control-Allow-Methods: POST, GET, OPTIONS
+Access-Control-Allow-Headers: X-PINGOTHER, Content-Type
+Access-Control-Max-Age: 86400</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;Access-Control-Max-Age给出以秒为单位的值，该值表示对预请求的响应可以缓存多长时间而无需发送另一个预检请求。在这种情况下，86400秒是24小时。请注意，每个浏览器都有一个<span style="text-decoration: underline;">最大内部值</span>，当Access-Control-Max-Age较大时，该内部值优先。</p><p>5、带Cookie身份验证信息（credentials）的请求<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;XMLHttpRequest or Fetch有能力在Cookie中携带credentials信息以实现HTTP Authentication，<span style="color: rgb(192, 0, 0);">但默认情况下，跨域请求不会携带credentials信息（进一步说，不会携带任何Cookie），但是可以设置使其支持跨域传递Cookie</span>：</p><pre class="brush:js;toolbar:false">const invocation = new XMLHttpRequest();
+invocation.withCredentials = true; // 在send()前设置
+invocation.send();</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;注意：<span style="color: rgb(192, 0, 0);">服务器端 Access-Control-Allow-Credentials = true时，参数Access-Control-Allow-Origin 的值不能为“*”，否则将请求失败</span>（取决于所使用的API）。这是针对Cookie头，如果是通过Header做认证的则不存在这个问题，换句话说，上面所说的是不携带任何cookie，但是仍然可以携带自定义的header。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，CORS Response中设置的Cookie受到“第三方Cookie政策”约束。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;<br/></p><p>第二个，<strong>浏览器的 preflight request</strong>，上文已经说明，此处总结一下：</p><p>参见：<a href="https://www.jianshu.com/p/b55086cbd9af">https://www.jianshu.com/p/b55086cbd9af</a></p><p>1、为什么要发预检请求</p><p>&nbsp;&nbsp;&nbsp;&nbsp;我们都知道浏览器的同源策略，就是出于安全考虑，浏览器会限制从脚本发起的跨域HTTP请求，像XMLHttpRequest和Fetch都遵循同源策略。浏览器限制跨域请求一般有两种方式：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>浏览器限制发起跨域请求<br/></p></li><li><p>跨域请求可以正常发起，但是返回的结果被浏览器拦截了</p></li></ul><p>&nbsp;&nbsp;&nbsp;&nbsp;一般浏览器都是第二种方式限制跨域请求，那就是说请求已到达服务器，并有可能对数据库里的数据进行了操作，但是返回的结果被浏览器拦截了，那么我们就获取不到返回结果，这是一次失败的请求，但是可能对数据库里的数据产生了影响。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;为了防止这种情况的发生，规范要求，对这种可能对服务器数据产生副作用的HTTP请求方法，浏览器必须先使用OPTIONS方法发起一个预检请求，从而获知服务器是否允许该跨域请求：如果允许，就发送带数据的真实请求；如果不允许，则阻止发送带数据的真实请求。</p><p>2、什么时候发预检请求</p><p>&nbsp;&nbsp;&nbsp;&nbsp;HTTP请求包括： 简单请求 和 非简单请求（需预检的请求）。具体定义参见前文描述。</p><p><br/></p><p><br/></p><p>第三个，<strong>HTTP的OPTIONS方法的作用</strong>，总结如下：</p><p>　　大家知道，HTTP请求方法并不是只有GET和POST。据RFC2616标准（现行的HTTP/1.1）得知，通常有以下8种方法：OPTIONS、GET、HEAD、POST、PUT、DELETE、TRACE和CONNECT。</p><p>1、OPTIONS官方定义</p><p>　　OPTIONS方法是用于请求获得由Request-URI标识的资源在请求/响应的通信过程中可以使用的功能选项。通过这个方法，客户端可以在采取具体资源请求之前，决定对该资源采取何种必要措施，或者了解服务器的性能。该请求方法的响应不能缓存。</p><p>　　如果这个OPTIONS请求包含一个正文（有Content-Length或Transfer-Encoding存在），则必须有Content-Type来指定媒体类型。虽然规范里没有定义这种正文的用法，但是HTTP将来的扩展可能会用它来查询服务器上更详细的信息。不支持该扩展的服务器可以忽略该请求正文。</p><p>　　如果该URI是一个星号（“*”），OPTIONS请求将试图应用于服务器，而不是某个指定资源。由于服务器的通信选项通常依赖于资源，所以此“*”请求只能作为“ping”或者“no-op”方法；或者用来测试服务器的性能。例如，用来测试HTTP/1.1代理。</p><p>　　如果该URI不是星号，则只能用来获取该资源通信中可用的选项。</p><p>　　得到的200响应应该包含一个头域，指明服务器实现的和适用于该资源的可选特征（如：Allow），可能还包括该规范尚未定义的扩展。如果有响应正文，则应包含关于通信选项的信息。本规范没有定义该正文格式，但可能在HTTO将来的扩展中定义。可以利用内容协商来选择合适的响应格式。如果没有响应正文，响应必须包含Content-Length，并且值为“0”。</p><p>　　请求头的Max-Forwards用来请求特定代理。当代理收到一个允许URI转发的OPTIONS请求，则检查Max-Forwards。如果Max-Forwards值为0，则不能转发该消息；相反，代理会将自己的通信选项去响应。如果Max-Forwards是正整数，代理转发请求的时候会将该值减1。如果请求中没有Max-Forwards，转发的请求也不会有。</p><p>2、简而言之</p><p>　　OPTIONS请求方法的主要用途有两个：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>获取服务器支持的HTTP请求方法；也是黑客经常使用的方法。</p></li><li><p>用来检查服务器的性能。例如：AJAX进行跨域请求时的预检，需要向另外一个域名的资源发送一个HTTP OPTIONS请求头，用以判断实际发送的请求是否安全。</p></li></ul><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;最后，一个故事：<strong>我为什么三个小时没查出CORS失败？</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;CORS问题我很清楚，解决办法也一清二楚。但这次我尝试了所有办法却无效！<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;后端各种策略都设置了，全都是允许。但是前端仍然报错：<br/></p><p>Access to XMLHttpRequest at **from origin ** has been blocked by CORS policy</p><p>&nbsp;&nbsp;&nbsp;&nbsp;前端用了MockJS，在XMLHttpRequest中有MockHttpRequest字样，担心是MockJS影响，于是去掉了MockJS换成了正式API，然而还是报错。网上有人说是Chrome浏览器参数影响，设置了一个参数，还是报错。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;后端代码有些复杂，用到了Keycloak和Tomcat Server底层代码逻辑，担心是服务器问题。这个环境太复杂了，影响环节多了，检查和测试起来就特别麻烦。最终，测试一种直接在HTTP Response中设置Access-Control标头的方法时，才发现，是我那个Controller方法用了<span style="color: rgb(192, 0, 0);">response.reset()</span>，把Spring-web的CorsConfiguration配置给清除了。后端代码如下：</p><pre class="brush:java;toolbar:false">@Bean // 拦截器
+public FilterRegistrationBean&lt;CorsFilter&gt; corsFilterRegistration() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedMethod(CorsConfiguration.ALL);
+    config.addAllowedOrigin(CorsConfiguration.ALL);
+    config.addAllowedHeader(CorsConfiguration.ALL);
+    config.applyPermitDefaultValues();
+
+    ...
+}
+
+// Controller
+@RequestMapping(value = &quot;/by-type&quot;, method= {RequestMethod.POST, RequestMethod.GET})
+public void code(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    ...
+
+    response.reset();
+    response.setHeader(&quot;Content-Disposition&quot;, &quot;attachment; filename=\&quot;project.zip\&quot;&quot;);
+    response.addHeader(&quot;Content-Length&quot;, &quot;&quot; + data.length);
+    response.setContentType(&quot;application/octet-stream; charset=UTF-8&quot;);
+
+    IOUtils.write(data, response.getOutputStream());
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;可以看到，<span style="color: rgb(192, 0, 0);">Filter拦截器虽然设置了CORS，但是Controller调用了response.reset()将header清空了！！！</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;除了使用Spring-web的CorsConfiguration配置filter，也可以自己实现filter，参考代码如下：</p><pre class="brush:java;toolbar:false">@Value(&quot;${xy.cors-white-list}&quot;)
+private String whiteList;
+ 
+ 
+@Override
+public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) req;
+    HttpServletResponse response = (HttpServletResponse) res;
+ 
+    String origin = request.getHeader(&quot;origin&quot;);
+ 
+    response.setHeader(&quot;Access-Control-Allow-Origin&quot;, Tools.asList(whiteList.split(&quot;,&quot;)).contains(origin) ? origin : &quot;-&quot;);
+    response.setHeader(&quot;Access-Control-Allow-Credentials&quot;, &quot;true&quot;);
+    response.setHeader(&quot;Access-Control-Allow-Methods&quot;, &quot;POST, GET, PATCH, DELETE, PUT, OPTIONS&quot;);
+    response.setHeader(&quot;Access-Control-Max-Age&quot;, &quot;3600&quot;);
+    response.setHeader(&quot;Access-Control-Allow-Headers&quot;, &quot;*&quot;);
+    if (&quot;OPTIONS&quot;.equalsIgnoreCase(request.getMethod())) {
+        response.setStatus(HttpServletResponse.SC_OK);
+    } else {
+        chain.doFilter(req, res);
+    }
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;后端写法（PHP为例）参见：<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Server-Side_Access_Control">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Server-Side_Access_Control</a></p><p>&nbsp; &nbsp; 总结：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;当问题非常复杂的时候，可能有很多因素影响，容易迷惑人，怎么办呢？ 解决问题的思路是：弄清楚问题其中的一个或几个本质，抓住这些点不放，深入分析，看能不能突破其中一个线索。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;也就是说，<strong>认清楚问题的本质，并始终相信，真相就在某个细节上，只是你还没发现。</strong>一旦你掌握了本质，并且你确认那是本质，应该相信自己的判断。<strong>没有什么灵异事件，没有什么好奇怪的，确定本质及解决问题的正确方向，再寻找证据。</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;以上面的故事为例，首先，我没有抓住问题本质——报错信息：Access to XMLHttpRequest at **from origin ** has been blocked by CORS policy，因为对这个报错信息的来源和底层原因不够确定，导致我排查问题时走偏了（胡乱试了很多种方法），如果理解其本质，就知道，这一定是后端Origin的设置与前端不匹配，所以问题一定在后端（这就是一个准确的判断，虽然不知道具体的原因是什么，但是可以判断出一定是后端的问题，进一步说，一定是后端Response中没有设置Access-Control-Allow-Origin，能理解并坚持这一个原则，也就离发现真相不远了）。</p><p><br/></p>
+{% endraw %}

@@ -1,0 +1,11 @@
+---
+layout: ue
+title: 不使用ps怎么查看Linux进程信息
+category: Linux系统与应用
+tags: [Linux]
+keywords: "Linux查看进程"
+---
+
+{% raw %}
+<p>1、ps<br/></p><p>不用多说。比如 ps aux</p><p><br/></p><p><strong>除了ps命令，还有没其他查看进程的方式呢？</strong><br/></p><p>2、<strong>top</strong>：使用top命令也能看到进程信息</p><p>3、终极大法：ls，用法如下：<strong>ls -l /proc/*/exe</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;解释：/proc/目录下面，有很多数字名称的目录，这些数字代表进程号。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;进程目录下面各子目录的含义：</p><p>cwd：文件所在目录</p><p>exe：执行命令的完整路径</p><p>environ：执行命令时的环境变量</p><p>4、其他方法：<strong>lsof -i :8080</strong>，知道端口号的话可以这样看看。（netstat不能用的情况下，也可以试试这个）<br/></p><p><br/></p>
+{% endraw %}

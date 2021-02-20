@@ -1,0 +1,11 @@
+---
+layout: ue
+title: 正确采取Xss攻击防御措施
+category: 系统架构和设计
+tags: [XSS攻击]
+keywords: "XSS攻击"
+---
+
+{% raw %}
+<p><span style="color: rgb(192, 0, 0);">灵魂拷问：到底怎么做防XSS攻击才是最佳方案？网上那些拦截器方案靠谱吗？</span><br/></p><p><br/></p><p><strong>Xss攻击说明：</strong></p><p>1、攻击者准备 恶意html/javascript代码片段，该代码最终会被嵌入到被攻击服务器加载的页面上。</p><p>2、恶意html/js代码，在用户不知情的情况下被执行，以该登录用户的身份执行敏感操作或获取敏感数据后发送给攻击者。</p><p><br/></p><p>举例如下：</p><p>&nbsp; &nbsp; 有个文章编辑页面，可以编写任意html/js代码。攻击者在里面嵌入了恶意js。</p><p>&nbsp; &nbsp; 文章被提交保存后，下次显示出来时，执行该恶意js，从而获取到敏感数据或执行恶意操作。</p><p><br/></p><p>更加全面的例子和说明，参见：<a href="https://www.cnblogs.com/dadonggg/p/7797299.html">https://www.cnblogs.com/dadonggg/p/7797299.html</a> </p><p><br/></p><p><strong>防范措施：</strong></p><p>&nbsp; &nbsp; 恶意html/js代码片段，可以通过任何输入方式保存到服务器上，但这不是关键问题。</p><p>&nbsp; &nbsp; <span style="color: rgb(192, 0, 0);">关键问题是，恶意html/js需要有执行的载体，即要通过浏览器和服务器页面。</span></p><p><br/></p><p>1、<span style="color: rgb(192, 0, 0);">如果我有一个后台服务，但是不提供任何html页面访问，就不用担心xss攻击</span>。（网上那些防范措施都是扯淡）</p><p>2、即便提供了html页面，但是<span style="color: rgb(192, 0, 0);">页面任何html数据都是静态的，没有经过api加载数据，那也不用担心xss攻击</span>！</p><p>3、<span style="color: rgb(192, 0, 0);">即便是有些页面需要从api加载数据并与html拼接（比如table列表），但是后台对api返回数据进行xss关键字过滤，也不用担心xss攻击</span>。</p><p><br/></p><p>&nbsp; &nbsp; 堵住某些api返回恶意xss数据容易，还是堵住输入恶意xss数据容易？</p><p>&nbsp; &nbsp; 我认为，差别不大，从入口或者出口把控都可以，但是也<span style="color: rgb(192, 0, 0);">只建议针对部分api处理，而不是把所有出口、入口都进行过滤，这样会严重降低请求处理效率</span>。</p><p><br/></p><p><span style="font-size: 20px;">结论：</span></p><p><strong>&nbsp; &nbsp; 最好的方案是 </strong><span style="text-decoration: underline;"><strong>在前端提交或后端接</strong></span><span style="text-decoration: underline;"><strong>收数据时</strong></span><strong>，对关键字段进行防Xss字符校验；</strong></p><p><strong>&nbsp; &nbsp; 其次是在前端</strong><span style="text-decoration: underline;"><strong>使用数据时</strong></span><strong>进行xss过滤。</strong></p><p>&nbsp; &nbsp; <span style="color: rgb(192, 0, 0);">在后端Controller API层，可以方便针对单个api级别进行配置，加一个注解即可过滤。<strong>不需要、不建议在通用拦截器层做处理</strong>！！</span></p><p><br/></p>
+{% endraw %}

@@ -1,0 +1,32 @@
+---
+layout: ue
+title: 修改jar包文件，重新打包jar
+category: Maven专题
+tags: 修改Jar包
+keywords: "修改Jar包"
+---
+
+<p><strong>一、网上搜到的下列方案都不行：</strong><br/></p><p>1、直接用WinRAR拖拽替换jar包内文件</p><p>失败，报错：压缩文件已损坏。</p><p>我以前替换成功过，但是启动的时候报错。这种方式可能会伤害到jar包的一些标识。</p><p><br/></p><p>2、解压jar包，然后使用jar命令（比如jar -uvf）重新打包</p><p>失败，能打包，但是以可执行文件（./xxx.jar start）运行时提示：jar: cannot execute binary file</p><p><br/></p><p><strong>最终我用下面方案成功了：</strong></p><p><br/></p><p><span style="white-space:pre">	</span>将jar包文件解压，导入到maven项目的main/resource目录下，删除/META-INF/MANIFEST.MF，然后配置maven pom.xml，如下所示：</p><pre class="brush:xml;toolbar:false">&lt;?xml version=&quot;1.0&quot;  encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+  xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
+  &lt;parent&gt;
+    &lt;groupId&gt;com.ctrip.framework.apollo&lt;/groupId&gt;
+    &lt;artifactId&gt;apollo&lt;/artifactId&gt;
+    &lt;version&gt;0.10.3-SNAPSHOT&lt;/version&gt;
+    &lt;relativePath&gt;../pom.xml&lt;/relativePath&gt;
+  &lt;/parent&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;artifactId&gt;manual-package&lt;/artifactId&gt;
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+        &lt;configuration&gt;
+          &lt;mainClass&gt;com.ctrip.framework.apollo.portal.PortalApplication&lt;/mainClass&gt;
+          &lt;executable&gt;true&lt;/executable&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;其原理就是将 class文件当做resource打包到jar中即可。<br/></p><p><br/></p>

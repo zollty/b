@@ -1,0 +1,29 @@
+---
+layout: ue
+title: Dubbo泛化调用时参数为泛型对象
+category: Java框架和组件
+tags: Dubbo
+keywords: "Dubbo泛化调用传参,Dubbo泛型参数"
+---
+
+<p><a href="https://dubbo.gitbooks.io/dubbo-user-book/content/demos/generic-reference.html" target="_blank">官方文档（链接）</a>上没有任何说明，只能自己看源代码摸索了。具体方法如下：</p><p><br/></p><p>举例说明，例如：</p><pre class="brush:java;toolbar:false">public void add(Pager&lt;User[]&gt; users)
+
+// 其中
+class Pager {
+&nbsp; &nbsp; int size;
+&nbsp; &nbsp; User[] data;
+}
+
+class User {
+&nbsp; &nbsp; String name;
+}</pre><p>传参时这么写：</p><pre class="brush:java;toolbar:false">//泛型调用
+genericService.$invoke(&quot;add&quot;, new String[] {&quot;com.company.Pager&quot;}
+&nbsp; &nbsp; &nbsp; &nbsp; , new Object[]{param});</pre><p>其中<span style="color: rgb(192, 0, 0);">param</span>组装方式为：</p><pre class="brush:java;toolbar:false">// 子属性
+Map&lt;String, Object&gt; user = new HashMap&lt;String, Object&gt;();
+user.put(&quot;class&quot;,&quot;com.company.User&quot;);
+user.put(&quot;name&quot;, &quot;alice&quot;);
+// 泛型
+Map&lt;String, Object&gt; param = new HashMap&lt;String, Object&gt;();
+param.put(&quot;size&quot;, 1);
+param.put(&quot;class&quot;, &quot;com.company.Pager&quot;);
+param.put(&quot;data&quot;, user);</pre><p><strong>注意，这是一个嵌套的双层Map：外层是Pager，内层是User，</strong></p><p><strong>按照上述方法封装参数后</strong>，就能正常调用&nbsp;public void add(Pager&lt;User[]&gt; users) 方法。</p><p><br/></p>

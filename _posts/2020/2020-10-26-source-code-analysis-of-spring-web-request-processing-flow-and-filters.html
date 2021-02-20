@@ -1,0 +1,125 @@
+---
+layout: ue
+title: Spring Web请求处理流程及Filter源码分析
+category: Spring专题
+tags: [Spring]
+keywords: "Spring, Spring Filter"
+---
+
+{% raw %}
+<p>一次Web HTTP请求后端执行的完整流程，<br/></p><p>原始数据 如下（Spring v5.2.6）：</p><pre class="brush:plain;toolbar:false">at io.fbank.hilo.app.component.ControllerRequestLogInterceptor.preHandle(ControllerRequestLogInterceptor.java:52)
+at org.springframework.web.servlet.HandlerExecutionChain.applyPreHandle(HandlerExecutionChain.java:141)
+at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1035)
+at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:943)
+at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1006)
+at org.springframework.web.servlet.FrameworkServlet.doPost(FrameworkServlet.java:909)
+at javax.servlet.http.HttpServlet.service(HttpServlet.java:660)
+at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:883)
+at javax.servlet.http.HttpServlet.service(HttpServlet.java:741)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:231)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.apache.shiro.web.servlet.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:112)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at com.alibaba.druid.support.http.WebStatFilter.doFilter(WebStatFilter.java:124)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at io.fbank.hilo.core.xss.XssFilter.doFilter(XssFilter.java:24)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.apache.shiro.web.servlet.ProxiedFilterChain.doFilter(ProxiedFilterChain.java:61)
+at org.apache.shiro.web.servlet.AdviceFilter.executeChain(AdviceFilter.java:108)
+at org.apache.shiro.web.servlet.AdviceFilter.doFilterInternal(AdviceFilter.java:137)
+at org.apache.shiro.web.servlet.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:125)
+at org.apache.shiro.web.servlet.ProxiedFilterChain.doFilter(ProxiedFilterChain.java:66)
+at org.apache.shiro.web.servlet.AbstractShiroFilter.executeChain(AbstractShiroFilter.java:449)
+at org.apache.shiro.web.servlet.AbstractShiroFilter$1.call(AbstractShiroFilter.java:365)
+at org.apache.shiro.subject.support.SubjectCallable.doCall(SubjectCallable.java:90)
+at org.apache.shiro.subject.support.SubjectCallable.call(SubjectCallable.java:83)
+at org.apache.shiro.subject.support.DelegatingSubject.execute(DelegatingSubject.java:383)
+at org.apache.shiro.web.servlet.AbstractShiroFilter.doFilterInternal(AbstractShiroFilter.java:362)
+at org.apache.shiro.web.servlet.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:125)
+at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:358)
+at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:271)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:93)
+at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:92)
+at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119)
+at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:193)
+at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:166)
+at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:202)
+at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:96)
+at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:541)
+at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:139)
+at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:92)
+at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:343)
+at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:373)
+at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:65)
+at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:868)
+at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1590)
+at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:49)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)
+at java.lang.Thread.run(Thread.java:748)</pre><p>简单总结一下，<span style="color: rgb(192, 0, 0);">HTTP请求的关键流程如下</span>：</p><pre class="brush:plain;toolbar:false">Tomcat： TaskThread（ThreadPoolExecutor）、SocketProcessor
+
+Coyote (tomcat Connector)：AbstractProtocol +&nbsp;Http11Processor
+
+Catalina（tomcat Servlet）：StandardEngine、Authenticator、StandardContext、ApplicationFilter
+
+App Filter（Spring Filter）：CorsFilter、CharacterEncodingFilter、WebMvcMetricsFilter、FormContentFilter、RequestContextFilter、DelegatingFilterProxy
+
+tomcat.websocket.server.WsFilter （在App Filter之后，tomcat有个处理websocket的WsFilter）
+
+  App Servlet（Spring Servlet）：FrameworkServlet、DispatcherServlet
+
+    Spring Extension：HandlerExecutionChain……</pre><p><br/></p><p>接下来，从Spring的源头看起：第一个出现的是CorsFilter（继承自org.springframework.web.filter.OncePerRequestFilter）。</p><p><br/></p><p>实际上，Spring的Filter是自己注册到Web Servlet容器上的，它优先级是可以自由调整的，如下所示。<br/></p><pre class="brush:java;toolbar:false">@Bean
+public FilterRegistrationBean&lt;CorsFilter&gt; corsFilterRegistration() {
+
+    FilterRegistrationBean&lt;CorsFilter&gt; bean = new FilterRegistrationBean&lt;&gt;(new CorsFilter(source));
+    bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+    return bean;
+}</pre><p><span style="color: rgb(192, 0, 0);">之所以CorsFilter排在第一位，是因为我们配置了Ordered.HIGHEST_PRECEDENCE（=Integer.MIN_VALUE）</span>，值越大优先级越低。</p><p>那么上面的&nbsp;<span style="color: rgb(192, 0, 0);">CharacterEncodingFilter 、FormContentFilter 和 RequestContextFilter</span> 又是在哪里配置Order的呢？</p><p><br/></p><p>这是SpringBoot在自动装配时，</p><p>在WebMvcAutoConfiguration中，配置了OrderedFormContentFilter（默认是启用）：</p><pre class="brush:java;toolbar:false">@Bean
+@ConditionalOnMissingBean(FormContentFilter.class)
+@ConditionalOnProperty(prefix = &quot;spring.mvc.formcontent.filter&quot;, name = &quot;enabled&quot;, matchIfMissing = true)
+public OrderedFormContentFilter formContentFilter() {
+    return new OrderedFormContentFilter();
+}</pre><p>这个filter的优先级为：</p><p>OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER - 9900</p><p>即：-9900（优先级非常低）</p><p><br/></p><p>在WebMvcAutoConfiguration.WebMvcAutoConfigurationAdapter类中，配置了 RequestContextFilter，</p><p>其优先级为：</p><p>OrderedFilter.REQUEST_WRAPPER_FILTER_MAX_ORDER - 105</p><p>即：-105，值更大，所以比 FormContentFilter 优先级低。</p><p><br/></p><p>在HttpEncodingAutoConfiguration配置类里配置了CharacterEncodingFilter（优先级为Ordered.HIGHEST_PRECEDENCE），同时支持以下配置（server.servlet.encoding开头）：</p><pre class="brush:plain;toolbar:false"># 是否启用CharacterEncodingFilter，如果不配置也代表true
+server.servlet.encoding=enabled
+
+# 设置的编码，默认为：UTF-8
+server.servlet.encoding.charset=UTF-8
+
+# 是否强制设置请求和响应的编码格式为设置的编码格式
+server.servlet.encoding.force=
+
+# 是否强制设置请求的编码格式为设置的编码格式
+server.servlet.encoding.force-request=
+
+# 是否强制设置响应的编码格式为设置的编码格式
+server.servlet.encoding.force-response=</pre><p>默认force与否的逻辑为：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果 forceEncoding=true或者request.getCharacterEncoding()为空，则设置其值为 encoding（默认值为UTF-8）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;反之，如果没有设置forceEncoding，且request.getCharacterEncoding()不为空，则不管。</p><p>注意这个类的注解有点意思：<br/></p><pre class="brush:java;toolbar:false">@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(ServerProperties.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@ConditionalOnClass(CharacterEncodingFilter.class)
+@ConditionalOnProperty(prefix = &quot;server.servlet.encoding&quot;, value = &quot;enabled&quot;, matchIfMissing = true)
+public class HttpEncodingAutoConfiguration {
+
+}</pre><p><br/></p><p>什么是 Spring&nbsp;DelegatingFilterProxy呢？<br/></p><p>直接参见这篇文章吧：<a href="https://blog.csdn.net/fly910905/article/details/95062258">https://blog.csdn.net/fly910905/article/details/95062258</a></p><p><br/></p><h2>额外收获</h2><p>有点想说的是，SpringMVC框架太重了！！</p><p>SpringBoot利用了SpringMVC，但是隐藏了太多的细节，默认配置了很多东西（虽然有些有开关可以控制，但是大家根本没精力去关注这么多）。</p><p>所以说Spring项目可以优化的地方太多太多了，大部分人其实根本没能掌握好其中的细节。</p><p>我曾经还遇到一个Spring的怪异问题，给Spring官方提过<a href="https://github.com/spring-projects/spring-framework/issues/22623" target="_blank">issues</a>、写过建议，后来查到原因，因为Spring默认配置问题导致的，但是有开关可以更改，细节太多，坑太多，看似一个简单的HTTP调用，SpringMVC在后台走了很长的流程、做了很多的工作，而我认为很多是不必要的，很多场景一个裸servlet就足够了。</p><p>这也是我自己使用<a href="https://github.com/zollty-org/zollty-mvc" target="_blank">ZolltyMVC</a>而非SpringMVC的原因，ZolltyMVC一个jar包只有100多kb，但是具备SpringMVC的所有核心功能（DI / IoC、Model Driven、URI Pattern、AOP等），而且自己设计的注解API，用着超顺手。</p><p><br/></p>
+{% endraw %}

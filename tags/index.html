@@ -22,6 +22,9 @@ layout: base
 <div class="my-tag-content">
 {% for item in (0..site.tags.size) %}{% unless forloop.last %}
 {% capture this_word %}{{ tag_words[item] | strip_newlines }}{% endcapture %}
+{% if this_word == '' %}
+  {% continue %}
+{% endif %}
   <a href="#{{ this_word | cgi_escape | remove: "%" }}" title="{{ this_word }}" rel="{{ site.tags[this_word].size }}">{{ this_word }} <sup>
 {% capture mmm %}
   {% for tagPost in site.tags %}

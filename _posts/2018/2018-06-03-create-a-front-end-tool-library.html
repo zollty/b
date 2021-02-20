@@ -1,11 +1,12 @@
 ---
 layout: ue
-title: 打造一个类似于lodash的前端工具库
+title: 打造一个类似于lodash的现代前端工具库
 category: 前端技术_JS、CSS等
-tags: 前端工具库
+tags: [前端工具库]
 keywords: "前端工具库,lodash,rollup"
 ---
 
+{% raw %}
 <p><strong>一、分析借鉴目前最主流的前端工具库</strong><br/></p><p>我分析了github上多个前端工具库的设计，以lodash为例说明：<br/></p><p>lodash的工程，有master、npm、npm-package、amd分支，以及 多种类型的tag：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>4.17.10（umd）</p></li><li><p>4.17.10-npm</p></li><li><p>4.17.10-es</p></li><li><p>4.17.10-amd</p></li></ul><p>这 4个分支 + 4个tag 的代码甚至工程结构，都不太一样。</p><p>我目前还看不明白它这么多套代码，是分开维护的，还是只维护一套，其他都是自动生成的？</p><p>因为所有8个分支的配置我都检查过了，并没有发现自动生成多份代码的相关配置。</p><p>而且lodash工程里面并没有babel的配置，难道lodash各个版本的代码是分开维护的？<br/></p><p><br/></p><p>本来想模仿lodash的工程脚手架，无奈看了半天看不懂。但是它的功能我基本清楚了：</p><p>1、umd模块，分为 lodash-core.js 和 lodash.js 、lodash-fp.js 三部分，提供了 未压缩包和压缩包（貌似没有看到source map）。</p><p>&nbsp; <a href="https://github.com/lodash/lodash/wiki/FP-Guide" target="_blank">lodash-fp</a> 即 （Functional Programming）函数式编程，对于_.map等部分方法，lodash提供了<a href="https://github.com/lodash/lodash/wiki/FP-Guide" target="_blank">FP版本</a>。</p><p>2、npm模块（也是CommonJS版），有各个主功能模块(比如array)，都是require和module.export形式，除了lodash.js提供了min压缩版，其他都是源码无压缩。</p><p>3、AMD版，全部都是源码无压缩，有主功能模块(比如array)，都是define引入/导出模式，但是没有lodash.js统一入口模块。</p><p>4、es模块，全部都是源码无压缩，主功能模块全部提供了 default引入形式（例如array.default.js）以便支持 import array from &#39;lodash/array&#39;。</p><p>5、npm模块，分成很多子项目，每一个函数都可以单独install。</p><p><br/></p><p>除了lodash，我还分析了vue和react的工程构建方式，并学习了rollup、jest等。<br/></p><p><br/></p><p><strong>二、设计自己的前端工具库</strong></p><p><br/></p><p><strong>我想达到的目的：</strong></p><p>1、要支持 es6、node-cjs 和 浏览器 script直接引入，暂时不单独考虑支持amd；</p><p>2、只维护一套代码，其他均有工具自动生成；</p><p>3、浏览器版本的，支持source map，其他版本都是源码形式提供；</p><p>4、cjs、es6版本，支持按函数和主功能模块(例如array、date)引入，es6版本还提供对import xxx 这种形式的支持；</p><p>5、浏览器版本的，暂时不分模块，只能支持全部引入，后面根据情况可以提供core等精简版本。</p><p><br/></p><p><strong>关于源码的书写和维护：</strong></p><p>目前大多数工具库，都是用的es6语法，我看vue源码是用的带type类型的es6（好像叫flow），lodash源码好像是es6(master分支)，而react用的好像也是自家的flow，只有谷歌的angular2用的typescript。</p><p>所以我考虑采用 es6来编写，但不排除以后换成ts。</p><p><br/></p><p>具体做法：</p><p><br/></p><p>使用es6语法来编写工具类，并把源代码原原本本提供出去，同时生成一份umd格式的，包含源码、压缩包和source map。</p><p>整个target(dist)内容示例如下：</p><pre class="brush:plain;toolbar:false">//&nbsp;所有函数
 toMapKey.js
 toMapValue.js
@@ -132,3 +133,4 @@ trim_trailing_whitespace&nbsp;=&nbsp;true
 [*.md]
 insert_final_newline&nbsp;=&nbsp;false
 trim_trailing_whitespace&nbsp;=&nbsp;false</pre><p>这个工具的一个重要作用是，将新建文件和保存的文件，自动更正 为 lf 换行符。（不然的话，windows默认的换行符是 crlf）</p><p><br/></p><p>具体说明参见：<a href="http://editorconfig.org">http://editorconfig.org</a> </p><p><br/></p>
+{% endraw %}

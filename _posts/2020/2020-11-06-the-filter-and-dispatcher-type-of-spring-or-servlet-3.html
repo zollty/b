@@ -1,0 +1,35 @@
+---
+layout: ue
+title: Spring及Servlet 3.0的Filter和DispatcherType
+category: Java框架和组件
+tags: [Servlet]
+keywords: "Servlet,DispatcherType"
+---
+
+{% raw %}
+<p>Servlet的执行，有五种触发方式：<br/></p><p>DispatcherType&nbsp; = [ <span style="color: rgb(192, 0, 0);">ASYNC、ERROR、FORWARD、INCLUDE、REQUEST</span> ]</p><p><strong>简单说明：</strong></p><p>&nbsp;1、forward是 应用程序内 Servlet1将请求转发给 另一个 Servlet2继续处理客户请求；</p><p>&nbsp;2、include和forward差不多，区别在于：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>include方法使原先的Servlet和转发到的Servlet都可以输出响应信息，即原先的Servlet还可以继续输出响应信息。&nbsp;&nbsp;</p></li><li><p>forward方法调用后在响应中的没有提交的内容被自动消除。将请求转发给其他的Servlet后，由被调用的Servlet负责对请求做出响应，而原先Servlet的执行则终止。&nbsp; &nbsp;</p></li></ul><p>&nbsp;3、ASYNC是什么意思呢？下面有个例子：</p><pre class="brush:java;toolbar:false">protected void doGet(HttpServletRequest request,) {
+    PrintWriter out = response.getWriter();
+    out.print(&quot;&lt;h1&gt;hello&lt;/h1&gt;&quot;);
+
+    // 异步执行，new Thread传递AsyncContext对象并且start
+    AsyncContext context = request.startAsync();
+    new Thread(new Executor(context)).start();
+    
+    System.out.println(&quot;Servlet执行结束时间：&quot;+new Date());
+}
+
+//内部类实现线程
+public class Executor implements Runnable{
+    private AsyncContext context;
+    @Override
+    public void run() {
+        //执行相关复杂业务
+        context.getRequest();
+        context.getResponse();
+        ServletResponse response = context.getResponse();
+        PrintWriter out = response.getWriter();
+        out.flush();
+        System.out.println(&quot;业务完成时间:&quot;+new Date());
+    }
+}</pre><p>具体我没看文档，应该是可以把 RequestContext广播给多个异步线程去处理，期间一直保持HTTP连接不释放吧。</p><p>那么&nbsp;ASYNC 很像是 INCLUDE 的升级版，INCLUDE 是 分配任务给另一个 Servlet执行，而ASYNC则可以将任务分配给任意多个普通线程去执行，另外，ASYNC应该可以释放当前Servlet线程（仅保留Connector线程即可），而INCLUDE则会新增另一个Servlet线程，从管理角度有区别（但从性能角度其实差不多吧？）。</p><p><br/></p><p>Servlet 3.0中，可以 filter过滤器 可以根据DispatcherType的类型选择是否执行。<span style="color: rgb(192, 0, 0);">有些请求，会在服务器内部调整或从内部触发，所以Filter可能会执行多次。Spring中所有的Filter都继承了OncePerRequestFilter，为什么呢？</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;顾名思义，它能够确保在一次请求只通过一次filter，而不需要重复执行。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;大家常识上都认为，一次请求本来就只过一次，为什么还要由此特别限定呢，实际上我们常识和实际的实现并不真的一样，经过一番查阅后，此方式是为了兼容不同的web container，特意而为之（jsr168），也就是说并不是所有的container都像我们期望的只过滤一次，servlet版本不同，表现也不同。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;在servlet-2.3中，Filter会过滤一切请求，包括服务器内部使用forward转发请求和&lt;%@ include file=&quot;/index.jsp&quot;%&gt;的情况。&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;到了servlet-2.4中Filter默认下只拦截外部提交的请求，forward和include这些内部转发都不会被过滤。但是有时候我们需要 forward的时候也用到Filter。&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;因此，为了兼容各种不同的运行环境和版本，默认filter继承OncePerRequestFilter是一个比较稳妥的选择。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过Spring的FilterRegistrationBean注册Filter，默认会判断 filter 是否继承于&nbsp;&nbsp;OncePerRequestFilter，如果是，则无论哪种DispatcherType，该filter都只会执行一次。如果否，则默认设置&nbsp;DispatcherType = REQUEST。程序员也可以手动设置&nbsp;DispatcherType，例如：</p><pre class="brush:java;toolbar:false">registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC);</pre><p>但是我还是建议，自己写的filter都继承 Spring的OncePerRequestFilter。</p><p><br/></p>
+{% endraw %}

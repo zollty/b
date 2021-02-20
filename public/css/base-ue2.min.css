@@ -145,11 +145,12 @@ h4, .h4, h5, .h5 {
 }
 
 #content {
-    margin-left: -14px;
-    margin-right: -15px;
-    padding-top: 0;
-    border-top: 0.5px solid #E9EBFE;
-    background-color: #C7EDCC;/* #f5f5d5 */
+  margin-left: -10px;
+  margin-right: -12px;
+  padding-top: 0;
+  border-top: 0.5px solid #E9EBFE;
+  background-color: #C7EDCC;/* #f5f5d5 */
+  padding-bottom: 10px;
 }
 #inner-cont {
   margin: 0 14px;
@@ -192,13 +193,13 @@ h4, .h4, h5, .h5 {
 }
 .article-footer {
     background: #1f2c39;
-    padding: 0 2%;
+    margin-left: 14px;
     margin-top: -20px;
 }
 .related {
     border: 1px solid #d3d3d3;
     margin: 10px 0 10px 0;
-    margin-left: -8px;
+    margin-left: -7px;
     margin-right: -7px;
 }
 .related-title {
@@ -372,4 +373,18 @@ a.no-dec:hover{text-decoration: underline}
   .scroll-to-top > i {
     font-size: 28px;
   }
+}
+.bremind {
+  border-bottom: .5px solid #d3d3d3;
+  border-left: .5px solid #d6e9d8;
+  border-right: .5px solid #d6e9d8;
+  margin: -10px -12px 0 -10px;
+  background-color: #FAF9DE;
+  padding: 12px 0 5px 14px;
+  font-size: 16px;
+}
+
+.navbar-inverse .navbar-nav>.active>a, .navbar-inverse .navbar-nav>.active>a:hover, .navbar-inverse .navbar-nav>.active>a:focus {
+  color: #eee;
+  background-color: #080808;
 }

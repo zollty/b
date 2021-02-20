@@ -1,0 +1,55 @@
+---
+layout: ue
+title: FastDFS网络连接问题分析
+category: 中间件技术
+tags: FastDFS,IP切换
+keywords: "FastDFS"
+---
+
+<p><span style="color: rgb(192, 0, 0);">这是个一般性问题，参见这篇文章的描述：</span></p><p>《<a href="domain-and-IP-in-middleware-client-configuration.html" target="_blank">中间件客户端配置中的域名与IP</a>》</p><p><br/></p><p>先讲解一下FastDFS文件上传的执行流程：<br/></p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>获取trackerServer连接；</p></li><li><p>向trackerServer发送请求，获取一个可用的storageServer的IP；</p><p>（请求指令为104，参见TrackerClient.getStoreStorage方法）</p></li></ol><p>注意，每次上传请求，都要重新获取storageServer（以便达到负载均衡等目的）。</p><p>另外，每次上传请求，可以重新获取trackerServer，也可以指定固定的trackerServer。</p><p><br/></p><p>获取storageServer的逻辑，是由trackerServer服务器后端决定的，应用程序没有干预。</p><p>但是获取trackerServer的逻辑，是应用自己决定的。fastdfs-java-client获取trackerServer的逻辑如下：</p><pre class="brush:java;toolbar:false">  public TrackerServer getConnection() throws IOException {
+    return this.tracker_group.getConnection();
+  }
+
+  public TrackerServer getConnection() throws IOException {
+    int current_index;
+
+    synchronized (this.lock) {
+      this.tracker_server_index++;
+      if (this.tracker_server_index &gt;= this.tracker_servers.length) {
+        this.tracker_server_index = 0;
+      }
+
+      current_index = this.tracker_server_index;
+    }
+    return this.getConnection(current_index);
+  }
+
+    public TrackerServer getConnection(int serverIndex) throws IOException {
+      InetSocketAddress address = this.tracker_servers[serverIndex];
+      Socket sock = new SocketPool(pool, getConnection(address), address);
+      return new TrackerServer(sock, address);
+    }</pre><p>以上代码的意思是：<span style="color: rgb(192, 0, 0);">首先从用户配置的trackerServer地址里面去轮询、选择其中一个作为连接地址，然后跟这个地址建立网络连接（换句话说，客户端自己实现了一个简单的负载均衡机制）</span>。这个设计主要是为 IP地址考虑的。如果trackerServer地址不是IP，而是域名，则存在问题：InetSocketAddress的来源是：</p><pre class="brush:java;toolbar:false">public InetSocketAddress(String hostname, int port) {
+    checkHost(hostname);
+    InetAddress addr = null;
+    String host = null;
+    try {
+        addr = InetAddress.getByName(hostname);
+    } catch(UnknownHostException e) {
+        host = hostname;
+    }
+    holder = new InetSocketAddressHolder(host, addr, checkPort(port));
+}</pre><p>这段代码的关键是：InetAddress.getByName(hostname)。这个Java方法就是用来做域名解析的。</p><p>参见这篇文章：<a href="https://blog.csdn.net/weixin_34379433/article/details/93762404">https://blog.csdn.net/weixin_34379433/article/details/93762404</a></p><p>&nbsp;&nbsp;&nbsp;&nbsp;所以，<span style="color: rgb(192, 0, 0);">如果trackerServer配置的不是IP，而是域名，则该域名只会在第一次解析，后续程序永远不会再次解析这个域名了</span>。当然，如果要配置域名，也不是不可以，但是<span style="color: rgb(192, 0, 0);">应该配置多个域名，且每个域名对应一个唯一的IP</span>，例如：</p><p>fdfs01.inner.zollty.com,fdfs02.inner.zollty.com,fdfs03.inner.zollty.com</p><p>&nbsp;&nbsp;&nbsp;&nbsp;像这样配置是正确的。但是配置成这样：fdfs.inner.zollty.com，然后DNS解析到3个IP，这就是错误的做法。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，我们从上面的代码也可以看到，如果使用了网络连接池，那其实最好是每次都重新获取trackerServer和storageServer，因为获取trackerServer成本很低，只需要new一个TrackerServer即可，它没有网络连接的开销。但是，获取storageServer是有网络开销的，开销来源于 客户端程序会通过trackerServer去查询可用的storageServer的IP。</p><p>&nbsp; &nbsp; 相对于上传文件的开销成本，连接一次trackerServer的开销并不大，所以我认为这种逻辑是可以接受的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果不去查询，每次都复用storageServer可不可以？看下面的代码：</p><pre class="brush:java;toolbar:false">public StorageServer getStorageServer(String ip_addr, int port, int store_path) throws IOException {
+    InetSocketAddress address = new InetSocketAddress(ip_addr, port);
+    Socket sock = new SocketPool(pool, getConnection(address), address);
+    return new StorageServer(sock, address, store_path);
+}
+private Connection getConnection(InetSocketAddress address) {
+    Connection conn;
+    try {
+        // 从连接池中获取连接
+        conn = pool.borrowObject(address);
+    } catch (Exception e) {
+        throw new NestedRuntimeException(e, &quot;从连接池中获取连接异常&quot;);
+    }
+    return conn;
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;StorageServer有一个socket类属性，它持有一个Connection连接。其实没必要一直占用这个连接。用完直接归还就是。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;其实真正的复用，是复用StorageServer的InetSocketAddress，而非StorageServer本身。</p><p><br/></p>

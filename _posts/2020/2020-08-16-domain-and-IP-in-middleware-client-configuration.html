@@ -1,0 +1,9 @@
+---
+layout: ue
+title: 中间件客户端配置中的域名与IP
+category: 中间件技术
+tags: 域名,IP切换
+keywords: "域名列表问题"
+---
+
+<h3><strong>问题说明及其背景</strong></h3><p><br/></p><p>某些中间件的客户端配置中，会有集群的地址列表（数组），典型的如zookeeper的地址列表：</p><p><span style="background-color: rgb(184, 204, 228);">192.168.0.1:2181,192.168.0.2:2181</span></p><p><br/></p><p>聪明的运维同学，喜欢把它弄成域名，第一种是一个域名解析为多个IP（起到负载均衡作用）：</p><p><span style="background-color: rgb(184, 204, 228);">zk.if.zollty.com:2181</span></p><p><br/></p><p>第二种是一个域名解析为一个IP（可以方便修改IP），例如：</p><p><span style="background-color: rgb(184, 204, 228);">zk01.if.zollty.com:2181,zk02.if.zollty.com:2181</span></p><p><br/></p><p><strong>这三种方式，到底哪种好？为什么？有没有更好的方式？</strong></p><p><br/></p><p>直接说结论：</p><p>&nbsp; &nbsp; 上面三种方式中，单个域名的方案最差，通常起不到负载均衡作用，而且可能还会有副作用（中间件客户端本身可能会自带负载均衡机制）。</p><p>&nbsp; &nbsp; 多个域名列表的方式，优于多个IP列表的方式。</p><p><br/></p><p>&nbsp; &nbsp; 但是将IP换成域名的弊端也很明显：<span style="color: rgb(192, 0, 0);">域名解析有缓存，修改了域名解析，新的IP并不能立即生效</span>。</p><p><br/></p><p>&nbsp; &nbsp; 最好的方式是，让客户端能够在更换了中间件IP时，能够及时获取到。若能及时获取到新IP，则不建议使用域名。</p><p>&nbsp; &nbsp; 但是怎么才能及时获取到新IP呢？这个得看客户端源代码，是否对Server IP有缓存，是否有网络连接池缓存，然后在有缓存的地方，加入“刷新缓存”的机制。通过修改客户端源代码，才能实现“在线切换域名”，这在灾备或双活机房做故障切换时非常重要。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;这篇文章就是一个实践案例：《<a href="analysis-of-fastdfs-network-connection-problems.html" target="_blank">FastDFS网络连接问题分析</a>》<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外有一个相似问题：《<a href="database-ip-network-switching-problem.html" target="_blank">数据库IP网络切换问题</a>》<br/></p><p><br/></p>

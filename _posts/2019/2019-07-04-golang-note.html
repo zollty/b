@@ -1,0 +1,182 @@
+---
+layout: ue
+title: Golang笔记
+category: 其他语言和技术
+tags: [Go]
+keywords: "Go"
+---
+
+{% raw %}
+<p><strong>一、结构体、引用类型、nil</strong><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;1、结构体是由一系列具有相同类型或不同类型的数据构成的数据集合。<strong>结构体是值类型，不是引用类型。</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;2、nil的定义如下：<br/></p><pre class="brush:js;toolbar:false;">// nil is a predeclared identifier representing the zero value for a
+// pointer, channel, func, interface, map, or slice type.
+var nil Type // Type must be a pointer, channel, func, interface, map, or slice type</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;可以看到，nil的类型必须是一个<span style="color: rgb(192, 0, 0);"><strong>指针，通道，函数，接口，map，切片</strong></span><strong>类型，它们都是引用类型</strong>。注意，不包括结构体。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;例如对于map类型，如果不使用make()初始化，那么其值为nil：<br/></p><pre class="brush:js;toolbar:false">var mymap map[string]int
+if mymap == nil {
+    fmt.Println(&quot;map is nil. Going to make one.&quot;)
+}
+
+mymap = make(map[string]int)</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;注意，通道、函数、接口、map和切片，本身就是引用类型，所以定义时不用加*号，其他值类型要转换为引用类型，需要用指针符合（*号），例如：</p><pre class="brush:js;toolbar:false">type Student struct{ }
+
+// 定义为引用时，需要加*号
+var stu *Student
+
+b := 255
+var a *int = &amp;b // 值类型赋值给指针，需要加&amp;（地址符号）
+
+var stu *Student = &amp;Student{}</pre><p>&nbsp; &nbsp; 而结构体struct是值类型，如果结构体未初始化，其成员变量的值都会取默认值，所以也可以理解为<strong>未初始化的结构体其实是有值，只不过是默认值</strong>（但是空接口是一个特例），这需要从结构体的内部结构说起：</p><pre class="brush:js;toolbar:false;">type People interface {
+  Show()
+}
+type Student struct {
+}
+
+func (stu *Student) Show() {
+}
+
+func live() People {
+  var stu *Student
+  return stu
+}
+func live2() interface{} {
+  var stu interface{}
+  return stu
+}
+
+func foo(x interface{}) {
+  if x == nil {
+    fmt.Println(&quot;emptyinterface&quot;)
+    return
+  } else {
+    fmt.Println(&quot;non-emptyinterface&quot;, x)
+  }
+}
+func main() {
+  var x *int
+
+  if x == nil {
+    fmt.Println(&quot;ssssss&quot;)
+  }
+  foo(x)
+  if live() == nil {
+    fmt.Println(&quot;AAAAAAA&quot;)
+  } else {
+    fmt.Println(&quot;BBBBBBB&quot;)
+  }
+}</pre><p>输出ssssss、non-emptyinterface、BBBBBBB</p><p>为什么呢，原因如下：<br/></p><p>关键在于interface内部结构。 go中的接口分为两种一种是空的接口类似这样：</p><pre class="brush:js;toolbar:false">var x interface {}</pre><p>另一种如：</p><pre class="brush:js;toolbar:false">type People interface {
+&nbsp; &nbsp; Show()
+}</pre><p>他们的底层结构如下：</p><pre class="brush:cpp;toolbar:false">//空接口
+type eface struct {&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; _type *_type&nbsp; &nbsp; &nbsp; &nbsp; //类型信息
+&nbsp; &nbsp; data&nbsp; unsafe.Pointer //指向数据的指针(go语言中特殊的指针类型unsafe.Pointer类似于c语言中的void*)
+}
+//带有方法的接口
+type iface struct {&nbsp; &nbsp; &nbsp; 
+&nbsp; &nbsp; tab&nbsp; *itab&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; //存储type信息还有结构实现方法的集合
+&nbsp; &nbsp; data unsafe.Pointer&nbsp; //指向数据的指针(go语言中特殊的指针类型unsafe.Pointer类似于c语言中的void*)
+}</pre><p>空接口为eface，带有方法的接口为iface。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;eface比较简单，它有两个指针，一个指向具体的类型，一个指向具体的数据。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;iface 它的类型比eface要复杂得多，所以专门定义了一个itab结构。itab 存储了 _type 信息和 []fun方法集。如下所示：</p><pre class="brush:cpp;toolbar:false">type itab struct {
+&nbsp; &nbsp; inter&nbsp; *interfacetype //接口类型
+&nbsp; &nbsp; _type&nbsp; *_type&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;//结构类型
+&nbsp; &nbsp; link&nbsp; &nbsp;*itab
+&nbsp; &nbsp; bad&nbsp; &nbsp; int32
+&nbsp; &nbsp; inhash int32
+&nbsp; &nbsp; fun&nbsp; &nbsp; [1]uintptr&nbsp; &nbsp; &nbsp;//可变大小方法集合
+}
+
+type _type struct {
+    size       uintptr //类型大小
+    ptrdata    uintptr //前缀持有所有指针的内存大小
+    hash       uint32  //数据hash值
+    tflag     tflag
+    align      uint8   //对齐
+    fieldalign uint8   //嵌入结构体时的对齐
+    kind       uint8   //kind 有些枚举值kind等于0是无效的
+    alg       *typeAlg //函数指针数组，类型实现的所有方法
+    gcdata    *byte   str       nameOff
+    ptrToThis typeOff
+}</pre><p>&nbsp; &nbsp; 这上面例子中，x为未初始化的指针类型，所以等于nil，但是对于foo(x)，其参数为接口类型，所以会进行接口转换，</p><p><span style="color: rgb(192, 0, 0);">一个interface{}类型的变量包含了2个指针，一个指针指向值的类型，另外一个指针指向实际的值。对一个interface{}类型的nil变量来说，它的两个指针都是0；但是var x *int传进去后，指向类型的指针不为0了，因为有类型了， 所以它不为nil。 interface 类型比较，要是 两个指针都相等，才能相等。</span></p><p>&nbsp; &nbsp; 同理，live() People返回的值为一个People接口，它是不为nil的，而 live2() interface{} 返回的值为nil，是因为它没有类型信息，两个指针都是0值。</p><p>总结：<br/></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>stuct是一个值类型，即使加了*也只是变成了一个指针，指向结构体了。</p></li><li><p>nil是一个Type，根据源码var nil Type，它其实也是Golang中的一中类型，nil的类型必须是一个指针，通道，函数，接口，map，切片类型。</p></li></ul><p>要注意的是，在Golang中，struct是值类型，<strong>结构体作为参数或返回值时，是副本拷贝</strong>。<span style="color: rgb(192, 0, 0);">如果想引用传值，加个*即可。</span></p><p>另外注意，<span style="color: rgb(192, 0, 0);">字符串不是引用类型，而是值类型</span>，看下面例子：</p><pre class="brush:js;toolbar:false">func main() {
+    var s string
+    if s == &quot;&quot; {
+        fmt.Println(&quot;eeeeeeeeeee&quot;)
+    }
+}</pre><p>输出为eeeeeeeeeee，也就是说，<span style="color: rgb(192, 0, 0);">string的零值为&quot;&quot;</span>。下面代码会报编译错误：<br/></p><pre class="brush:js;toolbar:false">func GetValue(id int) (string, bool) {
+    return nil, false
+}</pre><p>因为nil不能赋值给string。</p><p>总结：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;go语言中的零值是变量没有做初始化时系统默认设置的值：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var b bool // bool型零值是false</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var s string // string的零值是&quot;&quot;</p></li></ul><p>以下六种类型零值常量都是nil：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a *int</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a []int</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a map[string] int</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a chan int</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a func(string) int</p></li><li><p>&nbsp;&nbsp;&nbsp;&nbsp;var a error // error是接口</p></li></ul><p><br/></p><p><strong>二、切片</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;切片的关键在于，它是一个隐式的结构体，类似如下结构：<br/></p><pre class="brush:cpp;toolbar:false;">type sliceHeader struct {
+    Length              int
+    ZerothElement       *byte
+}
+
+var slice = buffer[100:150]
+// 实际上为
+var slice = sliceHeader {
+    Length:         50
+    ZeroElement     &amp;buffer[100],
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;切片底层是结构体。结构体本身是值传递，但是里面的数据（指向数组的指针）是引用传递。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;详细说明，参见：<a href="https://www.jianshu.com/p/2de7a1f22b1a">https://www.jianshu.com/p/2de7a1f22b1a</a> </p><p>&nbsp;&nbsp;&nbsp;&nbsp;官方出了很长一篇文章来解释这个鬼东西。不得不说，像Java这种屏蔽掉“指针”是很好的做法，指针真的会增加程序的复杂度、降低可维护性，而且事实证明，没有指针语法，并不是坏事。<br/></p><p><br/></p><p><strong>零值切片</strong></p><p>内部结构类似于：</p><pre class="brush:cpp;toolbar:false">sliceHeader{
+    Length:     0,
+    Capacity:       0,
+    ZerothElement: nil,
+}</pre><p>但是注意：<span style="color: rgb(151, 72, 6);">由数组array[0:0]创建的切片，长度为0（甚至容量也是0），但是元素指针（ZerothElement）不是nil，因此它不是nil切片，容量可以扩大。而值为nil的切片容量不可能扩大，因为它没有指向任何数组元素（ZerothElement为nil）</span>。</p><p><br/></p><p><strong>追加切片</strong></p><pre class="brush:cpp;toolbar:false">slice1 := []int{0, 1, 2, 3, 4}
+slice2 := []int{55, 66, 77}
+fmt.Println(slice1)
+slice1 = Append(slice1, slice2...)
+fmt.Println(slice1)
+
+// [0 1 2 3 4]
+// [0 1 2 3 4 55 66 77]</pre><p><br/></p><p><strong>三、切片与字符串</strong></p><p>字符串其实：是只读的切片，类型为byte，并且有着语法层面上的一些特性。</p><p>因为字符串是只读的，不能被修改，所以没必要考虑容量。</p><p>1）可以通过索引的方式访问其中的元素</p><p>slash := &quot;/usr/ken&quot;[0]</p><p>2）可以通过切片来获取子串</p><p>usr := &quot;/usr/ken&quot;[0:4]</p><p>3）可以通过byte切片来创建一个字符串</p><p>str := string(slice)</p><p>4）或者通过字符串来创建一个切片</p><p>slice += []byte(usr)</p><p>对使用者来说，字符串对应的数组是不可见的，只能操作字符串来访问其中的元素。这意味着，由字符串转切片或者由切片转字符串，必须创建一份数组的拷贝。当然，Go语言已经处理好了这一切，使用者不用再操心。在转换完成后，修改切片指向的数组不会影响到原始的字符串。</p><p>使用类似切片的方式来构建字符串有一个很明显的好处，就是创建子字符串的操作非常高效。并且由于字符串是只读的，字符串和子串可以安全地共享共同的数组。（但我想说的是，对比Java的隐式设计，Go的字符串就是垃圾，繁琐、难用）</p><p><br/></p><h3>Go并发编程基础</h3><p><strong>1、WaitGroup使用示例</strong></p><pre class="brush:js;toolbar:false">func main(){
+    var wg sync.WaitGroup
+    var urls = []string{
+        &quot;http://www.golang.org/&quot;,
+        &quot;http://www.google.com/&quot;,
+    }
+    for _, url := range urls {
+        wg.Add(1)
+        go func(url string) {
+            defer wg.Done()
+            http.Get(url)
+        }(url)
+    }
+    wg.Wait()
+}</pre><p>Done, 相当于Add(-1)，Wait()执行后会堵塞主线程，直到WaitGroup 里的值减至0。</p><p>注意，WaitGroup不能当做值传递，必须使用引用传递。</p><p><strong>2、Context使用的示例</strong></p><p>假设有这样一个应用场景，一个公司有一名经理(manager)和两名工人(worker)，公司下班（main exit）有两种可能：1、工人(worker)的工作时间已经达到合同约定的最大时长；2、经理(manager)提前叫停收工。满足其中一个即可下班。<br/></p><pre class="brush:js;toolbar:false">//worker工作的最大时长，超过这个时长worker自行收工无需等待manager叫停
+const MAX_WORKING_DURATION = 5 * time.Second
+
+//达到实际工作时长后，manager可以提前叫停
+const ACTUAL_WORKING_DURATION = 2 * time.Second
+
+func worker(ctxWithCancel context.Context, name string) {
+    for {
+        select {
+        case &lt;-ctxWithCancel.Done():
+            fmt.Println(name, &quot;timeout return for ctxWithCancel.Done()&quot;)
+            return
+        default:
+            fmt.Println(name, &quot;working&quot;)
+        }
+        time.Sleep(1 * time.Second)
+    }
+}
+
+func manager(cancel func()) {
+    time.Sleep(ACTUAL_WORKING_DURATION)
+    fmt.Println(&quot;manager called cancel()&quot;)
+    cancel()
+}
+
+func main() {
+
+    ctxWithCancel, cancel := context.WithTimeout(context.Background(), MAX_WORKING_DURATION)
+
+    go worker(ctxWithCancel, &quot;[1]&quot;)
+    go worker(ctxWithCancel, &quot;[2]&quot;)
+
+    go manager(cancel)
+
+    &lt;-ctxWithCancel.Done()
+    //暂停1秒便于协程的打印输出
+    time.Sleep(1 * time.Second)
+    fmt.Println(&quot;company closed&quot;)
+
+}</pre><p>context.WithTimeout只是其中一个方法，还有：</p><pre class="brush:js;toolbar:false">func Background() Context
+func TODO() Context
+
+func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+func WithDeadline(parent Context, deadline time.Time) (Context, CancelFunc)
+func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
+func WithValue(parent Context, key, val interface{}) Context</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;在context包内部已经为我们实现好了两个空的Context，可以通过调用Background()和TODO()方法获取。一般的将它们作为Context的根，往下派生。</p><p><strong>Context 原理</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Context 的调用应该是链式的，通过WithCancel，WithDeadline，WithTimeout或WithValue派生出新的 Context。当父 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Context 被取消时，其派生的所有 Context 都将取消。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过context.WithXXX都将返回新的 Context 和 CancelFunc。调用 CancelFunc 将取消子代，移除父代对子代的引用，并且停止所有定时器。未能调用 CancelFunc 将泄漏子代，直到父代被取消或定时器触发。go vet工具检查所有流程控制路径上使用 CancelFuncs。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;详见：<a href="https://studygolang.com/articles/010792">https://studygolang.com/articles/010792</a> </p><p><br/></p><p><br/></p>
+{% endraw %}
