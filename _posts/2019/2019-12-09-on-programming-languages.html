@@ -7,7 +7,34 @@ keywords: "编程语言对比"
 ---
 
 {% raw %}
-<p>本人使用过的编程语言，细数包括5个大类，总计超过28种（参见我的技能栈），有些代码写得多，有些写得少，写得最多的是：Java、JS、HTML、CSS、……，其次是C++、C、PHP、C#、Lua、SQL、Golang……，写得少的是Python、VB、Jade、MatLab、……。<br/></p><p><br/></p><p>下面说一点心得体会（原创、纯手打），供学习、比较、参考。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;首先，看基础语法。好的基础语法，应该是简单直接的、易于记忆和书写的。“功能强”跟“简单易用”，是两个矛盾面——在基础语法中，加入常用增强功能，确实能方便编程，但是也让基础语法变得臃肿。比如说，for循环，有些语言甚至有5种以上的写法，虽然每种写法特点不一样，但是这增加了语言学习和代码维护的负担。如果，它把for循环精简到只有两种，比如 for(i=0;i&lt;n;i++)和 while(flag) 这种通用的结构，那么所有程序中，只有这一种写法，维护起来要容易些。但是，也有一个弊端，比如一些特殊数据结构的循环，集合、链表、Map等，用通用结构去写就会麻烦很多。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;怎么看这个问题？增强语法，绝大多数时候，都可以用封装库函数（工具函数）去解决。我认为，增强程序功能，首先应该从增加库函数入手，而不是增强语法。虽然增强语法比提供库函数，更易用，但要考虑这样做是不是也降低了程序可维护性（因为库函数代码，是标准语法，是大家都看得懂的，而增强语法，如果不学习一下，是不知道怎么回事的）。</p><p>&nbsp;&nbsp;&nbsp; 什么时候该增强语法呢？我认为是简单直接的、且常用的、且比提供库函数要好得多的地方，这三个条件缺一不可，反例如下：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>如果这个功能不常用，那么提供一个库函数，哪怕使用麻烦一点又有多大影响呢？何必要去设计一个新语法，用于一个不常用的功能上呢？</p></li><li><p>如果这个功能调用库函数的方式也很容易、很方便的做到，为什么要用新语法去做？</p></li><li><p>如果为了某一套功能设计出一个非常复杂的语法，那么和直接用库函数相比又有什么本质区别呢，语法的目的就是简化使用，复杂的语法本身也难于使用、难于升级维护，不如不要。</p></li></ol><p>&nbsp;&nbsp;&nbsp;&nbsp;举个例子，Java 8新语法出来这么久了，其实也没增加多少内容，我尝试用过很多次，但我就是记不住，最终不想用了。为什么？因为Java7、Java6的语法已经很强大了，Java8的新语法只是锦上添花、“语法糖”而已。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;比如 lambda 表达式，形如：</p><pre class="brush:java;toolbar:false">// 标准语法
+<p>本人使用过的编程语言，细数包括5个大类，总计超过28种（参见我的技能栈），有些代码写得多，有些写得少，写得最多的是：Java、JS、HTML、CSS、Golang、……，其次是C++、C、PHP、C#、Lua、SQL……，写得少的是Python、VB、Jade、MatLab、……。<br/></p><p><br/></p><p>下面说一点心得体会（原创、纯手打），供学习、比较、参考。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;首先，看基础语法。好的基础语法，应该是简单直接的、易于记忆和书写的。<strong>“功能强”跟“简单易用”，是两个矛盾面——在基础语法中，加入常用增强功能，确实能方便编程，但是也让基础语法变得臃肿</strong>。比如说，for循环，有些语言甚至有5种以上的写法，虽然每种写法特点不一样，但是这增加了语言学习和代码维护的负担。如果，它把for循环精简到只有两种，比如 for(i=0;i&lt;n;i++)和 while(flag) 这种通用的结构，那么所有程序中，只有这一种写法，维护起来要容易些。但是，也有一个弊端，比如一些特殊数据结构的循环，集合、链表、Map等，用通用结构去写不算是最简洁。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>怎么看这个问题？增强语法，绝大多数时候，都可以用封装库函数（工具函数）去解决。</strong>我认为，增强程序功能，首先应该从增加库函数入手，而不是增强语法。虽然增强语法比提供库函数，更易用，但要考虑这样做是不是也降低了程序可维护性（因为库函数代码，是标准语法，是大家都看得懂的，而增强语法，如果不学习一下，是不知道怎么回事的）。</p><p>&nbsp;&nbsp;&nbsp; 什么时候该增强语法呢？我认为是<strong>简单直接的、且常用的、且比提供库函数要好得多</strong>的地方，这三个条件缺一不可，反例如下：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>如果这个功能不常用，那么提供一个库函数，哪怕使用麻烦一点又有多大影响呢？何必要去设计一个新语法，用于一个不常用的功能上呢？</p></li><li><p>如果这个功能调用库函数的方式也很容易、很方便的做到，为什么要用新语法去做？增加学习和维护成本。</p></li><li><p>如果为了某一套功能设计出一个非常复杂的语法，那么和直接用库函数相比又有什么本质区别呢，语法的目的就是简化使用，复杂的语法本身也难于使用、难于升级维护，不如不要。</p></li></ol><p>&nbsp;&nbsp;&nbsp;&nbsp;举个例子，Java 8新语法出来这么久了，其实也没增加多少内容，我尝试用过很多次，但我就是记不住，最终不想用了。为什么？因为Java7、Java6的语法已经很强大了，Java8的新语法只是锦上添花、“语法糖”而已。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;比如 lambda表达式、方法引用，形如：</p><pre class="brush:java;toolbar:false">// 例1
+Function&lt;Integer, int[]&gt; fun = int[]::new;
+int[] arr = fun.apply(10);
+
+// 等价于
+int[] arr = new int[10];
+
+// 例2：混搭，凸显出方法引用的不通用性
+public static &lt;T&gt; Collector&lt;T, ?, List&lt;T&gt;&gt; toList() {
+    return new CollectorImpl&lt;&gt;((Supplier&lt;List&lt;T&gt;&gt;) ArrayList::new, List::add,
+                               (left, right) -&gt; { left.addAll(right); return left; },
+                               CH_ID);
+}
+
+// 例3：同上，属于混搭，filter处与map处的处理方式不统一。
+public List&lt;String&gt; getIdByColumn(Integer column) {
+    return data.entrySet().stream().filter((e) -&gt; {
+        return e.getKey().equals(column);
+    }).map(Map.Entry::getValue).collect(Collectors.toList());
+}
+// 例3：方法引用 Map.Entry::getValue 等价于 (e) -&gt; {return e.getValue()}
+public List&lt;String&gt; getIdByColumn(Integer column) {
+    return data.entrySet().stream().filter((e) -&gt; {
+        return e.getKey().equals(column);
+    }).map((e) -&gt; {return e.getValue();}).collect(Collectors.toList());
+}
+
+// 例4：标准语法
 list.sort(new Comparator&lt;Integer&gt;() {
     public int compare(Integer o1, Integer o2) {
     　　if(o1&gt;o2)
@@ -18,7 +45,7 @@ list.sort(new Comparator&lt;Integer&gt;() {
     　　　　return 0;
     }
 } );
-// 增强lambda语法
+// 例4：lambda语法
 list.sort( ( o1, o2 ) -&gt; {
     if(o1&gt;o2)
     　　　　return -1;
@@ -26,11 +53,24 @@ list.sort( ( o1, o2 ) -&gt; {
     　　　　return 1;
     　　else
     　　　　return 0;
-} );</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;lambda语法这样写省略了3行代码，要简洁一些。但是它让Java代码多了一层不透明的语法包装，而且lambda使用有些限制，没有上面标准语法的功能强大。我认为，一个语法，你不能做到通用、统一，这个语法是很失败的——lambda不能完全取代传统的写法，那么代码中就会存在两种不同的写法，看起来就很恼火。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;正例，Java 7的一些改进则挺好，典型的如泛型的自动推导，这是个很实用的小改进，因为编译器是可以帮我们自动推导出泛型类型的，这个改进让我们节省了以前那种“冗余”的写法，即便是删掉定义的泛型部分，语义也没有任何影响，如下所示：<br/></p><pre class="brush:java;toolbar:false">// 改进前
+} );
+
+// 例5：lambda看似节省了3行代码，但是相对于整个函数体复杂逻辑，节省3行微不足道
+values.stream()
+  .mapToInt(e -&gt; {    
+    int sum = 0;
+    for(int i = 1; i &lt;= e; i++) {
+      if(e % i == 0) {
+        sum += i;
+      }
+    }  
+    return sum;
+  })
+  .sum());</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;lambda语法这样写省略了3行代码，要简洁一些。但是它让Java代码多了一层不透明的语法包装，而且lambda有使用限制（lambda表达式没有匿名函数的完整功能），不能通用，而且从上面的例3可见，方法引用也是lambda表达式的特例。我认为，一个语法，你不能做到通用、统一，这个语法是很失败的——lambda不能完全取代传统的写法，那么代码中就会存在两种不同的写法，看起来就很恼火。我真切的希望，语法层面能保持简洁，而不是炫技。<br/></p><p>&nbsp; &nbsp; Java8的新语法是个败笔，相反，Java 7的一些语法改进则很好，举个正面的例子，例如泛型的自动推导，非常好，它通用、实用、无歧义，因为编译器是可以帮我们自动推导出泛型类型的，这个改进让我们节省了以前那种“冗余”的写法，即便是删掉定义的泛型部分，语义也没有任何影响，如下所示：<br/></p><pre class="brush:java;toolbar:false">// 改进前
 List&lt;String&gt; list = new ArrayList&lt;String&gt;();
 // 改进后
-List&lt;String&gt; list = new ArrayList&lt;&gt;();</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(192, 0, 0);">一门好的语言，语法应该规则严谨，没有歧义，更没什么黑魔法、变异用法。任何人写出的代码都基本一致，这使得这门语言简单易学、易于阅读和维护。</span>放弃部分“灵活”和“自由”，换来更好的维护性，我觉得是值得的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;我再谈谈一个极端，比如说HTML，这门语言很简单，大家都很容易学习。简单到什么程度呢？它连for循环都没有。就是这么简单的一门语言，用了这么多年，到HTML5才有一个不算大的升级，而且HTML5的写法并没有给之前版本带来多少改变。即便是20年前的代码，现在依然很容易维护。这是相当成功的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;为什么HTML不官方支持模板渲染、for循环，就像JSP、ASP那样。其实理论上HTML也可以做的，但它为什么不做。历史不再去深究，但事实证明，有些事情语言本身不去做，也有方法去实现。语言本身做好最基础的事情就行了。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;再说说，一个特殊的例子：Shell脚本。Shell的基础语法并不复杂，只是它的语法有些古老，不够简洁易用（比如写个if后面都还得更一个fi，获取数组长度要用${#arr[@]}，当然如果你用熟练之后，其实也是OK的），其功能也不是很完善（比如对数据结构的支持，Map，Set等）。它最主要的作用是编排各种Unix/Linux指令。这种语言，其关键已经不在于语言本身的基础语法了。因为linux命令可以扩展它。但是由于它没有包管理之类的东西，它的运行，必须得依赖于操作系统上各种指令。而且也没有断点调试功能，只能用传统的打印变量的方式跟踪执行。我认为，它的灵活和简陋，会导致它的代码很难维护和大工程化使用，通常<span style="color: rgb(192, 0, 0);">一个100行的shell脚本已经相当难维护了</span>——灵活而简陋，意味着，很多功能，比如字符串的常见操作，没有官方的标准API去调用，只能借助各种扩展（比如awk、sed、cut、grep等等），可以这么说，一个稍微复杂点的功能，用Shell实现，10个人写出来的代码，很可能有10个不同版本。而且Shell编程中，确实有很多黑魔法、变异用法，比如“shopt extglob”、&quot;set -eo pipefail&quot;、“xargs -r”（&nbsp;--no-run-if-empty，this option is a GNU extension），不同的操作系统上，不同的shell版本（bash、ksh、tcsh、ash、dash等）也会有一定区别。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;最后再说一说，面向过程和面向对象的编程语言。我觉得，面向过程的编程语言，适合中小型、微型项目，而面向对象的编程语言，更适合中大型以上规模的项目。我们知道，面向对象的语言有三大特性：封装、继承、多态。这三大特点，可以说是工程化的设计思想体现，对代码进行分类和复用的方法，它是从大工程项目中总结提炼出来的套路。在很小的项目中，也可以按这个思路来，但是会显得有些繁琐和不够直接。如果是做一个大项目，开发的人很多，代码量也很大，强烈建议用面向对象的编程语言，甚至像JavaScript（ES 5）这样大规模被使用的语言，其实都不太适合大项目，真的很难维护！所以才有了ES 6、CoffeeScript、TypeScript等改进版本。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;总结：说了这么多，心里应该有数了。我再补充几点：</p><p>1、学一门编程语言，首先只学“基础语法中最基础的那些”，先不要碰那些扩展的语法，和高级语法。</p><p>2、遵循大多数人遵守的编程语法和习惯，不要利用语法技巧，写出让人不太好理解的代码。</p><p>3、代码量、执行效率、可维护性三者的选择上，首选可维护性。（下面特别说明！）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;不要为了节省代码，而降低可维护性，也不要为了提高一点点运行效率而降低代码的可维护性（很多人在这一点上会犯错——包括我，在我刚开始工作的那些年，受到《Effective C++》《Effective Java》等的影响，追求代码的极致运行性能，甚至至今，我写if-return时都要节省一个else，用Link List更好的时候我就不会用Array List，还有，我经常用一些奇葩的写法去改造传统的代码，以提升程序的性能。但是后来我经常看别人的代码，经常改别人的代码——各种语言的代码，我站在程序员和管理者的双重角度看，<span style="color: rgb(192, 0, 0);">代码的可维护性优先级应该要高于执行效率</span>，这个问题我也同一些资深架构师讨论过，现在的CPU执行速度非常快了，为了节省程序理论上的一两个指令执行时间，而采用非传统的写法，是弊大于利的，甚至大部分时候，O(n)和O(n^2)复杂度，执行时间都没有本质差别，木桶效应告诉我们，要提高效率应该从最慢的地方入手，比如网络、IO，而不要去纠结O(n)和O(n+k)、O(n^2)的差别）。</p><p><br/></p><p>下面讨论一些优秀的正面例子和糟糕的反面例子：</p><p><br/></p><h3>定义变量的方式（讨论）</h3><p>Go语言中至少有两种：</p><pre class="brush:js;toolbar:false;">a := float64(5)
-var a float64 = 5</pre><p>从 工程学和心理学角度来说，程序员想在程序中定义一个变量（而不是使用一个已存在的变量），他的直接思维顺序是这样的：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>我要定义一个变量，要做一个声明（标记）</p></li><li><p>给这个变量取一个名字</p></li><li><p>给这个变量声明一个类型</p></li><li><p>给这个变量赋一个初值</p></li></ol><p>所以，声明变量的<span style="color: rgb(192, 0, 0);">直觉方式</span>为： <span style="color: rgb(192, 0, 0);">标记 名字 类型 值，这样一个顺序</span>。</p><p>比如，我想在for循环之前，声明一个count变量，去获得每个值相加的和。按照常规思维，应该是这样定义：</p><pre class="brush:js;toolbar:false">var count int = 0;  // 依次为标记、名字、类型、值</pre><p>有几种情况，1、这个值暂时不设置（比如类变量），由外部函数去设置。此时省略赋值，简化为：<br/></p><pre class="brush:js;toolbar:false">// 省略赋值 Go语言的方式
+List&lt;String&gt; list = new ArrayList&lt;&gt;();</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: rgb(192, 0, 0);">一门好的语言，语法应该规则严谨，没有歧义，更没什么黑魔法、变异用法。任何人写出的代码都基本一致，这使得这门语言简单易学、易于阅读和维护。</span>放弃部分“灵活”和“自由”，换来更好的维护性，我觉得是值得的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;我再谈谈一个极端，比如说HTML，这门语言很简单，大家都很容易学习。简单到什么程度呢？它连for循环都没有。就是这么简单的一门语言，用了这么多年，到HTML5才有一个不算大的升级，而且HTML5的写法并没有给之前版本带来多少改变。即便是20年前的代码，现在依然很容易维护。这是相当成功的。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;为什么HTML不官方支持模板渲染、for循环，就像JSP、ASP那样。其实理论上HTML也可以做的，但它为什么不做。历史不再去深究，但事实证明，有些事情语言本身不去做，也有方法去实现。语言本身做好最基础的事情就行了。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;再说说，一个特殊的例子：Shell脚本。Shell的基础语法并不复杂，只是它的语法有些古老，不够简洁易用（比如写个if后面都还得更一个fi，获取数组长度要用${#arr[@]}，当然如果你用熟练之后，其实也是OK的），其功能也不是很完善（比如对数据结构的支持，Map，Set等）。它最主要的作用是编排各种Unix/Linux指令。这种语言，其关键已经不在于语言本身的基础语法了。因为linux命令可以扩展它。但是由于它没有包管理之类的东西，它的运行，必须得依赖于操作系统上各种指令。而且也没有断点调试功能，只能用传统的打印变量的方式跟踪执行。我认为，它的灵活和简陋，会导致它的代码很难维护和大工程化使用，通常<span style="color: rgb(192, 0, 0);">一个100行的shell脚本已经相当难维护了</span>——灵活而简陋，意味着，很多功能，比如字符串的常见操作，没有官方的标准API去调用，只能借助各种扩展（比如awk、sed、cut、grep等等），<strong>可以这么说，一个稍微复杂点的功能，用Shell实现，10个人写出来的代码，很可能有10个不同版本</strong>。<strong>而且Shell编程中，确实有很多黑魔法、变异用法</strong>，比如“shopt extglob”、&quot;set -eo pipefail&quot;、“xargs -r”（&nbsp;--no-run-if-empty，this option is a GNU extension），不同的操作系统上，不同的shell版本（bash、ksh、tcsh、ash、dash等）也会有一定区别。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;最后再说一说，面向过程和面向对象的编程语言。我觉得，<strong>面向过程的编程语言，适合小型、微型的独立项目，而面向对象的编程语言，更适合中大型以上规模的项目及工具库</strong>。我们知道，面向对象的语言有三大特性：封装、继承、多态。<span style="text-decoration: underline;">这三大特点，可以说是工程化的设计思想体现</span>，对代码进行分类和复用的方法，它是从大工程项目中总结提炼出来的套路。<span style="text-decoration: underline;">在很小的项目中，也可以按这个思路来，但是会显得有些繁琐和不够直接</span>。如果是做一个大项目，开发的人很多，代码量也很大，强烈建议用面向对象的编程语言，<span style="text-decoration: underline;">甚至像JavaScript（ES 6以前的版本）这样大规模被使用的语言，其实都不太适合大项目，真的很难维护！</span><span style="text-decoration: none;">所以才有了ES 6、CoffeeScript、TypeScript等改进版本</span>。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;</p><p>&nbsp;&nbsp;&nbsp;&nbsp;总结：说了这么多，心里应该有数了。我再补充几点：</p><p><span style="color: rgb(192, 0, 0);">1、学一门编程语言，首先只学“基础语法中最基础的那些”，先不要碰那些扩展的语法，和高级语法。</span></p><p><span style="color: rgb(192, 0, 0);">2、遵循大多数人遵守的编程语法和习惯，不要利用语法技巧，写出让人不太好理解的代码。</span></p><p><span style="color: rgb(192, 0, 0);">3、代码量、执行效率、可维护性，三者的选择上，首选可维护性。（下面特别说明！）</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;不要为了节省代码，而降低可维护性，也不要为了提高一点点运行效率而降低代码的可维护性（很多人在这一点上会犯错——包括我，在我刚开始工作的那些年，受到《Effective C++》《Effective Java》等的影响，追求代码的极致运行性能，甚至至今，我写if-return时都要节省一个else，用Link List更好的时候我就不会用Array List，还有，我经常用一些奇葩的写法去改造传统的代码，以提升程序的性能。但是后来我经常看别人的代码，经常改别人的代码——各种语言的代码，我站在程序员和管理者的双重角度看，<span style="color: rgb(192, 0, 0);">代码的可维护性优先级应该要高于执行效率</span>，这个问题我也同一些资深架构师讨论过，现在的CPU执行速度非常快了，为了节省程序理论上的一两个指令执行时间，而采用非传统的写法，是弊大于利的，甚至大部分时候，O(n)和O(n^2)复杂度，执行时间都没有本质差别，木桶效应告诉我们，要提高效率应该从最慢的地方入手，比如网络、IO，而不要去纠结O(n)和O(n+k)、O(n^2)的差别）。</p><p><br/></p><p>下面讨论一些优秀的正面例子和糟糕的反面例子：</p><p><br/></p><h3>定义变量的方式（讨论）</h3><p>Go语言中至少有两种：</p><pre class="brush:js;toolbar:false;">a := float64(5)
+var a float64 = 5</pre><p>从 工程学和心理学角度来说，程序员想在程序中定义一个变量（而不是使用一个已存在的变量），他的直接思维顺序是这样的：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>我要定义一个变量，要做一个声明（标记）</p></li><li><p>给这个变量取一个名字</p></li><li><p>给这个变量声明一个类型</p></li><li><p>给这个变量赋一个初值</p></li></ol><p>所以，声明变量的<span style="color: rgb(192, 0, 0);">直觉方式</span>为： <span style="color: rgb(192, 0, 0);">标记 名字 类型 值，这样的顺序</span>。</p><p>比如，我想在for循环之前，声明一个count变量，去获得每个值相加的和。按照常规思维，应该是这样定义：</p><pre class="brush:js;toolbar:false">var count int = 0;  // 依次为 标记、名字、类型、值</pre><p>有几种情况，1、这个值暂时不设置（比如类变量），由外部函数去设置。此时省略赋值，简化为：<br/></p><pre class="brush:js;toolbar:false">// 省略赋值 Go语言的方式
 var count int
 
 // TypeScript的方式
@@ -69,7 +109,7 @@ m5[&quot;school&quot;] = &quot;Unix&quot;
   public User(age int, name string, sex = 0) { // 省略var标记
      // ...
   }
-}</pre><p><span style="color: rgb(0, 176, 80);">在Go语言的包全局变量中，始终要用 var，例如 var bb int，同理TypeScript也是，所以-1分</span>，但是注意，Go的结构体参数不需要用var标记，算是弥补了包变量的缺陷吧。<br/></p><p>在<span style="color: rgb(0, 176, 80);">Java</span>类变量中，比较接近于 age int 这种形式，但是不支持 sex =0，所以<span style="color: rgb(0, 176, 80);">-0.5分</span>。</p><p>在函数的参数声明中，Go和TypeScript都不需要var，而且TypeScript支持sex = 0，非常棒，但是Go中函数的参数不支持默认值，所以<span style="color: rgb(0, 176, 80);">TypeScript + 1分，Go + 0.5分，新版Java + 0.5分。</span></p><p><br/></p><p>总结：</p><p>说实话，对新兴编程语言Go的期望大，失望也不小。（后文还会讨论更多方面）</p><p>然而微软的TypeScript，从设计上讲还真的非常不错！</p><p>新版Java（Java 10、11）也吸取了一些精华。对于一门历史悠久、用户庞大的编程语言来说，语法上的更新一定是非常谨慎、保守的，除非一些非常好的改进（有70%以上的支持者）才会考虑实现（上文说到的Java8的lambda表达式是一个反例，如果做一个公开投票，支持率应该远远低于70%）。</p><p><br/></p><h3>Go语言中的数组切片</h3><p>我认为这是非常糟糕的设计，明明是可以通过内置函数（例如slice）解决的数据操作问题，非要弄成语法糖，难学又难用。</p><p>语言设计中，一定要遵循：Less is More的原则，没有什么是必要的，除非没有它不行。显然Go语言并<span style="color: rgb(192, 0, 0);">没有遵循这种哲学</span>。</p><p>举例：</p><pre class="brush:js;toolbar:false">var arr = [...]int{19, 2, 0} // 定义一个数组
+}</pre><p><span style="color: rgb(0, 176, 80);">在Go语言的包全局变量中，始终要用 var，例如 var bb int，同理TypeScript也是，所以-1分</span>，但是注意，Go的结构体参数不需要用var标记，算是弥补了包变量的缺陷吧。<br/></p><p>在<span style="color: rgb(0, 176, 80);">Java</span>类变量中，比较接近于 age int 这种形式，但是不支持 sex =0，所以<span style="color: rgb(0, 176, 80);">-0.5分</span>。</p><p>在函数的参数声明中，Go和TypeScript都不需要var，而且TypeScript支持sex = 0，非常棒，但是Go中函数的参数不支持默认值，所以<span style="color: rgb(0, 176, 80);">TypeScript + 1分，Go + 0.5分，新版Java + 0.5分。</span></p><p><br/></p><p>总结：</p><p>说实话，对新兴编程语言Go的期望大，失望也不小。（后文还会讨论更多方面）</p><p>然而微软的TypeScript，从设计上讲还真的非常不错！</p><p>新版Java（Java 10、11）也吸取了一些精华。对于一门历史悠久、用户庞大的编程语言来说，语法上的更新一定是非常谨慎、保守的，除非一些非常好的改进（有70%以上的支持者）才会考虑实现（上文说到的Java8的lambda表达式是一个反例，如果做一个公开投票，支持率应该远远低于70%）。</p><p><br/></p><h3>Go语言中的数组切片</h3><p>我认为这是非常糟糕的设计，明明是可以通过内置函数（例如slice）解决的数据操作问题，非要弄成语法糖，难学又难用。</p><p>语言设计中，一定要遵循：Less is More的原则，没有什么是必要的，除非没有它不行。显然<span style="color: rgb(192, 0, 0);">Go语言并</span><span style="color: rgb(192, 0, 0);">没有遵循这种哲学</span>。</p><p>举例：</p><pre class="brush:js;toolbar:false">var arr = [...]int{19, 2, 0} // 定义一个数组
 var arr = []int{19, 2, 0} // 定义一个数组的切片</pre><p>还有：</p><pre class="brush:js;toolbar:false">var a = [5]int{76, 77, 78, 79, 80}
 var b []int = a[1:4]
 var c = a[:]
@@ -178,7 +218,7 @@ func main() {
     //perimeter(r)
 
     r.perimeter()//calling pointer receiver with a value
-}</pre><p><br/></p><p>10.函数参数问题</p><p>问题1：<a href="https://www.crifan.com/go_language_function_default_parameter_optional_parameter/" target="_blank">【无法解决】go语言中实现函数的默认参数和可选参数</a></p><p>问题2：<a href="https://blog.csdn.net/weixin_34007886/article/details/85965797" target="_blank">go语言可变参数的坑</a></p><p><br/></p><p><br/></p><h3>我们是否需要三元运算符？</h3><p>正方、反方都有很多论点，比如Rust语言的这个issues就有很大人讨论：</p><p><a href="https://github.com/rust-lang/rfcs/issues/1362">https://github.com/rust-lang/rfcs/issues/1362</a> </p><p>理性的思考后，我觉得，三元运算符确实和if-else的语义重复，而且当三元运算符嵌套时，非常难看。因此，基于我上文所说的原则，三元运算符&nbsp; 确实没必要。只不过大家在其他语言中用习惯了而已，但三元运算符也并不是很常用。<br/></p><p><br/></p><h3>说了这么多缺点，说一下Go的部分优点吧</h3><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>switch-case循环，去掉了令人苦恼的break，换成了fallthrough，这个设计很棒！case多个值也很方便。</p></li><li><p>在强类型的语言中，<span style="color: rgb(192, 0, 0);">函数还能做到有多返回值</span>，优秀！（但是<span style="color: rgb(192, 0, 0);">和TypeScript</span>这种随处可以自定义对象 {a:1, b:2}<span style="color: rgb(192, 0, 0);">比</span>，Go还是显得不够方便）</p></li><li><p>统一了for循环的方式（但是for循环的写法也并不是很好）<br/></p></li></ol><p>下面对我熟悉的各种语言的for循环做一个对比，至于优劣，自己感受：<br/></p><p>第一种情形，带索引：</p><pre class="brush:js;toolbar:false">// Go语言的for循环用法: for...range
+}</pre><p><br/></p><p>10.函数参数问题</p><p>问题1：<a href="https://www.crifan.com/go_language_function_default_parameter_optional_parameter/" target="_blank">【无法解决】go语言中实现函数的默认参数和可选参数</a></p><p>问题2：<a href="https://blog.csdn.net/weixin_34007886/article/details/85965797" target="_blank">go语言可变参数的坑</a></p><p><br/></p><p><br/></p><h3>我们是否需要三元运算符？</h3><p>正方、反方都有很多论点，比如Rust语言的这个issues就有很大人讨论：</p><p><a href="https://github.com/rust-lang/rfcs/issues/1362">https://github.com/rust-lang/rfcs/issues/1362</a> </p><p>理性的思考后，我觉得，三元运算符确实和if-else的语义重复，而且当三元运算符嵌套时，非常难看。因此，基于我上文所说的原则，<span style="color: rgb(192, 0, 0);">三元运算符&nbsp; 确实没必要</span>。只不过大家在其他语言中用习惯了而已，但三元运算符也并不是很常用。<br/></p><p><br/></p><h3>说了这么多缺点，说一下Go的部分优点吧</h3><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>switch-case循环，去掉了令人苦恼的break，换成了fallthrough，这个设计很棒！case多个值也很方便。</p></li><li><p>在强类型的语言中，<span style="color: rgb(192, 0, 0);">函数还能做到有<strong>多返回值</strong></span>，优秀！（但是<span style="color: rgb(192, 0, 0);">和TypeScript</span>这种可以随处自定义对象 {a:1, b:2}<span style="color: rgb(192, 0, 0);">比</span>，Go还是显得不够方便）</p></li><li><p>统一了for循环的方式（但是for循环的形式也并不是很好）<br/></p></li></ol><p>下面对我熟悉的各种语言的for循环做一个对比，至于优劣，自己感受：<br/></p><p>第一种情形，带索引：</p><pre class="brush:js;toolbar:false">// Go语言的for循环用法: for...range
 for key, val := range arr {
     Println(key, val)
 }
@@ -203,7 +243,7 @@ for i := 0; i &lt;= 10; i++ {
 // JavaScript
 for(var i = 0; i &lt;= 10; i++) {
     Println(i)
-}</pre><p><strong>总结：</strong></p><p>1、for作为一个通用语法关键字，是有必要的，比 forEach() 这种函数要更好、更通用。</p><p><br/></p><p>2、for的用法，通常只有上面三种场景，对于第1、2种，可以统一为：</p><pre class="brush:js;toolbar:false">for(val in arr) {
+}</pre><p><strong>总结：</strong></p><p>1、for作为一个通用语法关键字，是有必要的，比 forEach() 这种函数要更好、更通用。</p><p>2、for的用法，通常只有上面三种场景，对于第1、2种，可以统一为：</p><pre class="brush:js;toolbar:false">for(val in arr) {
     Println(val)
 }
 
@@ -229,9 +269,9 @@ for pos&lt;16 &amp;&amp; count!=1 {
     // 每次循环结束时执行
     pos++;
     count = getCountFromFile(pos);
-}</pre><p>显然，<span style="color: rgb(192, 0, 0);">前者更好，Go语言的写法要差一些</span>，原因有两个：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>Go的for语句不能完美定义“循环体内使用的局部变量”，导致<span style="text-decoration: underline; color: rgb(192, 0, 0);">变量被提到了循环体之外</span>；</p></li><li><p>“ for x=10 when(x&lt;10) {} ” 这种语句更自然，<span style="color: rgb(192, 0, 0);">for后面跟循环的对象，when后面跟循环的判断条件</span>。对比之下，Go的这种“for 跟判断条件”句式，看着像是 if语句，逻辑上不自然。</p></li></ol><p><br/></p><h3>让人烦恼的Go语言中的数字类型</h3><p>因为业务需要，我写了如下一段代码：</p><pre class="brush:js;toolbar:false">var x = 1000
-var w = int(int(math.Floor(math.Log10(float64(x)) + 1)))</pre><p>1宗罪：程序员都知道，括号的层级嵌套多了，体验非常不好，而Go语言中，类型转换需要把值包裹起来，于是括号嵌套就可能非常多！<br/></p><p>而换成其他语言，比如Java，写法就简单多了：</p><pre class="brush:java;toolbar:false;">int a = 1000
-int w = (int) Math.floor( Math.log10(a) + 1);</pre><p>2宗罪：注意到上述代码，两者都是强类型语言，但是却有一个差别，Java数字类型是可以自动向上转型的（例如int是可以赋值给float变量的，因为float变量范围大于int），而go语言不能，得傻不拉几的手动写一个转换。</p><p><br/></p><p><br/></p><h3>极容易采坑的nil及隐式类型转换<br/></h3><p>nil转换有时候是不合常理的，示例如下：</p><pre class="brush:js;toolbar:false">func GetString() *String {
+}</pre><p>显然，<span style="color: rgb(192, 0, 0);">前者更好，Go语言的写法要差一些</span>，原因有两个：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>Go的for语句不能完美定义“循环体内使用的局部变量”，导致<span style="text-decoration: underline; color: rgb(192, 0, 0);">变量被提到了循环体之外</span>；</p></li><li><p>“ for x=10 when(x&lt;10) {} ” 这种语句更自然：<span style="color: rgb(192, 0, 0);">for后面跟循环的对象，when后面跟循环的判断条件</span>。对比之下，Go的这种“for 跟判断条件”句式，看着像是 if语句，逻辑上不自然。</p></li></ol><p><br/></p><h3>让人烦恼的Go语言中的数字类型</h3><p>因为业务需要，我写了如下一段代码：</p><pre class="brush:js;toolbar:false">var x = 1000
+var w = int(int(math.Floor(math.Log10(float64(x)) + 1)))</pre><p>没办法，最简单的方式写出来就这样。</p><p>1宗罪：程序员都知道，括号的层级嵌套多了，体验非常不好，而Go语言中，类型转换需要把值包裹起来，于是括号嵌套就可能非常多！<br/></p><p>而<span style="text-decoration: underline;">换成其他语言，比如Java，就简洁很多</span>：</p><pre class="brush:java;toolbar:false;">int x = 1000
+int w = (int) Math.floor( Math.log10(x) + 1);</pre><p>2宗罪：注意到上述代码，<span style="text-decoration: underline;">两者都是强类型语言，但是却有一个差别，Java数字类型是可以自动向上转型的</span>（例如int是可以赋值给float变量的，因为float变量范围大于int），<span style="text-decoration: underline;">而go语言不能，得傻不拉几的手动写一个转换</span>。</p><p><br/></p><p><br/></p><h3>极容易采坑的nil及隐式类型转换<br/></h3><p>nil转换有时候是不合常理的，示例如下：</p><pre class="brush:js;toolbar:false">func GetString() *String {
     return nil
 }
 func CheckString(s Stringer) bool {
@@ -243,7 +283,7 @@ var ss *String = GetString()
 println(ss) // 输出Nil的地址：0x0
 println(ss == nil) // true
 println(CheckString(nil)) // (0x0,0x0)  true
-println(CheckString(ss)) // (0xb3f820,0x0)  false</pre><p>注意到：<span style="color: rgb(192, 0, 0);">ss == nil</span>，但是&nbsp;<span style="color: rgb(192, 0, 0);">CheckString(ss) </span>跟&nbsp;<span style="color: rgb(192, 0, 0);">CheckString(nil) </span>的值却不一样，太无语了！！（原因是ss是动态类型，nil是静态类型，ss的实际值为*String(nil)，在静态编译阶段，CheckString(ss) 中的ss就被转换成了Stringer(nil)！）</p><p>这个坑，很容易在&nbsp;if err != nil {} 判断的时候遇到。参见这篇文章：<a href="https://studygolang.com/articles/6056" target="_blank">golang的类型转换的坑和分析</a></p><p><br/></p><h3>关于指针和闭包</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;几句话说不清，直接说结论吧：<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;1、不得不说，像Java这种屏蔽掉“指针”是很好的做法，指针真的会增加程序的复杂度、降低可维护性，而且事实证明，没有指针语法，并不是坏事。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;2、闭包也是语言的副作用产品，很难用，看下面例子：<br/></p><pre class="brush:js;toolbar:false">func test() []func() {  
+println(CheckString(ss)) // (0xb3f820,0x0)  false</pre><p>注意到：<span style="text-decoration: underline;"><span style="text-decoration: underline; color: rgb(192, 0, 0);">ss == nil</span>，但是&nbsp;<span style="text-decoration: underline; color: rgb(192, 0, 0);">CheckString(ss) </span>跟&nbsp;<span style="text-decoration: underline; color: rgb(192, 0, 0);">CheckString(nil) </span>的值却不一样</span>，太无语了！！（原因是ss是动态类型，nil是静态类型，ss的实际值为*String(nil)，在静态编译阶段，CheckString(ss) 中的ss就被转换成了Stringer(nil)！）</p><p>这个坑，很容易在&nbsp;if err != nil {} 判断的时候遇到。参见这篇文章：<a href="https://studygolang.com/articles/6056" target="_blank">golang的类型转换的坑和分析</a></p><p><br/></p><h3>关于指针和闭包</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;几句话说不清，直接说结论吧：<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;1、不得不说，像Java这种屏蔽掉“指针”是很好的做法，指针真的会增加程序的复杂度、降低可维护性，而且Java也证明，没有指针语法，并不是坏事。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;2、<strong>闭包</strong>也是语言的副作用产品，很难用，看下面例子：<br/></p><pre class="brush:js;toolbar:false">func test() []func() {  
   var funs []func()
   for i:=0;i&lt;2;i++  {
     funs = append(funs,func() {       
@@ -269,7 +309,7 @@ func main() {
   a,b:=test(100)
   a()
   b()
-}</pre><p>输出结果是 100、110。闭包的神奇在于，它使得值类型变量，与函数体绑定，在多个函数中共享，就好像是引用变量一样。<br/></p><p>&nbsp; &nbsp; &nbsp;再看Java的设计，好贴心，屏蔽掉了“闭包”。它是怎么做的呢？它规定，“闭包”内的外部变量，必须是final类型。例如：<br/></p><pre class="brush:java;toolbar:false">interface User {
+}</pre><p>输出结果是 100、110。<span style="text-decoration: underline;">闭包的神奇在于，它使得值类型变量，与函数体绑定，在多个函数中共享</span>，就好像是引用变量一样。<br/></p><p>&nbsp; &nbsp; &nbsp;<span style="text-decoration: underline;">再看Java的设计，好贴心，屏蔽掉了“闭包”</span>。它是怎么做的呢？<span style="text-decoration: underline;">它规定，“闭包”内的外部变量，必须是final类型</span>。例如：<br/></p><pre class="brush:java;toolbar:false">interface User {
     int getAge();
 }
 
@@ -288,7 +328,7 @@ public void test() {
             return x;
         }
     };
-}</pre><p>这段代码编译会报错，闭包内不能改变x的值！！x为final类型变量（JDK1.8以下需要显示的声明final）。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;同样，事实也再一次证明，没有闭包和指针的编程语言，例如Java，也是一样强大，闭包和指针并不是什么好东西。上面这个例子可以修改成：<br/></p><pre class="brush:java;toolbar:false">public void test() {
+}</pre><p>这段代码编译会报错，闭包内不能改变x的值！！x为final类型变量（JDK1.8以下需要显示的声明final）。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;同样，<span style="text-decoration: underline;">事实也再一次证明，没有闭包和指针的编程语言，例如Java，也是一样强大，闭包和指针并不是什么好东西</span>。上面这个例子可以修改成：<br/></p><pre class="brush:java;toolbar:false">public void test() {
     int x = 100;
     User u1 = new User() {
         int x;
@@ -302,5 +342,5 @@ public void test() {
             return this;
         }
     }.set(x);
-}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;任何闭包的写法，都可以用这种 set/get 值的方式来透明的传递值。<br/></p><p><br/></p>
+}</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;<span style="text-decoration: underline;">任何闭包的写法，都可以用这种 set/get 值的方式来透明的传递值</span>。<br/></p><p><br/></p>
 {% endraw %}

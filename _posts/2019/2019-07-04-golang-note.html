@@ -178,5 +178,16 @@ func TODO() Context
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
 func WithDeadline(parent Context, deadline time.Time) (Context, CancelFunc)
 func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
-func WithValue(parent Context, key, val interface{}) Context</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;在context包内部已经为我们实现好了两个空的Context，可以通过调用Background()和TODO()方法获取。一般的将它们作为Context的根，往下派生。</p><p><strong>Context 原理</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Context 的调用应该是链式的，通过WithCancel，WithDeadline，WithTimeout或WithValue派生出新的 Context。当父 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Context 被取消时，其派生的所有 Context 都将取消。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过context.WithXXX都将返回新的 Context 和 CancelFunc。调用 CancelFunc 将取消子代，移除父代对子代的引用，并且停止所有定时器。未能调用 CancelFunc 将泄漏子代，直到父代被取消或定时器触发。go vet工具检查所有流程控制路径上使用 CancelFuncs。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;详见：<a href="https://studygolang.com/articles/010792">https://studygolang.com/articles/010792</a> </p><p><br/></p><p><br/></p>
+func WithValue(parent Context, key, val interface{}) Context</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;在context包内部已经为我们实现好了两个空的Context，可以通过调用Background()和TODO()方法获取。一般的将它们作为Context的根，往下派生。</p><p><strong>Context 原理</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Context 的调用应该是链式的，通过WithCancel，WithDeadline，WithTimeout或WithValue派生出新的 Context。当父 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Context 被取消时，其派生的所有 Context 都将取消。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过context.WithXXX都将返回新的 Context 和 CancelFunc。调用 CancelFunc 将取消子代，移除父代对子代的引用，并且停止所有定时器。未能调用 CancelFunc 将泄漏子代，直到父代被取消或定时器触发。go vet工具检查所有流程控制路径上使用 CancelFuncs。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;详见：<a href="https://studygolang.com/articles/010792">https://studygolang.com/articles/010792</a> </p><p><br/></p><h3><strong>单元测试</strong></h3><p>运行如下命令：</p><p>go test -v -timeout 30s -run ^TestSortProgram$ github.com/ochinchina/supervisord/config（Module名称）</p><p>代码如下：</p><pre class="brush:java;toolbar:false">package config
+
+import (
+	&quot;fmt&quot;
+	&quot;testing&quot;
+)
+
+func TestSortProgram(t *testing.T) {
+	if result!=&quot;prog-5&quot; {
+		t.Error(&quot;Program sort is incorrect&quot;)
+	}
+}</pre><p><br/></p><h2>基础编程用法</h2><p>参见我的另一篇文章：<a href="programming-note-of-golang-vs-java.html" target="_blank">《Java转Golang编程笔记》</a>（重要）</p><p><br/></p>
 {% endraw %}

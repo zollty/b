@@ -2,8 +2,10 @@
 layout: ue
 title: 高速路上换轮胎系列——动态迁移Zookeeper
 category: 中间件技术
-tags: Zookeeper
-keywords: "Zookeeper"
+tags: [ZooKeeper]
+keywords: "ZooKeeper"
 ---
 
+{% raw %}
 <p>前面讲了 动态迁移Kafka节点，本篇文章讲Zookeeper的无感知迁移。&nbsp;</p><p>实际问题：</p><p><strong>生产上有5个节点的ZK服务器，要换新服务器且IP地址要改变，怎么办？</strong><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;大概的方案为：先给zk扩容，扩到11个节点（原来的5个+新增5个+1个临时节点）。然后再干掉原来的5个及临时的1个，剩下5个新加的节点。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;扩节点，两个两个加：</p><p><em>（如下步骤，如无特殊说明，每次启停节点后，都要等待2~10分钟直到集群状态稳定）</em></p><p>&nbsp;&nbsp;&nbsp;&nbsp;第一步，+2等于7个节点，新增的节点，conf配置里面都是当前已有的全部IP地址。观察集群状态，新增的两个节点会成为follower（解释一下：因为旧的5个节点已经组成集群了，新增的节点，一律服从之前的领导，所以是follower，参见<a href="https://blog.csdn.net/wx1528159409/article/details/84622762" target="_blank">Zookeeper的选举机制</a>）。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;但是原来的5个旧节点，配置并没有更新，所以要手动更新一下，更新完配置之后，依次重启5个旧节点（注意先重启Follower节点、最后重启Leader节点），每次重启一个，隔一段时间集群状态稳定后，再操作下一个。（解释一下：Follower节点挂掉时，重新加入就行了，但是Leader节点挂掉后，集群就会重新选举，参见另一篇<a href="https://www.cnblogs.com/sweet6/p/10574574.html" target="_blank">Zookeeper选举算法原理</a>）<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;第二步，再+2等于9个节点，第三步+2等于11个节点。（方法同第一步）</p><p><em>（备注：为保险起见，第二次只增加2个节点，而不是一次性加4个节点）</em></p><p>&nbsp;&nbsp;&nbsp;&nbsp;以上方案，在生产环境测试通过。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;最后，将应用的zk连接地址（域名）解析到新的IP上，当旧应用全部重启后（可不急，慢慢来），再进行缩容操作（很简单，此处省略）。</p><p><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，引申一个问题：<span style="color: rgb(192, 0, 0);">Zookeeper配置的 myid = N，这个N关系到leader的选举，那N的设置有没有什么建议？</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;看到过有人提到这个问题，但我也没具体测试过，参见：<a href="https://blog.csdn.net/h2604396739/article/details/82668779">https://blog.csdn.net/h2604396739/article/details/82668779</a><br/></p><p><br/></p>
+{% endraw %}

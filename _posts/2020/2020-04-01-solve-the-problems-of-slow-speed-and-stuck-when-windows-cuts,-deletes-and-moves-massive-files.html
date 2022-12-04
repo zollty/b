@@ -1,9 +1,209 @@
 ---
 layout: ue
-title: 解决Windows剪切、删除、移动海量文件时，速度慢和卡死的问题
+title: 解决Windows剪切/删除/移动文件夹时，文件太多/路径太深/文件名超长，速度慢/卡死等问题
 category: 电脑、手机_无难事
-tags: Windows
+tags: [Windows]
 keywords: "Windows"
 ---
 
-<p>问题现状：<br/></p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>高端配置台式电脑，开机，然后立即剪切一个有8万文件的目录到另一个盘，执行到2%的时候就卡住了，等了10分钟没任何进度。</p></li><li><p>用另一个文件夹同步工具，将剩下的98%同步过去，仅仅花费了2分钟左右，而且有操作历史，可以看到复制后两边文件完全一致（包括文件的时间截）。</p></li><li><p>用windows自带的SHIFT+DEL彻底删除功能，删了30秒钟，总进度不到2%，果断取消。</p></li><li><p>换成了CMD命令直接去删（rd 文件夹 /s /q），8万个文件，10秒不到就删完了。</p></li></ol><p><br/></p><p>下面是终极解决方案：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果在命令行或 cmd 批处理文件通过 move 移动文件夹的时候，移动的文件夹是跨驱动器的，那么将会显示拒绝访问<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;解决方案：</p><p>&nbsp;&nbsp;&nbsp;&nbsp;通过先复制文件夹到另一个驱动器，然后删除文件夹，<br/></p><p>&nbsp; &nbsp; ——复制文件夹可以使用 xcopy 的方法<br/></p><p>&nbsp; &nbsp;——复制文件，无论文件夹里面的文件是否隐藏文件。复制文件夹里面的子文件夹，无论子文件夹是否空的。忽略提示需要覆盖的文件，可以使用下面代码：<br/></p><p><strong>&nbsp;&nbsp;&nbsp;&nbsp;xcopy 原有的文件夹 移动到的文件夹&nbsp; /H /E /Y&nbsp;</strong><br/></p><p>（注意：复制后不会保留外层目录，需要自己先建好）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;然后通过 rd 删除文件夹，在 rd 可以使用 /s /q 除目录本身外，还将删除指定目录下的所有子目录和文件，安静模式，带 /S 删除目录树时不要求确认：</p><p><strong>&nbsp;&nbsp;&nbsp;&nbsp;rd 原有的文件夹 /s /q</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;这样就可以做到移动文件夹到另一个服务器。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;在 cmd 对于参数是不区分大写和小写，如 /s 和 /S 是相同的。<br/></p><p><br/></p><p>简记方式：</p><p><strong>拷贝：xcopy-hey&nbsp; &nbsp; 源 ——&gt; 目标</strong></p><p><strong>删除：rdsq（“入党申请”） 目标</strong></p><p><br/></p>
+{% raw %}
+<p>问题现状：<br/></p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>高端配置台式电脑，开机，然后立即剪切一个有8万文件的目录到另一个盘，执行到2%的时候就卡住了，等了10分钟没任何进度。</p></li><li><p>用另一个文件夹同步工具，将剩下的98%同步过去，仅仅花费了2分钟左右，而且有操作历史，可以看到复制后两边文件完全一致（包括文件的时间截）。</p></li><li><p>用windows自带的SHIFT+DEL彻底删除功能，删了30秒钟，总进度不到2%，果断取消。</p></li><li><p>换成了CMD命令直接去删（rd 文件夹 /s /q），8万个文件，10秒不到就删完了。</p></li><li><p>文件路径太长 无法删除：rd删除提示找不到文件路径！</p></li><li><p>xcopy复制文件夹，提示：内存不足！</p></li><li><p>有软链接、硬链接，特别是npm安装包的node_modules文件夹，大量嵌套硬链接存在，堪称杀手！<br/></p></li></ol><p><br/></p><p><span style="text-decoration: line-through;">下面是解决方案：</span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;如果在命令行或 cmd 批处理文件通过 move 移动文件夹的时候，移动的文件夹是跨驱动器的，那么将会显示拒绝访问<br/></span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;解决方案：</span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;通过先复制文件夹到另一个驱动器，然后删除文件夹，<br/></span></p><p><span style="text-decoration: line-through;">&nbsp; &nbsp; ——复制文件夹可以使用 xcopy 的方法<br/></span></p><p><span style="text-decoration: line-through;">&nbsp; &nbsp;——复制文件，无论文件夹里面的文件是否隐藏文件。复制文件夹里面的子文件夹，无论子文件夹是否空的。忽略提示需要覆盖的文件，可以使用下面代码：<br/></span></p><p><span style="text-decoration: line-through;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;xcopy 原有的文件夹 移动到的文件夹&nbsp; /H /E /Y&nbsp;</strong><br/></span></p><p><span style="text-decoration: line-through;">（注意：复制后不会保留外层目录，需要自己先建好）</span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;然后通过 rd 删除文件夹，在 rd 可以使用 /s /q 除目录本身外，还将删除指定目录下的所有子目录和文件，安静模式，带 /S 删除目录树时不要求确认：</span></p><p><span style="text-decoration: line-through;"><strong>&nbsp;&nbsp;&nbsp;&nbsp;rd 原有的文件夹 /s /q</strong></span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;这样就可以做到移动文件夹到另一个服务器。<br/></span></p><p><span style="text-decoration: line-through;">&nbsp;&nbsp;&nbsp;&nbsp;在 cmd 对于参数是不区分大写和小写，如 /s 和 /S 是相同的。</span><br/></p><p><br/></p><p><span style="text-decoration: line-through;">简记方式：</span></p><p><span style="text-decoration: line-through;"><strong>拷贝：xcopy-hey&nbsp; &nbsp; 源 ——&gt; 目标</strong></span></p><p><span style="text-decoration: line-through;"><strong>删除：rdsq（“入党申请”） 目标</strong></span></p><p><br/></p><p>终极方案：<strong><span style="color: rgb(255, 0, 0);">改用Robocopy命令</span></strong></p><p><strong>1、复制文件夹</strong></p><p>RoboCopy /E /COPY:DAT /SL /SJ&nbsp; &nbsp;“源文件夹”&nbsp; &nbsp;“目标文件夹”</p><p>或者：</p><p>/E换成：/MOVE 移动</p><p>&nbsp;/SL /SJ&nbsp; 复制链接而非内容 （链接源如果要删除，则复制过去也没用啊！）</p><p>换成：/XJ&nbsp; 直接排除链接</p><p>屏蔽详细日志，并输出到文件：</p><p>RoboCopy /E /COPY:DAT /XJ <span style="text-decoration: underline;">/NS /NC /NFL /NDL /NP</span> &quot;D:\SQL-PC&quot; &quot;E:\SQL-PC&quot; <span style="text-decoration: underline;">/UNILOG:D:\OUT.log</span></p><p><br/></p><p><strong>2、删除文件：</strong></p><p>Robocopy&nbsp; &nbsp;/MIR&nbsp; &nbsp;“空文件夹A”&nbsp; &nbsp; “想要删除的文件夹B”</p><p>新建一个<strong>空文件夹A</strong>，作为源，去同步<strong>想要删除的文件夹B</strong>。</p><p><br/></p><p><strong>3、查看文件夹信息（大小、文件夹和文件数量）</strong></p><p>robocopy /L &quot;D:\__SYNC2&quot; &quot;D:\50-TEMP\EMPTY&quot; /E /XJ&nbsp; /NFL /NDL /BYTES</p><p>结果示例如下：<br/></p><pre class="brush:plain;toolbar:false">  开始时间: 2021年7月4日 7:55:36
+        源: D:\SQL-PC\
+      目标: D:\50-TEMP\EMPTY\
+                    总数          复制        跳过       不匹配        失败  
+       目录:      193122      193121         1         0         0         0
+       文件:     1133496     1133496         0         0         0         0
+       字节: 86183816845 86183816845         0         0         0         0
+       时间:     0:01:03     0:00:00                       0:00:00   0:01:03
+   结束时间: 2021年7月4日 7:56:39</pre><p>文件数：113万，文件夹数：19万，</p><p>目录总大小：86183816845b = /1024/1024 = 82191Mb = /1024 = 80.26Gb</p><p>扫描耗时（7.56:39 - 7:55:36）= 1分钟。速度简直逆天（Windows自带的鼠标右键查看文件夹属性都要5分钟才能显示最终结果），关键是扫描时CPU占用率还很低。<br/></p><p><br/></p><p><strong>附，Robocopy使用说明：robocopy /?</strong></p><pre class="brush:plain;toolbar:false">-------------------------------------------------------------------------------
+   ROBOCOPY     ::     Windows 的可靠文件复制
+-------------------------------------------------------------------------------
+
+  开始时间: 2021年6月5日 21:31:03
+               用法 :: ROBOCOPY source destination [file [file]...] [options]
+
+                 源 :: 源目录(驱动器:\路径或\\服务器\共享\路径)。
+               目标 :: 目标目录(驱动器:\路径或\\服务器\共享\路径)。
+               文件 :: 要复制的文件(名称/通配符: 默认为 &quot;*.*&quot;)。
+
+::
+:: 复制选项:
+::
+                 /S :: 复制子目录，但不复制空的子目录。
+                 /E :: 复制子目录，包括空的子目录。
+             /LEV:n :: 仅复制源目录树的前 n 层。
+
+                 /Z :: 在可重新启动模式下复制文件。
+                 /B :: 在备份模式下复制文件。
+                /ZB :: 使用可重新启动模式；如果拒绝访问，请使用备份模式。
+                 /J :: 复制时使用未缓冲的 I/O (推荐在复制大文件时使用)。
+            /EFSRAW :: 在 EFS RAW 模式下复制所有加密的文件。
+
+      /COPY:复制标记:: 要复制的文件内容(默认为 /COPY:DAT)。
+                       (copyflag: D=数据，A=属性，T=时间戳，X=跳过替换数据流)。
+                       (S=安全=NTFS ACL，O=所有者信息，U=审核信息)。
+
+
+               /SEC :: 复制具有安全性的文件(等同于 /COPY:DATS)。
+           /COPYALL :: 复制所有文件信息(等同于 /COPY:DATSOU)。
+            /NOCOPY :: 不复制任何文件信息(与 /PURGE 一起使用)。
+            /SECFIX :: 修复所有文件的文件安全性，即使是跳过的文件。
+            /TIMFIX :: 修复所有文件的文件时间，即使是跳过的文件。
+
+             /PURGE :: 删除源中不再存在的目标文件/目录。
+               /MIR :: 镜像目录树(等同于 /E 加 /PURGE)。
+
+               /MOV :: 移动文件(复制后从源中删除)。
+              /MOVE :: 移动文件和目录(复制后从源中删除)。
+
+     /A+:[RASHCNET] :: 将给定的属性添加到复制的文件。
+     /A-:[RASHCNET] :: 从复制的文件中删除给定的属性。
+
+            /CREATE :: 仅创建目录树和长度为零的文件。
+               /FAT :: 仅使用 8.3 FAT 文件名创建目标文件。
+               /256 :: 关闭超长路径(&gt; 256 个字符)支持。
+
+             /MON:n :: 监视源；发现多于 n 个更改时再次运行。
+             /MOT:m :: 监视源；如果更改，在 m 分钟时间后再次运行。
+
+      /RH:hhmm-hhmm :: 可以启动新的复制时运行的小时数 - 时间。
+                /PF :: 基于每个文件(而不是每个步骤)来检查运行小时数。
+
+             /IPG:n :: 程序包间的间距(ms)，以释放低速线路上的带宽。
+
+                /SJ:: 将接合复制为接合而非接合目标。
+                /SL:: 将符号链接复制为链接而非链接目标。
+
+            /MT[:n] :: 使用 n 个线程进行多线程复制(默认值为 8)。
+                       n 必须至少为 1，但不得大于 128。
+                       该选项与 /IPG 和 /EFSRAW 选项不兼容。
+                       使用 /LOG 选项重定向输出以便获得最佳性能。
+
+ /DCOPY:复制标记:: 要复制的目录内容(默认为 /DCOPY:DA)。
+                       (copyflag: D=数据，A=属性，T=时间戳，E=EA，X=跳过替换数据流)。
+
+           /NODCOPY :: 不复制任何目录信息(默认情况下，执行 /DCOPY:DA)。
+
+         /NOOFFLOAD :: 在不使用 Windows 复制卸载机制的情况下复制文件。
+
+          /COMPRESS :: 在文件传输期间请求网络压缩(如果适用)。
+
+::
+:: 文件选择选项:
+::
+                 /A :: 仅复制具有存档属性集的文件。
+                 /M :: 仅复制具有存档属性的文件并重置存档属性。
+    /IA:[RASHCNETO] :: 仅包含具有任意给定属性集的文件。
+    /XA:[RASHCNETO] :: 排除具有任意给定属性集的文件。
+
+  /XF 文件[文件]... :: 排除与给定名称/路径/通配符匹配的文件。
+  /XD 目录[目录]... :: 排除与给定名称/路径匹配的目录。
+
+                /XC :: 排除已更改的文件。
+                /XN :: 排除较新的文件。
+                /XO :: 排除较旧的文件。
+                /XX :: 排除多余的文件和目录。
+                /XL :: 排除孤立的文件和目录。
+                /IS :: 包含相同文件。
+                /IT :: 包含已调整的文件。
+
+             /MAX:n :: 最大的文件大小 - 排除大于 n 字节的文件。
+             /MIN:n :: 最小的文件大小 - 排除小于 n 字节的文件。
+
+          /MAXAGE:n :: 最长的文件存在时间 - 排除早于 n 天/日期的文件。
+          /MINAGE:n :: 最短的文件存在时间 - 排除晚于 n 天/日期的文件。
+          /MAXLAD:n :: 最大的最后访问日期 - 排除自 n 以来未使用的文件。
+          /MINLAD:n :: 最小的最后访问日期 - 排除自 n 以来使用的文件。
+                       (If n &lt; 1900 then n = n days, else n = YYYYMMDD date)。
+
+               /FFT :: 假设 FAT 文件时间(2 秒粒度)。
+               /DST :: 弥补 1 小时的 DST 时间差。
+
+                /XJ:: 排除(文件和目录的)符号链接和接合点。
+               /XJD:: 排除目录和接合点的符号链接。
+               /XJF :: 排除文件的符号链接。
+
+                /IM :: 包含已修改的文件(更改时间不同)。
+::
+:: 重试选项:
+::
+               /R:n :: 失败副本的重试次数: 默认为 1 百万。
+               /W:n :: 两次重试间的等待时间: 默认为 30 秒。
+
+               /REG :: 将注册表中的 /R:n 和 /W:n 保存为默认设置。
+
+               /TBD :: 等待定义共享名称(重试错误 67)。
+
+               /LFSM :: 在低可用空间模式下运行，启用复制暂停和继续(参见“备注”)。
+
+               /LFSM:n[KMG] :: /LFSM，指定下限大小(以 n [K:kilo、M:mega、G:giga] 字节为单位)。
+
+::
+:: 日志记录选项:
+::
+                 /L :: 仅列出 - 不复制、添加时间戳或删除任何文件。
+                 /X :: 报告所有多余的文件，而不只是选中的文件。
+                 /V :: 生成详细输出，同时显示跳过的文件。
+                /TS :: 在输出中包含源文件的时间戳。
+                /FP :: 在输出中包含文件的完整路径名称。
+             /BYTES :: 以字节打印大小。
+
+                /NS :: 无大小 - 不记录文件大小。
+                /NC :: 无类别 - 不记录文件类别。
+               /NFL :: 无文件列表 - 不记录文件名。
+               /NDL :: 无目录列表 - 不记录目录名称。
+
+                /NP :: 无进度 - 不显示已复制的百分比。
+               /ETA :: 显示复制文件的预期到达时间。
+
+          /LOG:文件 :: 将状态输出到日志文件(覆盖现有日志)。
+         /LOG+:文件 :: 将状态输出到日志文件(附加到现有日志中)。
+
+       /UNILOG:文件 :: 以 UNICODE 方式将状态输出到日志文件(覆盖现有日志)。
+      /UNILOG+:文件 :: 以 UNICODE 方式将状态输出到日志文件(附加到现有日志中)。
+
+               /TEE :: 输出到控制台窗口和日志文件。
+
+               /NJH :: 没有作业标头。
+               /NJS :: 没有作业摘要。
+
+           /UNICODE :: 以 UNICODE 方式输出状态。
+
+::
+:: 作业选项 :
+::
+      /JOB:作业名称 :: 从命名的作业文件中提取参数。
+     /SAVE:作业名称 :: 将参数保存到命名的作业文件
+              /QUIT :: 处理命令行后退出(以查看参数)。
+              /NOSD :: 未指定源目录。
+              /NODD :: 未指定目标目录。
+                /IF :: 包含以下文件。
+
+::
+:: 备注:
+::
+       以前在卷的根目录上使用 /PURGE 或 /MIR 导致
+       robocopy 也对“系统卷信息”目录内的
+       文件应用所请求的操作。现在不再是这种情形；如果
+       指定了任何一项，则 robocopy 将跳过
+       复制会话简要源目录和目标目录中具有该名称的任何文件或目录。
+
+       已修改的文件分类仅在源
+       和目标文件系统支持更改时间戳(例如 NTFS)
+       以及源和目标文件具有不同的更改时间(否则相同)
+       时才适用。默认情况下不复制这些文件；指定 /IM
+       以包含它们。
+
+       /DCOPY:E 标志请求扩展属性复制应该
+       针对目录进行尝试。请注意，如果目录的 EA 无法复制，
+       则当前 robocopy 将继续。/COPYALL 中也未包括
+       在 /COPYALL 中。
+
+       使用 /LFSM 请求 robocopy 在“低可用空间模式”下运行。
+       在该模式下，每当文件副本导致
+       目标卷的可用空间低于可以
+       由 LFSM:n[KMG] 形式的标志明确指定的“下限”值时，robocopy 将会暂停。
+       如果指定了 /LFSM，但没有显式下限值，则会将下限设置为
+       目标卷大小的 10%。
+       低可用空间模式与 /MT、/EFSRAW、/B 和/ZB 不兼容。</pre><p><br/></p><p><br/></p><p><br/></p><p><br/></p>
+{% endraw %}
