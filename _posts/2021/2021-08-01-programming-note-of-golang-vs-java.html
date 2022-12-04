@@ -1,0 +1,346 @@
+---
+layout: ue
+title: Java转Golang编程笔记
+category: 其他语言和技术
+tags: [Golang]
+keywords: "Java转Golang,Golang对比Java"
+---
+
+{% raw %}
+<p><strong>前言：</strong></p><p>&nbsp; &nbsp; 总的来说，<span style="color: rgb(192, 0, 0);">Golang具备高级语言的很多特性，虽然语法层面和Java有些不同，但是编程逻辑是一致的</span>。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;简单来说，Golang也具备类型转换、字符串操作、数组、Map、文件及IO、反射、接口、包、线程同步、阻塞队列等常用功能。不同点在于：</p><p>1）Go保留了指针，而且结构体还是值类型而非引用类型，传参时要注意；Java虽然没有指针，但是引用类型就相当于指针，这样做对编程来说非常友好，而且也很安全，但代价是需要复杂的JVM来支持。还有一款追求极致性能和安全性的语言：Rust，它不需要复杂的VM，但是它需要复杂的语法呀（手动囧 ╯▽╰）。Golang属于原始的形态，它唯一的优势的不需要复杂的VM，和C语言算是有些共性。</p><p>2）Go的异常处理与Java的方式不一样，个人觉得有好有坏，try-catch是正统的、健壮的实现、全能的选手，但没有一定功力的人用起来会觉得别扭（实际上我也比较讨厌声明式异常，总是要让我try-catch会让程序很难看，但作为一个老司机，我很少用声明式异常，更多的是用运行时异常和各种异常拦截器），Go将error作为函数的结果返回，是个小心思，想绕过声明式异常，但是始终绕不过运行时异常，而且判断 if err==nil {...} else {...} 跟 try {...} catch(e) {..} 没有本质区别。</p><p>3）包管理，Golang依赖于文件夹（相当于Package=private、public），而Java支持文件和文件夹作为多级Package，甚至可以文件套文件（类中类），而不需要文件夹，更灵活、更好用。</p><p>&nbsp; &nbsp; Anyway，虽然Golang的语法和生态库还不尽如人意，但是它链接了以前C语言那一块的市场和资源，既可以做系统底层的工具开发，还可以做Web类业务级应用。而且还能在一定程度上跨平台，还具备优异的性能和不需要VM打包后独立运行的能力，还具备C语言不具备的很多高级语言的特性，这已经算是一种巨大的突破！！</p><p>&nbsp;&nbsp;&nbsp;&nbsp;我已经很多年没有碰C/C++了，但是C/C++发展这么多年，那是一块巨大的宝库，弃之可惜。既然Golang能够链接它们，也能搞一搞系统层面的东西，那就需要抓住。同时也看了Mozilla、微软、Linux社区大力支持的Rust语言，从语法层面可见，Rust所推崇的高效、可靠是名副其实，但是“兼顾开发效率”只是相对于C语言说的——其语法较为复杂，开发效率完全不如Python、Java，也不如Golang。作为编程老手，掌握Rust并不难（需要一段时间熟练），但种种原因，我还是选择Golang，Golang现在的社区要比Rust大10倍以上。<br/></p><p style='line-height: 1;'><br/></p><p><strong>正文：</strong></p><p>1、类型转换</p><p>1）一个未知类型（interface{}）如何转换成map型数组？实际类型：<span style="color: rgb(192, 0, 0);">[]map[interface {}]interface {}</span></p><p>分析：</p><p>方法1：用到interface assertion方法，语法为 obj.(type)强制类型转换，例如p, ok := t<span style="color: rgb(192, 0, 0);">.(bool)</span>，p, ok := t<span style="color: rgb(192, 0, 0);">.(int64)</span>，转换和判断可以一次完成：</p><pre class="brush:java;toolbar:false">if s, ok := command.(string); ok {
+    args, err = parseCommand(s)
+    if err != nil {
+        return nil, err
+    }
+} else if a, ok := command.([]string); ok {
+    args = a
+}</pre><p>首先转换成数组：[]interface{}，再将数组元素转换成：map[interface {}]interface {}</p><pre class="brush:java;toolbar:false">config := viper.Get(&quot;programs&quot;)
+arr := config.([]interface{})
+for _, elem := range arr {
+  fmt.Printf(&quot;元素的反射类型是%v\n&quot;, reflect.TypeOf(elem))
+  val, ok := elem.(map[interface{}]interface{})
+  if ok {
+    fmt.Printf(&quot;转换后类型%T \n&quot;, val, val)
+  }
+}</pre><p>方法2：如果interface{}包含多种类型，则用到switch type来判断：</p><pre class="brush:java;toolbar:false">switch reflect.TypeOf(origin).Kind() {
+case reflect.Slice, reflect.Array:
+    s := reflect.ValueOf(origin)
+    for i := 0; i &lt; s.Len(); i++ {
+        fmt.Println(s.Index(i))
+    }
+case reflect.String:
+    s := reflect.ValueOf(origin)
+    fmt.Println(s.String(), &quot;I am a string type variable.&quot;)
+case reflect.Int:
+    s := reflect.ValueOf(origin)
+    t := s.Int()
+    fmt.Println(t, &quot; I am a int type variable.&quot;)
+}</pre><p>参见&nbsp;<a href="https://blog.csdn.net/qq_18293213/article/details/103722973" style="background-color: rgb(245, 245, 213);">https://blog.csdn.net/qq_18293213/article/details/103722973</a></p><p style='line-height: 1;'><br/></p><p>2、格式化字符</p><p>示例如下：</p><pre class="brush:java;toolbar:false">package main
+import (
+    &quot;fmt&quot;
+    &quot;os&quot;
+) 
+type point struct {
+    x, y int
+}
+func main() {
+
+    // Go提供了几种打印格式，用来格式化一般的Go值，例如
+    // 下面的%v打印了一个point结构体的对象的值
+    p := point{1, 2}
+    fmt.Printf(&quot;%v\n&quot;, p)
+
+    // 如果所格式化的值是一个结构体对象，那么`%+v`的格式化输出
+    // 将包括结构体的成员名称和值
+    fmt.Printf(&quot;%+v\n&quot;, p)
+
+    // `%#v`格式化输出将输出一个值的Go语法表示方式。
+    fmt.Printf(&quot;%#v\n&quot;, p)
+
+    // 使用`%T`来输出一个值的数据类型
+    fmt.Printf(&quot;%T\n&quot;, p)
+
+    // 格式化布尔型变量
+    fmt.Printf(&quot;%t\n&quot;, true)
+
+    // 有很多的方式可以格式化整型，使用`%d`是一种
+    // 标准的以10进制来输出整型的方式
+    fmt.Printf(&quot;%d\n&quot;, 123)
+
+    // 这种方式输出整型的二进制表示方式
+    fmt.Printf(&quot;%b\n&quot;, 14)
+
+    // 这里打印出该整型数值所对应的字符
+    fmt.Printf(&quot;%c\n&quot;, 33)
+
+    // 使用`%x`输出一个值的16进制表示方式
+    fmt.Printf(&quot;%x\n&quot;, 456)
+
+    // 浮点型数值也有几种格式化方法。最基本的一种是`%f`
+    fmt.Printf(&quot;%f\n&quot;, 78.9)
+
+    // `%e`和`%E`使用科学计数法来输出整型
+    fmt.Printf(&quot;%e\n&quot;, 123400000.0)
+    fmt.Printf(&quot;%E\n&quot;, 123400000.0)
+
+    // 使用`%s`输出基本的字符串
+    fmt.Printf(&quot;%s\n&quot;, &quot;\&quot;string\&quot;&quot;)
+
+    // 输出像Go源码中那样带双引号的字符串，需使用`%q`
+    fmt.Printf(&quot;%q\n&quot;, &quot;\&quot;string\&quot;&quot;)
+
+    // `%x`以16进制输出字符串，每个字符串的字节用两个字符输出
+    fmt.Printf(&quot;%x\n&quot;, &quot;hex this&quot;)
+
+    // 使用`%p`输出一个指针的值
+    fmt.Printf(&quot;%p\n&quot;, &amp;p)
+
+    // 当输出数字的时候，经常需要去控制输出的宽度和精度。
+    // 可以使用一个位于%后面的数字来控制输出的宽度，默认
+    // 情况下输出是右对齐的，左边加上空格
+    fmt.Printf(&quot;|%6d|%6d|\n&quot;, 12, 345)
+
+    // 你也可以指定浮点数的输出宽度，同时你还可以指定浮点数
+    // 的输出精度
+    fmt.Printf(&quot;|%6.2f|%6.2f|\n&quot;, 1.2, 3.45)
+
+    // To left-justify, use the `-` flag.
+    fmt.Printf(&quot;|%-6.2f|%-6.2f|\n&quot;, 1.2, 3.45)
+
+    // 你也可以指定输出字符串的宽度来保证它们输出对齐。默认
+    // 情况下，输出是右对齐的
+    fmt.Printf(&quot;|%6s|%6s|\n&quot;, &quot;foo&quot;, &quot;b&quot;)
+
+    // 为了使用左对齐你可以在宽度之前加上`-`号
+    fmt.Printf(&quot;|%-6s|%-6s|\n&quot;, &quot;foo&quot;, &quot;b&quot;)
+
+    // `Printf`函数的输出是输出到命令行`os.Stdout`的，你
+    // 可以用`Sprintf`来将格式化后的字符串赋值给一个变量
+    s := fmt.Sprintf(&quot;a %s&quot;, &quot;string&quot;)
+    fmt.Println(s)
+
+    // 你也可以使用`Fprintf`来将格式化后的值输出到`io.Writers`
+    fmt.Fprintf(os.Stderr, &quot;an %s\n&quot;, &quot;error&quot;)
+}</pre><p style='line-height: 1;'><br/></p><p>3、数组后面追加数组<br/></p><p>config.Programs = <span style="color: rgb(192, 0, 0);">append(</span>config.Programs, cProgtmp.Programs<span style="color: rgb(192, 0, 0);">...</span>)</p><p style='line-height: 1;'><br/></p><p>4、数值指针赋值</p><p>声明：retryTimes *int32</p><p>赋值 retryTimes: new(int32)</p><p style='line-height: 1;'><br/></p><p>5、将对象2的值合并到对象1（常用于配置合并、数据合并）</p><p>方法如下：</p><pre class="brush:js;toolbar:false;">func copy(c1, c2 interface{}) (*interface{}, error) {
+  v1 := reflect.ValueOf(c1)              //初始化为c1保管的具体值的v1
+  v2 := reflect.ValueOf(c2)              //初始化为c2保管的具体值的v2
+  v1_elem := reflect.ValueOf(&amp;c1).Elem() //返回 c1 指针保管的值
+
+  for i := 0; i &lt; v1.NumField(); i++ {
+    field := v1.Field(i)  //返回结构体的第i个字段
+    field2 := v2.Field(i) //返回结构体的第i个字段
+    //field.Interface() 当前持有的值
+    //reflect.Zero 根据类型获取对应的 零值
+    //这个必须调用 Interface 方法 否则为 reflect.Value 构造体的对比 而不是两个值的对比
+    //这个地方不要用等号去对比 因为golang 切片类型是不支持 对比的
+    if reflect.DeepEqual(field.Interface(), reflect.Zero(field.Type()).Interface()) {
+      //如果第一个构造体某个字段对应类型的默认值
+
+      if !reflect.DeepEqual(field2.Interface(), reflect.Zero(field2.Type()).Interface()) {
+        //如果第二个构造体 这个字段不为空
+
+        if !v1_elem.Field(i).CanSet() { //如果不可以设置值 直接返回
+          fmt.Println(&quot;not set value&quot;)
+          return nil, errors.New(&quot;can not set value&quot;)
+        }
+
+        v1_elem.Field(i).Set(field2) //设置值
+      }
+    }
+  }
+  return &amp;c1, nil
+}</pre><p style='line-height: 1;'><br/></p><p>6、for循环时，如何改变数组对象的值</p><p>示例如下，必须要用数组下标引用才行：</p><pre class="brush:js;toolbar:false">for k, section := range cfg.Programs {
+
+    section.Command = cmd
+    section.ProcessName = procName
+    section.ProcessNum = i
+    section.NumprocsStart = i - 1
+
+    cfg.Programs[k] = section
+    
+    cfg.Programs[k].Name = &quot;New Name&quot;
+}</pre><p style='line-height: 1;'><br/></p><p>7、异常堆栈信息</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> errors.</span><span class="mtk15" style="color: rgb(220, 220, 170);">Wrap</span><span class="mtk1" style="color: rgb(212, 212, 212);">(err </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span><span class="mtk1" style="color: rgb(212, 212, 212);">, message </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">Wrap returns an error annotating err with a stack trace at the point Wrap is called, and the supplied message. If err is nil, Wrap returns nil.</p><p>示例：errors.Wrap(err, &quot;failed to read config&quot;)</p><p style='line-height: 1;'><br/></p><div class="subject-title" onclick="toggleContent(this,'#kev89y');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>时间转换</p></div><div id="kev89y" class="subject-content" style="display:none;"><p>当前时间</p><p><span style="color: rgb(192, 0, 0);">秒：</span>time.Now().Unix()</p><p><span style="color: rgb(192, 0, 0);">毫秒：</span>time.Now().UnixNano() / 1e6</p><p><span style="color: rgb(192, 0, 0);">秒 转time对象：</span></p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> time.</span><span class="mtk15" style="color: rgb(220, 220, 170);">Unix</span><span class="mtk1" style="color: rgb(212, 212, 212);">(sec </span><span class="mtk16" style="color: rgb(78, 201, 176);">int64</span><span class="mtk1" style="color: rgb(212, 212, 212);">, nsec </span><span class="mtk16" style="color: rgb(78, 201, 176);">int64</span><span class="mtk1" style="color: rgb(212, 212, 212);">) time.Time</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">Unix returns the local Time corresponding to the given Unix time, sec seconds and nsec nanoseconds since January 1, 1970 UTC. It is valid to pass nsec outside the range [0, 999999999]. Not all sec values have a corresponding time value. One such value is 1&lt;&lt;63-1 (the largest int64 value).</p><p>示例：</p><p>毫秒转time对象：</p><p>time.Unix(timeMS/1e3, 0)</p><p>时间的最小值：<br/></p><p>time.Unix(0, 0)</p><p style='line-height: 1;'><br/></p><p>指定变量x作为秒数：</p><p>time.sleep( <span style="color: rgb(192, 0, 0);">time.Duration(x-2)</span>*time.Second )</p><p style='line-height: 1;'><br/></p><p>格式化：<br/></p><p>1）now.Format(&quot;2006-01-02-15-04-05.000&quot;)、et.Format(&quot;15:04:05&quot;)、et.Format(&quot;20060101&quot;)等</p><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#4zzxnd');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>字符串替换</p></div><div id="4zzxnd" class="subject-content" style="display:none;"><p>1、ReplaceAll</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> strings.</span><span class="mtk15" style="color: rgb(220, 220, 170);">ReplaceAll</span><span class="mtk1" style="color: rgb(212, 212, 212);">(s </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">, old </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">, new </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">ReplaceAll returns a copy of the string s with all non-overlapping instances of old replaced by new. If old is empty, it matches at the beginning of the string and after each UTF-8 sequence, yielding up to k+1 replacements for a k-rune string.</p><p>2、TrimSpace<br/></p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> strings.</span><span class="mtk15" style="color: rgb(220, 220, 170);">TrimSpace</span><span class="mtk1" style="color: rgb(212, 212, 212);">(s </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">TrimSpace returns a slice of the string s, with all leading and trailing white space removed, as defined by Unicode.</p><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#yk4ee6');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>文件、目录操作</p></div><div id="yk4ee6" class="subject-content" style="display:none;"><p>1、新建文件夹：</p><p>err := os.MkdirAll(filePath, os.ModePerm)</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> os.</span><span class="mtk15" style="color: rgb(220, 220, 170);">MkdirAll</span><span class="mtk1" style="color: rgb(212, 212, 212);">(path </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">, perm os.FileMode) </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">MkdirAll creates a directory named path, along with any necessary parents, and returns nil, or else returns an error. The permission bits perm (before umask) are used for all directories that MkdirAll creates. If path is already a directory, MkdirAll does nothing and returns nil.</p><p>2、创建文件</p><p>f, err := os.Create(x.OutFile)</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> os.</span><span class="mtk15" style="color: rgb(220, 220, 170);">Create</span><span class="mtk1" style="color: rgb(212, 212, 212);">(name </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) (*os.File, </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span><span class="mtk1" style="color: rgb(212, 212, 212);">)</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">Create creates or truncates the named file. If the file already exists, it is truncated. If the file does not exist, it is created with mode 0666 (before umask). If successful, methods on the returned File can be used for I/O; the associated file descriptor has mode O_RDWR. If there is an error, it will be of type *PathError.</p><p>3、获取文件信息<br/></p><p>stat, err := os.Stat(x.OutFile)</p><p>4、判断是否为文件：</p><pre class="brush:js;toolbar:false">func IsFile(fp string) bool {
+  f, e := os.Stat(fp)
+  if e != nil {
+    return false
+  }
+  return !f.IsDir()
+}</pre><p>5、删除文件或目录</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> os.</span><span class="mtk15" style="color: rgb(220, 220, 170);">Remove</span><span class="mtk1" style="color: rgb(212, 212, 212);">(name </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">Remove removes the named file or directory. If there is an error, it will be of type *PathError.</p><p>RemoveAll：<br/></p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> os.</span><span class="mtk15" style="color: rgb(220, 220, 170);">RemoveAll</span><span class="mtk1" style="color: rgb(212, 212, 212);">(path </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">RemoveAll removes path and any children it contains. It removes everything it can but returns the first error it encounters. If the path does not exist, RemoveAll returns nil (no error). If there is an error, it will be of type *PathError.</p><p style='line-height: 1;'><br/></p><p>6、重命名文件</p><div class="code" style="margin: 0px 0px 8px; color: rgb(204, 204, 204); font-size: 14px; letter-spacing: 0px; white-space: normal; background-color: rgb(37, 37, 38); font-family: Consolas, &quot;Courier New&quot;, monospace; font-feature-settings: &quot;liga&quot; 0, &quot;calt&quot; 0; line-height: 19px;"><div class="monaco-tokenized-source" style="white-space: pre-wrap;"><span class="mtk5" style="color: rgb(86, 156, 214);">func</span><span class="mtk1" style="color: rgb(212, 212, 212);"> os.</span><span class="mtk15" style="color: rgb(220, 220, 170);">Rename</span><span class="mtk1" style="color: rgb(212, 212, 212);">(oldpath </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">, newpath </span><span class="mtk16" style="color: rgb(78, 201, 176);">string</span><span class="mtk1" style="color: rgb(212, 212, 212);">) </span><span class="mtk16" style="color: rgb(78, 201, 176);">error</span></div></div><p style="margin-top: 8px; margin-bottom: 0px; color: rgb(204, 204, 204); font-family: &quot;Segoe WPC&quot;, &quot;Segoe UI&quot;, sans-serif; font-size: 14px; white-space: normal; background-color: rgb(37, 37, 38);">Rename renames (moves) oldpath to newpath. If newpath already exists and is not a directory, Rename replaces it. OS-specific restrictions may apply when oldpath and newpath are in different directories. If there is an error, it will be of type *LinkError.</p><p style='line-height: 1;'><br/></p><p>7、以Append方式打开文件流</p><p>示例1：</p><pre class="brush:js;toolbar:false">func (l *FileLogger) openFile(trunc bool) error {
+	if l.file != nil {
+		l.file.Close()
+	}
+	var err error
+	fileInfo, err := os.Stat(l.name)
+
+	if trunc || err != nil {
+		l.file, err = os.Create(l.name)
+	} else {
+		l.fileSize = fileInfo.Size()
+		l.file, err = os.OpenFile(l.name, os.O_RDWR|os.O_APPEND, 0666)
+	}
+	if err != nil {
+		fmt.Printf(&quot;Fail to open log file --%s-- with error %v\n&quot;, l.name, err)
+	}
+	return err
+}</pre><p>示例2：（文件不存在则自动创建）</p><p>file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)</p><p style='line-height: 1;'><br/></p><p>8、打开文件流并写入字符串<br/></p><pre class="brush:java;toolbar:false">file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+if err != nil {
+    log.Errorf(&quot;can not create monitor log: %s, %v&quot;, filePath, err)
+    return &quot;&quot;
+}
+defer file.Close()
+//写入文件时，使用带缓存的 *Writer
+write := bufio.NewWriter(file)
+
+_, err = write.WriteString(&quot;\n----------------------TailFile: &quot; + readFile + &quot;\n&quot;)
+if err == nil {
+    write.WriteString(readLines)
+    write.Flush()
+} else {
+    log.Errorf(&quot;can not write log file: %s, %v&quot;, filePath, err)
+}</pre><p style='line-height: 1;'><br/></p><p>9、HTTP 文件下载<br/></p><pre class="brush:js;toolbar:false">func LogDownload(w http.ResponseWriter, req *http.Request) {
+	defer req.Body.Close()
+	req.ParseForm()
+	var filename string
+	if len(req.Form[&quot;filename&quot;]) &gt; 0 {
+		filename = req.Form[&quot;filename&quot;][0]
+	}
+
+	filePath := dataPath + &quot;/&quot; + filename[0:10] + &quot;/&quot; + filename
+	_, e := os.Stat(filePath)
+	if e != nil {
+		r := map[string]bool{&quot;success&quot;: false}
+		json.NewEncoder(w).Encode(r)
+		return
+	}
+
+	file, _ := os.Open(filePath)
+	defer file.Close()
+
+	fileHeader := make([]byte, 512)
+	file.Read(fileHeader)
+
+	fileStat, _ := file.Stat()
+
+	w.Header().Set(&quot;Content-Disposition&quot;, &quot;attachment; filename=&quot;+filename)
+	w.Header().Set(&quot;Content-Type&quot;, http.DetectContentType(fileHeader))
+	w.Header().Set(&quot;Content-Length&quot;, strconv.FormatInt(fileStat.Size(), 10))
+
+	file.Seek(0, 0)
+	io.Copy(w, file)
+}</pre><p style='line-height: 1;'><br/></p><p>10、读取文件最后100行</p><p>思路：先seek到最后一个byte，然后依次向前取1 byte，如果遇到换行符，行数就+1，直到获取100行为止。</p><pre class="brush:java;toolbar:false">func ReadLastRows(filepath string, num int) (string, error) {
+    fileHandle, err := os.Open(filepath)
+    if err != nil {
+        return &quot;&quot;, err
+    }
+    defer fileHandle.Close()
+
+    line := &quot;&quot;
+    var cursor int64 = 0
+    stat, _ := fileHandle.Stat()
+    filesize := stat.Size()
+    cou := 0
+    var off int64 = 0
+    for {
+        cursor -= 1
+        off, _ = fileHandle.Seek(cursor, io.SeekEnd)
+
+        char := make([]byte, 1)
+        fileHandle.Read(char)
+
+        if cursor != -1 &amp;&amp; (char[0] == 10 || char[0] == 13) { // stop if we find a line
+            cou++
+            if cou &gt;= num {
+                // fmt.Println(&quot;line: &quot;, cou, cursor, off)
+                line = getString(fileHandle, off)
+                break
+            }
+        }
+
+        if cursor == -filesize { // stop if we are at the begining
+            line = getString(fileHandle, off)
+            break
+        }
+    }
+
+    return line, nil
+}
+
+func getString(fileHandle *os.File, off int64) string {
+	buf := make([]byte, 102400) // 100 KB
+	n, err := fileHandle.ReadAt(buf, off)
+	if err != io.EOF {
+		fmt.Println(err)
+	}
+	buf = buf[:n]
+	return fmt.Sprintf(&quot;%s&quot;, buf)
+}</pre><p>优化思路：上面的代码每次 seek 1 byte，也可以每次 seek 1024 byte，然后在内存中统计里面有多少个换行符，这样会不会更快？（我没试过）<br/></p><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#a4xy57');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>数值转换</p></div><div id="a4xy57" class="subject-content" style="display:none;"><p>1、int 转 int32、int64、float64<br/></p><p>float64(x)、int32(x)</p><p>2、int 转字符串<br/></p><p>strconv.Itoa(x)</p><p>3、float 转字符串</p><p>fmt.Sprintf(&quot;%.1f&quot;, x)</p><p>4、通用类型转字符串：fmt.Sprintf（%d整型数字、%s字符串、v%值原样输出）</p><p>s := fmt.Sprintf(&quot;%v&quot;, section.Order)</p><p>5、字符串转int：</p><p>i, err := strconv.Atoi(x)</p><p>if err != nil {</p><p>&nbsp; &nbsp; return &quot;&quot;, fmt.Errorf(&quot;can&#39;t convert %s to integer&quot;, x)</p><p>}</p><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#xb9cxa');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>线程同步、等待线程结束</p></div><div id="xb9cxa" class="subject-content" style="display:none;"><p>1、等待线程结束</p><pre class="brush:java;toolbar:false">func (pm *Manager) StopAllProcesses() {
+	var wg sync.WaitGroup
+
+	pm.ForEachProcess(func(proc *Process) {
+		wg.Add(1)
+
+		go func(wg *sync.WaitGroup) {
+			defer wg.Done()
+
+			proc.Stop(true)
+		}(&amp;wg)
+	})
+
+	wg.Wait()
+}</pre><p>2、锁</p><p>有互斥锁（sync.Mutex）和 读写锁（sync.RWMutex）</p><p>对于读写锁RWMutex，默认Lock()为写锁，读锁单独为RLock()。</p><pre class="brush:java;toolbar:false">lock sync.RWMutex
+
+全局锁：
+p.lock.Lock()
+if p.inStart {
+    log.WithFields(log.Fields{&quot;program&quot;: p.GetName()}).Info(&quot;START-ERR 1: Don&#39;t start program again, program is already started&quot;)
+    p.lock.Unlock()
+    return
+}
+
+p.inStart = true
+p.stopByUser = false
+p.lock.Unlock()
+
+只读锁：
+func (p *Process) Signal(sig os.Signal, sigChildren bool) error {
+	p.lock.RLock()
+	defer p.lock.RUnlock()
+
+	return p.sendSignal(sig, sigChildren)
+}</pre><p style='line-height: 1;'><br/></p></div><div class="subject-title" onclick="toggleContent(this,'#z7ae67');"><p class="subject-info">＋ (点击以下标题显示正文内容)</p><p>结构体数组排序</p></div><div id="z7ae67" class="subject-content" style="display:none;"><p>示例如下：</p><pre class="brush:java;toolbar:false">import (
+	&quot;reflect&quot;
+	&quot;sort&quot;
+)
+
+// ProcessNameSorter sort the process info by program name
+type ProcessNameSorter struct {
+	processes []ProcessInfo
+}
+
+// NewProcessNameSorter creates new ProcessNameSorter object
+func NewProcessNameSorter(processes []ProcessInfo) *ProcessNameSorter {
+	return &amp;ProcessNameSorter{processes: processes}
+}
+
+// Len returns amount of programs
+func (pns *ProcessNameSorter) Len() int {
+	return len(pns.processes)
+}
+
+// Less returns true if program name of i-th process is less than the program name of j-th process
+func (pns *ProcessNameSorter) Less(i, j int) bool {
+	return pns.processes[i].Name &lt; pns.processes[j].Name
+}
+
+// Swap i-th program and j-th program
+func (pns *ProcessNameSorter) Swap(i, j int) {
+	swapF := reflect.Swapper(pns.processes)
+	swapF(i,j)
+}
+
+// SortProcessInfos sorts the process information by program name
+func SortProcessInfos(processes []ProcessInfo) {
+	sorter := NewProcessNameSorter(processes)
+	sort.Sort(sorter)
+}</pre><p>sort.Sort( list ) ，调用标准库的sort.Sort必须要先实现 Len(),&nbsp; Less(i, j int),&nbsp; Swap(i, j int) 三个方法.</p><p style='line-height: 1;'><br/></p></div><p style='line-height: 1;'><br/></p><script type="text/javascript">var toggleContent=function(that, id){var tx="－ (点击以下标题隐藏正文内容)";if($(id).css("display")!="none"){tx="＋ (点击以下标题显示正文内容)"}$(that).children(":first").text(tx);$(id).fadeToggle(100)};</script>
+{% endraw %}

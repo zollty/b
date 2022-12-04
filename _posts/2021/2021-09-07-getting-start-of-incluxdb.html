@@ -1,0 +1,65 @@
+---
+layout: ue
+title: InfluxDB入门教程
+category: 中间件技术
+tags: [InfluxDB]
+keywords: "InfluxDB教程"
+---
+
+{% raw %}
+<p><span style="color: inherit; font-family: 黑体, SimHei; font-size: 24px; font-weight: 600;">一、基础概念</span><br/></p><p>1、存储桶（bucket）</p><p>bucket是存储时序数据的一个命名空间，相当于数据表。</p><p>每个bucket都必须设置数据保存的时长。存储桶属于某个组织。<br/></p><p>翻译自：<a href="https://docs.influxdata.com/influxdb/v2.0/organizations/buckets/">https://docs.influxdata.com/influxdb/v2.0/organizations/buckets/</a></p><p>2、组织（Organization）</p><p>每个组织创建时都必须关联一个存储桶（bucket），所以每个组织都至少有一个bucket，</p><p>单个InfluxDB OSS，建议存储桶不超过20，因此组织也不超过20个。</p><p>单个InfluxDB OSS，支持20个buckets以内的持续写入或者跨bucket或组织的持续查询。</p><p>3、成员（Member）（相当于用户）</p><p>每个成员都从属于组织。成员可以属于多个组织。</p><p>4、API令牌（token）<br/></p><p>用户使用API token访问对应组织的数据。<br/></p><p>bucket只是组织中的一类数据，组织中还有user、task等其他数据。</p><p><br/></p><h2>二、数据元素</h2><p>翻译自：<a href="https://docs.influxdata.com/influxdb/v2.0/reference/key-concepts/data-elements/">https://docs.influxdata.com/influxdb/v2.0/reference/key-concepts/data-elements/</a></p><p>数据组织模式（Schema）：</p><p>InfluxDB schema包括： buckets, series, measurements, tag keys, tag values, and field keys。</p><p>每个bucket存储的数据结构 “示意” 如下表所示：</p><p>_time<span style="white-space: pre;">	</span>_measurement<span style="white-space: pre;">	</span>location<span style="white-space: pre;">	</span>scientist<span style="white-space: pre;">	</span>_field<span style="white-space: pre;">	</span>_value</p><p>2019-08-18T00:00:00Z<span style="white-space:pre">	</span>census<span style="white-space:pre">	</span>klamath<span style="white-space:pre">	</span>anderson<span style="white-space:pre">	</span>bees<span style="white-space:pre">	</span>23</p><p>2019-08-18T00:00:00Z<span style="white-space:pre">	</span>census<span style="white-space:pre">	</span>portland<span style="white-space:pre">	</span>mullen<span style="white-space:pre">	</span>ants<span style="white-space:pre">	</span>30</p><p>2019-08-18T00:06:00Z<span style="white-space:pre">	</span>census<span style="white-space:pre">	</span>klamath<span style="white-space:pre">	</span>anderson<span style="white-space:pre">	</span>bees<span style="white-space:pre">	</span>28</p><p>2019-08-18T00:06:00Z<span style="white-space: pre;">	</span>census<span style="white-space: pre;">	</span>portland<span style="white-space: pre;">	</span>mullen<span style="white-space: pre;">	</span>ants<span style="white-space: pre;">	</span>32</p><p>其中：</p><p><strong>_measurement：</strong>代表一个大类型的数据（包括某个类型的所有 _field 和 tags）。<br/></p><p>一个bucket可以存储任意数量的measurement。每种measurement的tags可以不同。</p><p><strong>field key 和 filed value：</strong>即 key-value，注意key是无索引的</p><p><strong>tag</strong>：相当于索引信息，tag key为表头meta信息，tag value存储到每行数据中（string类型）。</p><p>tag value可以为空，但是tag字段作为索引，一般需要能对数据进行降维分类——tag要适合于分类，而不建议使用 UUIDs, hashes, and random strings这种会导致大量唯一的类型（称之为 high series cardinality：高维基数），高维基数是导致数据库内存占用巨大的罪魁祸首。</p><p><strong>field set：</strong>即一组 time + key-value 的集合，例如</p><pre class="brush:plain;toolbar:false">census bees=23i,ants=30i 1566086400000000000
+census bees=28i,ants=32i 1566086760000000000
+&nbsp; &nbsp; &nbsp; &nbsp;-----------------
+&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Field set</pre><p><strong>tag set：</strong>即一组（可以有多个）tag key + tag value的集合，例如：<br/></p><pre class="brush:plain;toolbar:false">location = klamath, scientist = anderson
+location = portland, scientist = anderson
+location = klamath, scientist = mullen
+location = portland, scientist = mullen</pre><p><strong>Series（序列）</strong>：把具有相同_measurement + tags k-v + _field key的数据（时间和field value）称之为一个序列。例如：</p><pre class="brush:plain;toolbar:false"># series key
+census,location=klamath,scientist=anderson bees
+
+# series
+2019-08-18T00:00:00Z 23
+2019-08-18T00:06:00Z 28  </pre><p><strong>点位（Point）</strong>：一个点位包括了series key、field value 和 timestamp，例如：</p><pre class="brush:plain;toolbar:false">2019-08-18T00:00:00Z census ants 30 portland mullen</pre><p><strong>注意(一)，InfluxDB没有点位ID的概念</strong><strong>，所有点位都是根据series key来确定的</strong>，而series key是 _measurement + tags k-v + _field key三者的组合。理论上tags可以没有，_measurement可以看做小表名称，所以field key可以近似的视为“点位ID”。</p><p><strong>注意(二)，避免过高的series</strong>：由于点位是由series key确定的，而seriers key又是由_measurement + tags k-v + _field key三者的组合确定的，所以设计时，建议降低series key的数量，即减少三者组合的个数。</p><p><br/></p><p><strong>数据写入使用行协议（Line protocol）</strong>，包括4个部分：</p><p>measurement</p><p>field set</p><p>tag set（可选）</p><p>timestamp（可选）</p><p>例如：</p><pre class="brush:plain;toolbar:false">measurementName,tagKey=tagValue fieldKey=&quot;fieldValue&quot; 1465839830100400200
+                               |                     |
+                           1st space             2nd space
+# Measurement name with spaces
+my\ Measurement fieldKey=&quot;string value&quot;
+
+# Double quotes in a string field value
+myMeasurement fieldKey=&quot;\&quot;string\&quot; within a string&quot;
+
+# Tag keys and values with spaces
+myMeasurement,tag\ Key1=tag\ Value1,tag\ Key2=tag\ Value2 fieldKey=100
+
+# Emojis
+myMeasurement,tagKey=🍭 fieldKey=&quot;Launch 🚀&quot; 1556813561098000000</pre><p>行协议具体定义参见：<a href="https://docs.influxdata.com/influxdb/v2.0/reference/syntax/line-protocol">https://docs.influxdata.com/influxdb/v2.0/reference/syntax/line-protocol</a> </p><p><br/></p><p><strong>官方建议的数据组织方式：</strong></p><p><strong>1、避免在测量名称中编码数据</strong></p><p>例如：</p><pre class="brush:plain;toolbar:false">Schema 1 - Data encoded in the measurement name
+-------------
+blueberries.plot-1.north temp=50.1 1472515200000000000
+blueberries.plot-2.midwest temp=49.8 1472515200000000000</pre><p><strong>2、避免在一个标签中放置多于一条信息</strong></p><p>例如：</p><pre class="brush:plain;toolbar:false">Schema 1 - Multiple data encoded in a single tag
+-------------
+weather_sensor,crop=blueberries,location=plot-1.north temp=50.1 1472515200000000000
+weather_sensor,crop=blueberries,location=plot-2.midwest temp=49.8 1472515200000000000</pre><p>这是因为，在InfluxDB中，tags的数量是不限制的，它从存储层面支持多列索引。（至于tags数量多了之后，是否影响存储和查询效率，暂且未知）</p><p><br/></p><h3>三、服务端关键配置<br/></h3><p>包括文件地址，查询连接池等，如下：</p><pre class="brush:bash;toolbar:false">[root@influxdb2]# cat config.yml 
+bolt-path: /home/data/.influxdbv2/influxd.bolt
+engine-path: /home/data/.influxdbv2/engine
+http-write-timeout: 65s
+http-read-timeout: 305s
+query-queue-size: 100
+query-memory-bytes: 104857600
+query-concurrency: 100</pre><p>具体参见官方配置文档。</p><p><br/></p><h3>四、客户端关键配置（以Java为例）</h3><p>生产使用，强烈建议配置HttpClient各项参数，通过测试和监控来设置合理的值。</p><p>例如压力测试时的配置如下：</p><pre class="brush:java;toolbar:false">Dispatcher dispatcher = new Dispatcher();
+dispatcher.setMaxRequestsPerHost(1000); // 默认5
+dispatcher.setMaxRequests(1000); // 默认64
+OkHttpClient.Builder okHttpClient = new OkHttpClient.Builder()
+        .protocols(Collections.singletonList(Protocol.HTTP_1_1))
+        // 设置完成请求的超时；调用超时跨越整个调用：解析DNS、连接、写入请求、正文、服务器处理和读取响应正文。如果呼叫需要重定向或
+        // 所有重试都必须在一个超时时间内完成；默认为0，则不设置超时
+        .callTimeout(Duration.ZERO)
+        // 建立连接（TCP 套接字）的超时时间；默认值是10S
+        .connectTimeout(Duration.ofSeconds(100))
+        // 发起请求到读到响应数据的超时时间,默认是10S
+        .readTimeout(Duration.ofSeconds(600))
+        // 发起请求并被⽬目标服务器器接受的超时时间，默认是10S
+        .writeTimeout(Duration.ofSeconds(60))
+        // 默认连接池配置默认5,5
+        .connectionPool(new ConnectionPool(5, 5, TimeUnit.MINUTES)).dispatcher(dispatcher);
+InfluxDBClientOptions options = InfluxDBClientOptions.builder().url(&quot;http://192.168.10.36:8086&quot;)
+        .authenticateToken(token).org(org).bucket(bucket).okHttpClient(okHttpClient).build();</pre><p><br/></p><h3>五、我对InfluxDB的测试及评价</h3><p>1、开源版本不支持集群</p><p>不支持集群，性能和容量如何扩展，数据如何备份，需要谨慎评估。如果要买商业版另论。</p><p>如果研发能力强，也可以考虑一下自研InfluxDB HA方案及组件，最简单的是类似于sharding-jdbc这种分库分表方法，还有基于Raft的方案。</p><p><br/></p><p>2、性能</p><p>单节点普通配置，同服务器下测试，写入性能达到6w/s左右，算是一流的。查询性能有3w/s，算比较好。相比之下，同样的环境和类似的程序测试下，HBase的查询性能可达300w/s。</p><p><br/></p>
+{% endraw %}

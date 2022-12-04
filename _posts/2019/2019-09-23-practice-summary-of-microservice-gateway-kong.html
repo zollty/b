@@ -1,0 +1,101 @@
+---
+layout: ue
+title: 微服务网关Kong安装试用和实践总结
+category: 中间件技术
+tags: [网关]
+keywords: "微服务网关,Kong"
+---
+
+{% raw %}
+<p>一、安装<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;说明：</p><p>1）由于不想用PostgreSQL和Cassandra数据库，所以我选择的是无DB模式（DB-less mode）<br/></p><p>2）选择Docker模式安装，避免环境配置问题。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Docker安装步骤如下：<br/></p><pre class="brush:bash;toolbar:false">docker pull kong:2.3.3
+
+docker network create kong-net
+
+mkdir -p /hot_data/kong1
+
+docker run -d --name kong1 \
+     --network=kong-net \
+     -v /hot_data/kong1:/usr/local/kong/declarative \
+     -e &quot;KONG_DATABASE=off&quot; \
+     -e &quot;KONG_DECLARATIVE_CONFIG=/usr/local/kong/declarative/kong.yml&quot; \
+     -e &quot;KONG_PROXY_ACCESS_LOG=/dev/stdout&quot; \
+     -e &quot;KONG_ADMIN_ACCESS_LOG=/dev/stdout&quot; \
+     -e &quot;KONG_PROXY_ERROR_LOG=/dev/stderr&quot; \
+     -e &quot;KONG_ADMIN_ERROR_LOG=/dev/stderr&quot; \
+     -e &quot;KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl&quot; \
+     -p 8000:8000 \
+     -p 8443:8443 \
+     -p 8001:8001 \
+     -p 8444:8444 \
+     kong:2.3.3
+
+# 查看启动日志
+docker logs kong1     
+# 启动成功后验证
+curl -i http://localhost:8001/</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;具体参见官方文档：<a href="https://docs.konghq.com/install/docker/" style="background-color: rgb(245, 245, 213);">https://docs.konghq.com/install/docker/</a><br/></p><p>3）选择一个kong admin API的图形界面，由于KongA已经停更，我选择了pocketdigi/kong-admin-ui</p><p>&nbsp;&nbsp;&nbsp;&nbsp;安装方法如下：<br/></p><pre class="brush:bash;toolbar:false">docker run -d --name kong-admin-ui -p 8899:80 pocketdigi/kong-admin-ui:0.5.2</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;然后访问http://localhost:8899即可。<br/></p><p><br/></p><p>二、配置</p><p>&nbsp;&nbsp;&nbsp;&nbsp;在当前目录下创建kong.yml文件，内容如下：<br/></p><pre class="brush:bash;toolbar:false">_format_version: &quot;2.1&quot;
+_transform: true
+
+upstreams:
+- name: talos
+  targets:
+  - target: 192.168.66.11:6600
+    weight: 100
+
+services:
+- name: talos-service
+  host: talos
+
+routes:
+- name: talos-route
+  service: talos-service
+  hosts: [&quot;hello.talos.com&quot;]</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;然后执行admin api可以让配置生效（实时生效、无需重启）：<br/></p><pre class="brush:bash;toolbar:false">curl  -X POST -F &quot;config=@kong.yml&quot; --url http://192.168.66.11:8001/config</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;其中@kong.yml是指该文件路径为当前目录，后面http url为kong admin的地址。<br/></p><p><strong>&nbsp;配置说明：</strong><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;四个概念：Upstream、Target、Service、Route</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>Target：是最终处理请求的Backend服务。</p></li><li><p>Upstream：Target集合的负载均衡策略。</p></li><li><p>Services：是多个Upstream的集合，根据Route转发。</p></li><li><p>Route：是请求的转发规则，按照Hostname和PATH，将请求转发给Service。</p></li></ul><p>&nbsp;&nbsp;&nbsp;&nbsp;下面是一个完整配置例子：</p><p>（注意，下面是例子是基于DB模式的，对于DB-less模式，只能通过kong.yml文件来配置，然后post提交kong.yml即可）</p><pre class="brush:bash;toolbar:false"># 创建一个upstream
+$ curl -X POST http://kong:8001/upstreams \
+    --data &quot;name=address.v1.service&quot;
+
+# 给upstream添加两个target
+$ curl -X POST http://kong:8001/upstreams/address.v1.service/targets \
+    --data &quot;target=192.168.34.15:80&quot; \
+    --data &quot;weight=100&quot;
+$ curl -X POST http://kong:8001/upstreams/address.v1.service/targets \
+    --data &quot;target=192.168.34.16:80&quot; \
+    --data &quot;weight=50&quot;
+
+# 创建一个把Blue上游作为目标的Service
+$ curl -X POST http://kong:8001/services/  \
+    --data &quot;name=address-service&quot;  \
+    --data &quot;host=address.v1.service&quot; \
+    --data &quot;path=/address&quot;
+
+# 最后，为Service添加Route
+$ curl -X POST http://kong:8001/services/address-service/routes/ \
+    --data &quot;hosts[]=address.mydomain.com&quot;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;然后在操作系统的hosts路由里面绑定：</p><pre class="brush:plain;toolbar:false">192.168.66.11（kong地址） address.mydomain.com</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;然后访问：http://address.mydomain.com:8000/，即可达到Target，（8000为Kong的路由端口）</p><p>&nbsp;&nbsp;&nbsp;&nbsp;如果要做“蓝绿发布”的话，上面的配置为“蓝”，下面再添加一套“绿”配置如下：<br/></p><pre class="brush:bash;toolbar:false"># 为地址服务v2，创建一个新的Green upstream
+$ curl -X POST http://kong:8001/upstreams \
+    --data &quot;name=address.v2.service&quot;
+
+# 给upstream添加两个目标
+$ curl -X POST http://kong:8001/upstreams/address.v2.service/targets \
+    --data &quot;target=192.168.34.17:80&quot;
+    --data &quot;weight=100&quot;
+$ curl -X POST http://kong:8001/upstreams/address.v2.service/targets \
+    --data &quot;target=192.168.34.18:80&quot; \
+    --data &quot;weight=100&quot;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;然后把Service的Upstream切换为“绿”配置，流量就“全绿”了。<br/></p><pre class="brush:bash;toolbar:false"># 将服务从Blue环境转换为Green环境, v1 -&gt; v2
+$ curl -X PATCH http://kong:8001/services/address-service \
+    --data &quot;host=address.v2.service&quot;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;类似地，“金丝雀”发布，只要改变Target的权重即可，比如最开始为100:0，然后改成95:5，然后改成80:20，就可以逐步控制流量的进入，如下所示。<br/></p><pre class="brush:bash;toolbar:false"># 第一个目标权重 800
+$ curl -X POST http://kong:8001/upstreams/address.v2.service/targets \
+    --data &quot;target=192.168.34.17:80&quot; \
+    --data &quot;weight=900&quot;
+
+# 第二个目标权重 200
+$ curl -X POST http://kong:8001/upstreams/address.v2.service/targets \
+    --data &quot;target=192.168.34.18:80&quot; \
+    --data &quot;weight=200&quot;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;实际上Upstream和Service的配置，类似于下面的Nginx配置：<br/></p><pre class="brush:bash;toolbar:false">upstream address.v1.service {
+  server 192.168.34.15:80;
+  server 192.168.34.16:80;
+}
+server {
+  listen 8000;
+  location / {
+    proxy_pass http://address.v1.service;
+  }
+}</pre><p>&nbsp; &nbsp; <strong>在网关集成登录身份验证：</strong><br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;由于是微服务应用，所以后端不使用Session，最常用的方案就是JWT Token。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;Kong对 JWT身份验证 支持较好。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;首先，Kong支持多种身份验证方式（Basic Auth、JWT、Key Auth等），通用认证流程如下：</p><ol class=" list-paddingleft-2" style="list-style-type: decimal;"><li><p>向一个API或全局添加AUTH插件（此插件不作用于consumers）；</p></li><li><p>创建一个consumer对象；</p></li><li><p>为consumer提供指定的验证插件方案的身份验证凭据；</p></li><li><p>现在，只要有请求进入Kong，都将检查其提供的身份验证凭据（通常在header或者url参数中，取决于auth类型），如果该请求无法被验证或者验证失败，则请求会被锁定，不执行向上有服务转发的操作。</p></li></ol><p>&nbsp;&nbsp;&nbsp;&nbsp;但是，上述的一般流程并不是总是有效的。譬如，当使用了外部验证方案（比如LDAP）时，KONG就不会（不需要）对consumer进行身份验证。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>什么是Consumers？</strong></p><p>&nbsp;&nbsp;&nbsp;&nbsp;最简单的理解和配置consumer的方式是，将其于用户进行一一映射，<span style="color: rgb(192, 0, 0);">即一个consumer代表一个用户（或应用）</span>。但是对于KONG而言，这些都无所谓。<span style="color: rgb(192, 0, 0);">consumer的核心原则是你可以为其添加插件，从而自定义他的请求行为。</span>所以，或许你会有一个手机APP应用，并为他的每个版本都定义一个consumer，又或者你又一个应用或几个应用，并为这些应用定义统一个consumer，这些都无所谓。这是一个模糊的概念，他叫做consumer，而不是user！万万要区分开来，且不可混淆。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;具体JWT验证方式就不讲了，直接看官方文档吧。值得说明的是，Kong的JWT验证是标准的验证方法，而且还支持对过期时间进行检验。如果需要防重放等特殊验证方法，则标准组件不适合，只能自己写插件。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;<strong>插件开发：</strong><br/></p><p>&nbsp; &nbsp; 基于Lua语言，有相关的Demo工程和文档，以及很多现成的插件代码可以参考。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;容易实现的功能有：内存缓存，连接Redis，发送HTTP请求。但暂时没找到连接MySQL的例子。<br/></p><p>&nbsp;&nbsp;&nbsp;&nbsp;另外，也可以使用Golang写插件，官方曾经弄了一个方案及Demo，但案例不多，还处于非常原始阶段。</p><p><br/></p>
+{% endraw %}
