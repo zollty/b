@@ -1,0 +1,166 @@
+---
+layout: ue
+title: Java8至Java18新特性汇总
+category: Java编程与JVM
+tags: [Java]
+keywords: "Java新特性"
+---
+
+{% raw %}
+<p>Java8至Java18新特性汇总整理</p><p><br/></p><p><strong>目录如下：</strong></p><p><span style="color: rgb(192, 0, 0);">Java 7 (LTS) 新特性:</span></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><a href="#java7" target="_self"><strong>2011-07</strong>-28</a>&nbsp;小幅改进</p></li></ul><p><span style="color: rgb(192, 0, 0);">Java 8 (LTS) 新特性:</span></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><a href="#java8" target="_self"><strong>2014-03</strong>-18</a>&nbsp;大幅更新</p></li></ul><p>Java 9 新特性:</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>&nbsp;<strong>2017-9</strong>-22</p></li></ul><p>Java 10 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2018-3</strong>-21</p></li></ul><p><span style="color: rgb(192, 0, 0);">Java 11 (LTS) 新特性：</span></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2018-09</strong>-25</p></li></ul><p>Java 12 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2019-3</strong>-19</p></li></ul><p>Java 13 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2019-9</strong>-17</p></li></ul><p>Java 14 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2020-3</strong>-17</p></li></ul><p>Java 15 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2020-9</strong>-15</p></li></ul><p>Java 16 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2021-3</strong>-16</p></li></ul><p><span style="color: rgb(192, 0, 0);">Java 17(LTS) 新特性：</span></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2021-9</strong>-14</p></li></ul><p>Java 18 新特性：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2022-03</strong>-22</p></li></ul><p>Java 19 新特性：<br/></p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>2020-09</strong></p></li></ul><p><br/></p><hr/><p>下面会<strong><span style="color: rgb(192, 0, 0);">以&nbsp;（★★★☆☆）星级来描述“推荐使用”的程度</span></strong>：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><span style="color: rgb(192, 0, 0);">五星满分代表此功能常用，且比较完美且非常实用。</span></p></li><li><p><span style="color: rgb(192, 0, 0);">三星、四星代表此功能比较常用，但是不够实用或者说有瑕疵需要注意。</span></p></li><li><p><span style="color: rgb(192, 0, 0);">一星、二星代表此功能 不常用 或者 因瑕疵大、副作用大而不建议使用。</span></p></li></ul><p><br/></p><p id="java7"><strong><span style="font-size: 20px;">Java 7 -&gt; 2011-07-28</span></strong><br/></p><p><strong>1. switch支持字符串变量（★★★★★）</strong></p><pre class="brush:java;toolbar:false"> switch (dayOfWeekArg) {
+     case &quot;Monday&quot;:
+         typeOfDay = &quot;Start of work week&quot;;
+         break;
+     ...
+ }</pre><p><strong>2. 泛型实例化类型自动推断（★★★★★）</strong></p><p>&nbsp; &nbsp; ArrayList&lt;String&gt; list = new ArrayList&lt;&gt;();</p><p><span style="color: rgb(63, 63, 63);"><strong>3.&nbsp; 新增整数类型二进制字面量（★★☆☆☆）</strong></span></p><p>整数类型例如（byte，short，int，long）能够用二进制来表示了。通过在数字前面加入0b或者0B来标示一个二进制的字面量，看下面的例子：</p><pre class="brush:java;toolbar:false">// 十六进制字面量
+public static final int[] phases = { 
+    0x31, 0x62, 0xC4, 0x89, 0x13, 0x26, 0x4C, 0x98 
+}
+// 二进制字面量（更加直观）
+public static final int[] phases = {
+  0b00110001,
+  0b01100010,
+  0b11000100,
+  0b10001001,
+  0b00010011,
+  0b00100110,
+  0b01001100,
+  0b10011000
+}</pre><p><span style="color: rgb(63, 63, 63);"><strong>4. 新增数字字面量使用下划线 &quot;_&quot;连接符（★★☆☆☆）</strong></span></p><p>下划线字符（_）能够出现在数字字面量的数字之间的任何位置。这个功能可以用来对一个数字字面量根据位数分组，从而提高你代码的可读性。例如：</p><pre class="brush:java;toolbar:false">long creditCardNumber = 1234_5678_9012_3456L;
+long socialSecurityNumber = 999_99_9999L;
+float pi =  3.14_15F;
+long hexWords = 0xCAFE_BABE;
+long maxLong = 0x7fff_ffff_ffff_ffffL;
+byte nybbles = 0b0010_0101;
+long bytes = 0b11010010_01101001_10010100_10010010;</pre><h3></h3><p>注意，下面的情形不能出现下划线：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>数字的开头和结尾</p></li><li><p>在浮点数中与小数点相邻</p></li><li><p>F或者L后缀之前</p></li><li><p>在预期数字的位置</p></li></ul><pre class="brush:java;toolbar:false">float pi1 = 3_.1415F;      // 无效; 不能和小数点相邻
+float pi2 = 3._1415F;      // 无效; 不能和小数点相邻
+long socialSecurityNumber1 = 999_99_9999_L;         // 无效; 不能放在L后缀之前
+
+int x1 = _52;              // 无效；这是个标识符，不是数字的字面量
+int x2 = 5_2;              // OK
+int x3 = 52_;              // 无效; 不能放在数字的结尾
+int x4 = 5_______2;        // OK
+
+int x5 = 0_x52;            // 无效; 不能放在 0x 中间 
+int x6 = 0x_52;            // 无效; 不能放在数字的开头
+int x7 = 0x5_2;            // OK
+int x8 = 0x52_;            // 无效; 不能放在数字的结尾
+
+int x9 = 0_52;             // OK 
+int x10 = 05_2;            // OK
+int x11 = 052_;            // Invalid; 不能放在数字的结尾</pre><p><span style="color: rgb(63, 63, 63);"><strong>5. 被抑制的异常（★★☆☆☆）</strong></span></p><p>在Java7中为Throwable类增加addSuppressed方法。当一个异常被抛出的时候，可能有其他异常因为该异常而被抑制住，从而无法正常抛出（主要就是指finally{}代码段中异常会覆盖try{}代码段中的异常）。这时可以通过addSuppressed方法把这些被抑制的方法记录下来。被抑制的异常会出现在抛出的异常的堆栈信息中（如下例所示），也可以通过getSuppressed方法来获取这些异常。这样做的好处是不会丢失任何异常，方便开发人员进行调试。</p><pre class="brush:java;toolbar:false">java.lang.ArithmeticException: / by zero
+	at io.hilo.example.StartApplication$TestC.test(StartApplication.java:50)
+	at io.hilo.example.StartApplication.main(StartApplication.java:26)
+	Suppressed: java.lang.ArithmeticException: / by zero
+		at io.hilo.example.StartApplication$TestC.close(StartApplication.java:57)
+		at io.hilo.example.StartApplication.main(StartApplication.java:27)</pre><p>注意，被抑制异常和嵌套异常是有概念区别的，因为被抑制异常本身并不属于嵌套的概念。</p><p>用法示例（一般都是在finally里面使用，当然也可以在其他地方使用）：<br/></p><pre class="brush:java;toolbar:false">public void read(String filename) throws IOException {
+    FileInputStream input = null;
+    IOException readException = null;
+    try {
+        input = new FileInputStream(filename);
+    } catch (IOException ex) {
+        readException = ex;
+    } finally {
+        if(input != null){
+            try {
+                input.close();
+            } catch (IOException ex2) {
+                if(readException != null){
+                //把finally里面的异常作为‘被抑制异常’添加进原始异常中
+                    readException.addSuppressed(ex2);
+                }else{
+                    readException = ex2;
+                }
+            }
+        }
+        if(readException != null){
+            throw readException;
+        }
+    }
+}</pre><p>这里其实有一个问题：上面代码中catch只有IOException一个类型，如果再加另一个类型比如IllegalArgumentException，那此时要保持throw类型不扩大成父类Exception，就得用两个变量在finally里面来分别throw，非常的麻烦，所以这个功能比较鸡肋。</p><p><span style="color: rgb(63, 63, 63);"><strong>6. 对重新抛出异常的高级类型检查（★★☆☆☆）</strong></span></p><p>throw一个更大范围内的异常类型，但throws声明的异常类型不需要跟随throw扩大。<br/></p><p>例如，下面代码是Java7以前唯一正确的最小化throws声明：</p><pre class="brush:java;toolbar:false">public void rethrowException(String en) throws Exception {
+    try {
+      if (en.equals(&quot;First&quot;)) {
+        throw new FirstException();
+      } else {
+        throw new SecondException();
+      }
+    } catch (Exception e) {
+      throw e;
+    }
+}</pre><p>但是在Java7及以后可以做到更精细的throws声明：<br/></p><pre class="brush:java;toolbar:false">public void rethrowException(String en) throws FirstException,SecondException {
+    try {
+      if (en.equals(&quot;First&quot;)) {
+        throw new FirstException();
+      } else {
+        throw new SecondException();
+      }
+    } catch (Exception e) {
+      throw e;
+    }
+}</pre><p><span style="color: rgb(63, 63, 63);"><strong>7. 自动资源管理（try-with-resources 语句）（★★★☆☆）</strong></span></p><p>任何实现了java.lang.AutoCloseable接口（Java7新增的）或者实现了java.io.Closeable，可以作为一个资源。</p><p>try-with-resources可声明多个资源，保证每一个资源都会被关闭在声明结束的时候。例如：</p><pre class="brush:java;toolbar:false">public static void write(String zipFileName, String outputFileName)
+    throws java.io.IOException {
+
+    Charset charset = Charset.forName(&quot;US-ASCII&quot;);
+    Path outputFilePath = Paths.get(outputFileName);
+
+    try (
+      ZipFile zf = new ZipFile(zipFileName);
+      BufferedWriter writer = Files.newBufferedWriter(outputFilePath, charset)
+    ) {
+
+      for (java.util.Enumeration entries = zf.entries(); entries.hasMoreElements();) {
+        String newLine = System.getProperty(&quot;line.separator&quot;);
+        String zipEntryName = ((ZipEntry)entries.nextElement()).getName() + newLine;
+        writer.write(zipEntryName, 0, zipEntryName.length());
+      }
+    }
+}
+
+public static void viewTable(Connection con) throws SQLException {
+
+    String query = &quot;select COF_NAME, SUP_ID, PRICE, SALES, TOTAL from COFFEES&quot;;
+
+    try (Statement stmt = con.createStatement()) {
+
+      ResultSet rs = stmt.executeQuery(query);
+
+      while (rs.next()) {
+        String coffeeName = rs.getString(&quot;COF_NAME&quot;);
+        System.out.println(coffeeName);
+      }
+
+    }
+}</pre><p>其实就是类似于 在 finally {} 中JVM帮我们自动调用了close方法。</p><p>只是我有点好奇，既然是自动调用close关闭，那么如果close报错，会抛异常吗，还是说异常会被忽略？于是我试验了一下，结论是：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>1）如果try-catch内部运行无异常，则close方法报错等同于在try {}内部运行时报错，因此可以在catch的时候也catch住close方法的报错（如果close方法有声明的异常，则会强制提示编程者catch该异常）。</p></li><li><p>2）如果try-catch内部运行出现异常，则close方法报错等同于在finally {}内部运行时报错，此时如果close出现异常，则会被塞进 try-catch异常的addSuppressed()方法中，当做被抑制的异常。</p></li></ul><p>注意，‘1）的逻辑可能和一般处理逻辑不同，如果你想忽略close异常（try-catch的时候不往外抛），则建议还是手动调用close方法来处理，try-with-resources只是一个偷懒的写法，但并不一定是良药。</p><p><br/></p><p><strong>8.&nbsp;Catch多个Exception（捕捉多个异常类型）（★★★★★）</strong></p><p>如下所示：</p><pre class="brush:java;toolbar:false">} catch (IOException | SQLException ex) {
+    logger.log(ex); // 一次性处理两种异常
+}</pre><p><br/></p><p id="java8"><strong><span style="font-size: 20px;">Java 8 -&gt; 2014-03-18</span></strong></p><p><span style="color: rgb(38, 38, 38);"></span></p><p><strong>1. 接口默认方法和静态方法（★★★★☆）</strong></p><pre class="brush:java;toolbar:false">public interface Defaulable {
+
+    default String notRequired() { 
+        return &quot;Default implementation&quot;; 
+    }
+
+    // static methods
+    static Defaulable create(Supplier&lt;Defaulable&gt; supplier) {
+        return supplier.get();
+    }
+
+}</pre><p><span style="color: rgb(38, 38, 38);">&nbsp;&nbsp;&nbsp;&nbsp;默认方法允许在不打破现有继承体系的基础上改进接口。该特性在官方库中的应用是：给java.util.Collection接口添加新方法，如stream()、parallelStream()、**forEach()和removeIf()**等等。接口默认方法的主要用途就在于此，可以在不影响接口的其他实现类的情况下，给接口增加新方法，然后只由其中某个类来重载实现该方法。</span></p><p><span style="color: rgb(38, 38, 38);">&nbsp;&nbsp;&nbsp;&nbsp;当然，接口默认方法也可以代替原来的抽象父类（Abstract）的部分功能，并且比抽象类的单继承更灵活，实际性通过接口默认方法，可以变相实现多继承。Java 8中的默认方法可以看作是一种多重继承的形式（除了属性不能被继承）。但是这种用法不是它的设计初衷，不应该被滥用——普遍情况下，还是应该保持接口和实现分离，不要用默认方法来代替实现类或者抽象类。</span></p><p>&nbsp;&nbsp;&nbsp;&nbsp;静态方法可以定义在接口上，算是一种小的改进吧，如果不用它，把静态方法单独定义到一个工具类中也是可以的。</p><p><span style="color: rgb(38, 38, 38);">1. Lambda表达式（★★★☆☆）</span></p><p>&nbsp; &nbsp; &nbsp; &nbsp; 俗称箭头函数，但Java里面不叫函数，Java里面其实它属于一种特殊的“匿名内部类”，是个残废品。匿名内部类可以完全替代Lambda表达式，但是反正则不行。</p><pre class="brush:java;toolbar:false">// 例1：标准语法
+list.sort(new Comparator&lt;Integer&gt;() {
+    public int compare(Integer o1, Integer o2) {
+    　　if(o1&gt;o2)
+    　　　　return -1;
+    　　else if(o1&lt;o2)
+    　　　　return 1;
+    　　else
+    　　　　return 0;
+    }
+} );
+// 例1：lambda语法
+list.sort( ( o1, o2 ) -&gt; {
+    if(o1&gt;o2)
+    　　　　return -1;
+    　　else if(o1&lt;o2)
+    　　　　return 1;
+    　　else
+    　　　　return 0;
+} );</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;在《浅论各种编程语言》一文中，我对Java的Lambda表达式的<strong>缺点</strong>有过深刻描述。</p><p>&nbsp;&nbsp;&nbsp;&nbsp;总之，建议使用匿名内部类的写法，而不是刻意使用Lambda表达式。使用传统的匿名内部类写法代码更加统一、更直观，只在某些常见、容易理解的方法中，可以使用习惯性的lambda写法（比如集合的forEach方法配合lambda使用）。</p><p>2. 方法引用&nbsp;</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 方法引用提供了非常有用的语法,可以直接引用已有的Java类或对象(实例)的方法或构造器.</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 与lambda联合使用,方法引用可以使语言的构造更紧凑简洁,减少冗余代码</p><p><br/></p><p>4. Stream API</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 新添加的Stream API(java.utils.stream)把真正的函数式编程风格引入到Java中</p><p>5. Data Time API</p><p>&nbsp; &nbsp; &nbsp; &nbsp; 加强对日期与时间的处理</p><p>6. Optional类</p><p>&nbsp; &nbsp; &nbsp; &nbsp; Optional类已经成为Java8类库的一部分，可用来解决空指针异常。</p><p><br/></p>
+{% endraw %}

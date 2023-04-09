@@ -1,0 +1,129 @@
+---
+layout: ue
+title: iptables笔记
+category: 运维与基础设施
+tags: [iptables,防火墙]
+keywords: "iptables,防火墙"
+---
+
+{% raw %}
+<p>iptables笔记</p><p><br/></p><p>第一条，其他教程都不会写的，请注意：</p><p>所谓 “服务器内部（本地）、外部（外网）”，并不是指请求来自于本机还是其他外部计算机。</p><p><span style="color: rgb(192, 0, 0);">准确的说，iptables规则并没有内部、外部访问这个概念。</span>而是指：通道的两端，source（源端）和 destination（目的端），两端都是一个IP范围。两端之间不一定要经过网络设备，换句话说，在同一个服务器上可以既是source又是destination，在服务器本地使用telnet、curl、wget，包括其他程序（Java、Python、Golang）等在本机发起的请求，请求时作为client，采用了自动生成的端口（见下文）自己属于source，服务方属于destination，而服务方响应返回数据时，服务方属于source，自己则是destination。HTTP的请求和响应通常是一对儿（是否可以只请求、不响应？）。</p><p><br/></p><p>要理解这个其实比较难，需要知道网络连接的实现原理。</p><p>服务器A（10.10.2.188）的连接：</p><pre class="brush:plain;toolbar:false">[root@dev-ipsec ~]# netstat -antpl
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      14554/sshd          
+tcp        0      0 10.10.2.188:59722       100.100.30.26:80        ESTABLISHED 15123/AliYunDun     
+tcp        0     52 10.10.2.188:22          10.8.228.102:51528      ESTABLISHED 31289/sshd: root@pt 
+tcp        0      0 10.10.2.188:51972       100.100.0.70:443        TIME_WAIT   -  </pre><p>可以看到本地端口（Local Address），外部端口（Foreign Address），以及端口号。</p><p>可以看到，每一个网络连接，本地端口号和外部端口号其中一个是自动生成的</p><p>（仔细分析和测试可知，<strong>数据接收端的端口号是固定的，而客户端-数据发送端的端口号是自动生成的</strong>）。</p><p>例如（10.9.8.187）：</p><pre class="brush:plain;toolbar:false;">tcp        0      0 10.9.8.187:36646        10.9.64.28:3306         ESTABLISHED 3060/java           
+tcp        0      0 10.9.8.187:60966        10.10.64.206:6379       ESTABLISHED 3861/node /www/app/ 
+tcp        0      0 10.9.8.187:443          125.112.146.203:58827   ESTABLISHED 11759/nginx: worker 
+tcp        1      0 10.9.8.187:52652        10.9.8.187:8002         CLOSE_WAIT  21693/java 
+tcp        0      0 10.9.8.187:8443          10.9.1.61:39134        TIME_WAIT   -</pre><p>Foreign Address的3306是MySQL，6379是Redis，都是服务端。</p><p>但是Local Address的443、8443也是服务端。</p><p>只是有个比较奇怪：</p><p>“10.9.8.187:52652&nbsp; &nbsp;10.9.8.187:8002&nbsp; &nbsp;CLOSE_WAIT&nbsp; 21693/java”</p><p>187:8002按道理来说，是本地服务，怎么却是 “Foreign Address”？</p><p><br/></p><p>再看一个，服务器B（10.8.228.102）的连接：</p><pre class="brush:plain;toolbar:false">执行：
+wget http://10.9.8.187:8002/login
+wget http://10.9.8.187:80/login 
+然后，立即查看：
+[root@gateway ~]# netstat -antpl
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address               Foreign Address             State       PID/Program name   
+tcp        0      0 10.8.228.102:80             0.0.0.0:*                   LISTEN      24283/python2.7     
+tcp        0      0 0.0.0.0:22                  0.0.0.0:*                   LISTEN      1354/sshd           
+tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN      1471/master         
+tcp        0     64 10.8.228.102:22             172.16.8.22:51314           ESTABLISHED 4352/sshd  
+tcp        0      0 10.8.228.102:34308          10.9.8.187:8002             TIME_WAIT   -           
+tcp        0      0 10.8.228.102:80             10.8.228.102:44480          TIME_WAIT   -    </pre><p><img class="pimg"  src="http://s.h230.cn/my/img/20230317/1679039319931020650.png" title="1679039319931020650.png" alt="1679039319931020650.png" width="563" height="208"/></p><p>可以看到，wget后面跟的地址，第一次是Foreign Address，第二次却是Local Address。</p><p>再次尝试3次，又变成了：</p><pre class="brush:plain;toolbar:false">tcp        0      0 10.8.228.102:44546          10.8.228.102:80             TIME_WAIT   -                   
+tcp        0      0 10.8.228.102:44550          10.8.228.102:80             TIME_WAIT   -                   
+tcp        0      0 10.8.228.102:44548          10.8.228.102:80             TIME_WAIT   -  </pre><p>由此可见，<span style="color: rgb(192, 0, 0);"><em>Foreign Address和Local Address是可以反转的，对应的就是请求和响应，是不同的socket连接。请求时，自己是client，对方是server，响应时对方是client，自己的server</em></span>。server的端口是固定的，client的端口是自动生成的。</p><p><br/></p><p><strong>原理：</strong></p><p>server端不需要新的端口，所有的连接都是同一个端口，但client端，每个连接都有不同的端口。</p><p>但每个连接都是不同的sockfd。服务器在accept后，创建的新的sockfd，这个sockfd和listenfd是共用同一个port的。</p><p>在客户端client 的sockfd进行connect时，内核会自动随机给其sockfd分配一个port。&nbsp;</p><p><br/></p><p>利用tcp类型的socket来建立跨主机的通信：</p><p>在server端，accept之后的所生成的socket，它们的端口都是和监听端口一样的。&nbsp;&nbsp;</p><p>（比如监听socket的端口是80，那么这些新生成的连接socket的端口也是80）&nbsp;</p><p>至于为何没有新绑定端口，那时因为，在client端的socket已经选择了不同的端口。&nbsp;</p><p>这样可行的原因在于：一个连接是由四个变量确定的，srcip，srcport，dstip，dstport。&nbsp;&nbsp;</p><p>这四个变量中只要有一个不同，就可要表示一个不同的连接了。&nbsp;&nbsp;</p><p>这种唯一性由client每次connect时候绑定的新的端口而保证了。</p><p><br/></p><p><br/></p><p>我们知道，服务器本地IP，有两重含义：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p>内部（本地、目的地）仅指 本地特殊IP（127.0.0.1、0.0.0.0，包括映射到127.0.0.1的localhost）</p></li><li><p>本地（内部）网络IP（例如192.xx、172.xx、10.xx等）</p></li></ul><p><strong><span style="color: rgb(192, 0, 0);">还有一个重要结论：使用telnet、curl、wget，包括其他程序（Java、Python、Golang）等在本机发起的请求，其client ip（srcip）都是当前的网络IP。（我不确定这句话是否正确和完整，但从实验来看是这样的），</span></strong>这对于理解netstat、iptables至关重要。一个灵魂拷问：<strong>从服务器内部访问服务器内部地址？它的请求srcip和dstip分别是什么？例如，在本机执行 “curl 本地服务”。答案：请求srcip是本地网络IP（例如192.168.31.12），dstip取决于你写的IP（有三种写法：127.0.0.1，192.168.31.12，0.0.0.0）这三种写法，对于iptables来说并不等价！！也就是说：</strong></p><pre class="brush:bash;toolbar:false">curl http://127.0.0.1:8080/test 
+curl http://192.168.31.12:8080/test
+curl http://0.0.0.0:8080/test</pre><p>这三种写法，对于iptables来说，是三个不同的dstip，如果你发现三者其中一两个telnet、curl不通，很可能是iptables规则限制了。</p><p><br/></p><p>一个有问题的配置规则解读：（见注释）</p><pre class="brush:plain;toolbar:false">[root@prodweb1 logs]# cat myipt.rule 
+# Generated by iptables-save v1.4.21 on Fri Mar 17 11:48:53 2023
+*filter
+:INPUT DROP [17543:1063956]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [49333353:17734980469]
+-A INPUT -p tcp -m tcp --dport 443 -j ACCEPT   # 允许外部访问，仅本地的443端口，此配置非常危险
+-A INPUT -p udp -m udp --sport 53 -j ACCEPT   # 允许外部访问，仅来源端口为80、53、443的请求
+-A INPUT -p tcp -m tcp --sport 80 -j ACCEPT
+-A INPUT -p tcp -m tcp --sport 443 -j ACCEPT
+-A INPUT -s 10.0.0.0/8 -j ACCEPT   # 
+-A INPUT -p icmp -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -s 172.16.0.0/16 -p tcp -m tcp --dport 22 -j ACCEPT  # 允许来自于172.16.0.0/16的外部访问，仅本地的22端口
+-A INPUT -s 10.0.0.0/8 -p tcp -m tcp --dport 22 -j ACCEPT  # 允许来自于10.0.0.0/8的外部访问，仅本地的22端口
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+-A INPUT -s 172.16.0.0/16 -p tcp -m tcp --dport 80 -j ACCEPT  # 允许来自于172.16.0.0/16的外部访问，仅本地的80端口
+-A INPUT -p tcp -m tcp --dport 80 -j ACCEPT    # 允许外部访问，仅本地的80端口
+-A OUTPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+-A OUTPUT -s 192.168.1.0/24 -p icmp -m icmp --icmp-type 0 -j ACCEPT
+-A OUTPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+-A OUTPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+-A OUTPUT -p icmp -m icmp --icmp-type 0 -j ACCEPT
+COMMIT
+# Completed on Fri Mar 17 11:48:53 2023</pre><p>对应的生效信息为：</p><pre class="brush:plain;toolbar:false">[root@prodweb1 smartmanger]#iptables -L -n
+Chain INPUT (policy DROP)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443
+ACCEPT     all  --  10.0.0.0/8           0.0.0.0/0           
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            state ESTABLISHED
+ACCEPT     tcp  --  172.16.0.0/16        0.0.0.0/0            tcp dpt:22
+ACCEPT     tcp  --  10.0.0.0/8           0.0.0.0/0            tcp dpt:22
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 8
+ACCEPT     tcp  --  172.16.0.0/16        0.0.0.0/0            tcp dpt:22
+ACCEPT     tcp  --  10.0.0.0/8           0.0.0.0/0            tcp dpt:22
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 8
+ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0            udp spt:53
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp spt:80
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp spt:443
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 8
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 8
+ACCEPT     tcp  --  172.16.0.0/16        0.0.0.0/0            tcp dpt:22
+ACCEPT     tcp  --  172.16.0.0/16        0.0.0.0/0            tcp dpt:80
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:80
+
+Chain FORWARD (policy ACCEPT)
+target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination         
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 0
+ACCEPT     icmp --  192.168.1.0/24       0.0.0.0/0            icmptype 0
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 0
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 0
+ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0            icmptype 0</pre><p>这个配置会导致nginx的本地转发失效：</p><pre class="brush:plain;toolbar:false">server {
+ listen 80;
+ server_name login.paramland.com;
+ location / {
+   proxy_pass http://127.0.0.1:8002;
+}</pre><p>参见：<a href="https://blog.csdn.net/weixin_39144798/article/details/89215656">https://blog.csdn.net/weixin_39144798/article/details/89215656</a> </p><p>因为，这个配置就相当于<span style="color: rgb(192, 0, 0);">“ curl http://127.0.0.1:8002”</span>，根据上文的分析，其srcip</p><p>关于请求，srcip是 192.168.31.12，dstport是8002，而对iptables来说，配置规则是：</p><pre class="brush:plain;toolbar:false">[root@prodweb1 smartmanger]#iptables -L -n
+Chain INPUT (policy DROP)
+target     prot opt source               destination         
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0            tcp dpt:443</pre><p>它的“tcp dpt:443” 不含包8002，所以会拒绝。</p><p>解决方法：</p><pre class="brush:bash;toolbar:false">iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1 -j ACCEPT
+或者
+iptables -I INPUT -s 127.0.0.1 -j ACCEPT</pre><p>这个规则的含义是，对于本地发起的且dstip为127.0.0.1的请求，直接放行。<br/></p><p>注意，不能用&nbsp;iptables -A INPUT -s 192.168.31.12（或者0.0.0.0） -d 127.0.0.1 -j ACCEPT</p><p>查看加的规则：</p><pre class="brush:plain;toolbar:false"># iptables -A INPUT -s 192.168.31.12 -d 127.0.0.1 -j ACCEPT
+# iptables -A INPUT -s 127.0.0.1 -d 127.0.0.1 -j ACCEPT
+# iptables -A INPUT -s 0.0.0.0 -d 127.0.0.1 -j ACCEPT
+# iptables -L INPUT --line-numbers
+Chain INPUT (policy DROP)
+num  target     prot opt source               destination         
+1    ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:https
+2    ACCEPT     all  --  10.0.0.0/8           anywhere            
+3    ACCEPT     icmp --  anywhere             anywhere             state ESTABLISHED
+4    ACCEPT     tcp  --  172.16.0.0/16        anywhere             tcp dpt:ssh
+5    ACCEPT     tcp  --  10.0.0.0/8           anywhere             tcp dpt:ssh
+6    ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+7    ACCEPT     tcp  --  172.16.0.0/16        anywhere             tcp dpt:ssh
+8    ACCEPT     tcp  --  10.0.0.0/8           anywhere             tcp dpt:ssh
+9    ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+10   ACCEPT     udp  --  anywhere             anywhere             udp spt:domain
+11   ACCEPT     tcp  --  anywhere             anywhere             tcp spt:http
+12   ACCEPT     tcp  --  anywhere             anywhere             tcp spt:https
+13   ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+14   ACCEPT     icmp --  anywhere             anywhere             icmp echo-request
+15   ACCEPT     tcp  --  172.16.0.0/16        anywhere             tcp dpt:ssh
+16   ACCEPT     tcp  --  172.16.0.0/16        anywhere             tcp dpt:http
+17   ACCEPT     tcp  --  anywhere             anywhere             tcp dpt:http
+18   ACCEPT     all  --  prodweb1             localhost           # 对应iptables -A INPUT -s 192.168.31.12
+19   ACCEPT     all  --  localhost            localhost           # 对应iptables -A INPUT -s 127.0.0.1 
+20   ACCEPT     all  --  default              localhost           # 对应iptables -A INPUT -s 0.0.0.0</pre><p>换句话说，<span style="color: rgb(192, 0, 0);">iptables规则里面，要指本地IP，必须用127.0.0.1而不是网络IP（我也不知道为什么，但测试过了换成本地网络IP或者0.0.0.0都不会生效）</span>。</p><p><br/></p><p>iptables删除规则命令：</p><pre class="brush:bash;toolbar:false">iptables -D INPUT 3 #删除INPUT的第三条已添加规则，这里3代表第几行规则</pre><p>关闭命令（CentOS）：（关闭后规则不会丢失）</p><pre class="brush:bash;toolbar:false">systemctl stop iptables</pre><p>删除、清空规则：（永久有效）</p><pre class="brush:bash;toolbar:false;">iptables -F</pre><p>备份、还原规则：</p><pre class="brush:bash;toolbar:false"># iptables-save &gt; /usr/myipt.rule   #备份规则至/usr/myipt.rule
+# iptables-restore &lt; /usr/myipt.rule   #从/usr/myipt.rule恢复规则</pre><p><br/></p><p>永久保存：</p><pre class="brush:bash;toolbar:false">iptables-save &gt; /etc/sysconfig/iptables</pre><p><br/></p>
+{% endraw %}

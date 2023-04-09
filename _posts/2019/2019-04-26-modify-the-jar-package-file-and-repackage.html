@@ -1,12 +1,13 @@
 ---
 layout: ue
-title: 修改jar包文件，重新打包jar
+title: 修改jar包文件内容，Maven重新打包jar
 category: Maven专题
-tags: 修改Jar包
+tags: [修改Jar包]
 keywords: "修改Jar包"
 ---
 
-<p><strong>一、网上搜到的下列方案都不行：</strong><br/></p><p>1、直接用WinRAR拖拽替换jar包内文件</p><p>失败，报错：压缩文件已损坏。</p><p>我以前替换成功过，但是启动的时候报错。这种方式可能会伤害到jar包的一些标识。</p><p><br/></p><p>2、解压jar包，然后使用jar命令（比如jar -uvf）重新打包</p><p>失败，能打包，但是以可执行文件（./xxx.jar start）运行时提示：jar: cannot execute binary file</p><p><br/></p><p><strong>最终我用下面方案成功了：</strong></p><p><br/></p><p><span style="white-space:pre">	</span>将jar包文件解压，导入到maven项目的main/resource目录下，删除/META-INF/MANIFEST.MF，然后配置maven pom.xml，如下所示：</p><pre class="brush:xml;toolbar:false">&lt;?xml version=&quot;1.0&quot;  encoding=&quot;UTF-8&quot;?&gt;
+{% raw %}
+<p><strong>一、网上搜到的下列方案都不行：</strong><br/></p><p><span style="text-decoration: line-through;">1、直接用WinRAR拖拽替换jar包内文件</span></p><p>失败，报错：压缩文件已损坏。</p><p>我以前替换成功过，但是启动的时候报错。这种方式可能会伤害到jar包的一些标识。</p><p><strong><span style="color: rgb(192, 0, 0);">只适合zip格式的jar文件。可以先用这种方法试试，毕竟最简单。</span></strong></p><p><br/></p><p><span style="text-decoration: line-through;">2、解压jar包，然后使用jar命令（比如jar -uvf）重新打包</span></p><p>失败，能打包，但是以可执行文件（./xxx.jar start）运行时提示：jar: cannot execute binary file</p><p><br/></p><p><strong>下面是另一种我用过的方案：</strong></p><p><span style="color: rgb(192, 0, 0);">1、将jar包文件解压，并且把所有依赖的lib下的jar包统统解压，合并在一起（ 包括class、配置文件和其他资源文件）；</span></p><p><span style="color: rgb(192, 0, 0);">2、然后全部导入到maven项目的main/resource目录下，删除/META-INF/MANIFEST.MF；</span></p><p><span style="color: rgb(192, 0, 0);">3、然后配置maven pom.xml，如下所示：</span></p><pre class="brush:xml;toolbar:false">&lt;?xml version=&quot;1.0&quot;  encoding=&quot;UTF-8&quot;?&gt;
 &lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
   xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd&quot;&gt;
   &lt;parent&gt;
@@ -29,4 +30,5 @@ keywords: "修改Jar包"
       &lt;/plugin&gt;
     &lt;/plugins&gt;
   &lt;/build&gt;
-&lt;/project&gt;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;其原理就是将 class文件当做resource打包到jar中即可。<br/></p><p><br/></p>
+&lt;/project&gt;</pre><p>&nbsp;&nbsp;&nbsp;&nbsp;其原理就是将 jar包内的文件当做resource，再次打包到jar中即可。<br/></p><p><br/></p><p><strong>建议：</strong></p><p>先用第一种方案试，解压出来修改文件，然后把修改后的文件添加到压缩包，覆盖原来的文件，注意这一步添加文件时，压缩级别一定要选择：0-不压缩。我用的是bandizip这个压缩软件，其他软件原理也一样。</p><p>如果第一种方式不行，那就用第二种方案。</p><p><br/></p>
+{% endraw %}

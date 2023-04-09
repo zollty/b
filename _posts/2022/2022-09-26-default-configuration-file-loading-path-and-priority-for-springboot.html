@@ -1,0 +1,32 @@
+---
+layout: ue
+title: Springboot的默认配置文件加载路径及优先级
+category: Spring专题
+tags: [Spring]
+keywords: "Spring,配置优先级"
+---
+
+{% raw %}
+<p>Springboot的默认配置文件加载路径有5种，优先级高于外部扩展配置（<a href="https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config" target="_blank">Externalized Configuration</a>）。</p><p><br/></p><p>也就是说：springboot配置文件的优先级为：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><strong>T0</strong>：springboot默认的5种配置文件加载路径。</p></li><li><p><strong>T1</strong>：18种外部扩展配置。</p></li></ul><p>其中，18种<span style="text-decoration: underline;">外部扩展配置</span>顺序参见上面那个官方链接。</p><p><br/></p><p><strong>默认的5种配置文件加载路径如下：</strong></p><p><br/></p><p>首先一个文件名称通用原则：</p><p><span style="color: rgb(192, 0, 0);">在相同文件夹下如果有application.properties和application.yml两个文件，那么application.properties文件会覆盖application.yml文件，生效的是application.properties文件。</span></p><p><br/></p><p>其次路径优先级原则：</p><pre class="brush:java;toolbar:false">* {@link EnvironmentPostProcessor} that configures the context environment by loading
+ * properties from well known file locations. By default properties will be loaded from
+ * &#39;application.properties&#39; and/or &#39;application.yml&#39; files in the following locations:
+ * &lt;ul&gt;
+ * &lt;li&gt;file:./config/&lt;/li&gt;
+ * &lt;li&gt;file:./config/{@literal *}/&lt;/li&gt;
+ * &lt;li&gt;file:./&lt;/li&gt;
+ * &lt;li&gt;classpath:config/&lt;/li&gt;
+ * &lt;li&gt;classpath:&lt;/li&gt;
+ * &lt;/ul&gt;
+// Note the order is from least to most specific (last one wins)
+private static final String DEFAULT_SEARCH_LOCATIONS = &quot;classpath:/,classpath:/config/,file:./,file:./config/*/,file:./config/&quot;;</pre><p>以执行java -jar命令的目录为“根目录”。注意不一定是jar所在的目录。</p><p>说明如下：</p><p>file:./config/&nbsp; &nbsp; &nbsp; &nbsp; 进程根目录下的config目录</p><p>file:./config/*/&nbsp; &nbsp; 上面的子目录</p><p>file:./&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;进程根目录</p><p>classpath:config/&nbsp; &nbsp;classpath下的config/</p><p>classpath:&nbsp; &nbsp; &nbsp; &nbsp; classpath下</p><p><br/></p><p>注意，再次强调，<span style="color: rgb(192, 0, 0);">不能用 外部扩展配置 来代替 springboot的默认配置</span>。例如</p><pre class="brush:java;toolbar:false">--spring.config.location=optional:classpath:/default.properties,optional:classpath:/override.properties
+--spring.config.additional-location=file:/xxx/</pre><p>这些配置都无法代替springboot的默认配置优先级，有些高优先级的配置加载，<span style="color: rgb(192, 0, 0);">例如nacos的启动配置</span></p><p>bootstrap.yml内如如下：</p><pre class="brush:plain;toolbar:false">### ------------nacos config center
+spring.cloud.nacos.config:
+   enabled: true
+   server-addr: ${spring.cloud.nacos.discovery.server-addr}
+   username: ${spring.cloud.nacos.discovery.username}
+   password: ${spring.cloud.nacos.discovery.password}
+   namespace: ${DEPLOY_ENV}
+   group: ${spring.application.name}
+   name: application
+   file-extension: yml</pre><p><span style="color: rgb(192, 0, 0);">就必须放在默认配置路径下，放在外部扩展配置下是无效的</span>。<br/></p><p><br/></p>
+{% endraw %}

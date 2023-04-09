@@ -1,0 +1,11 @@
+---
+layout: ue
+title: SVN安装和使用笔记
+category: 技术/开发工具
+tags: [SVN]
+keywords: "SVN"
+---
+
+{% raw %}
+<p><span style="color: inherit; font-family: 黑体, SimHei; font-size: 22px; font-weight: 600;">SVN Linux下安装</span><br/></p><p>1、自定义端口：</p><p>svnserve -d -r /data/svndata&nbsp; --listen-port=3911</p><p><br/></p><p>2、遇到问题：</p><p>SVN协议，例如：svn co svn://192.168.43.42:3911/test ./test3</p><p><span style="color: rgb(192, 0, 0);">Nginx不支持代理SVN协议</span>。需要安装Apache做代理……</p><p>（因为内网要通过Nginx/Apache代理后才能在外网使用）</p><p>参见：</p><p>&nbsp; 利用Nginx+Subversion搭建SVN http协议服务器：</p><p>&nbsp;&nbsp;<a href="https://www.jianshu.com/p/608bae02b174">https://www.jianshu.com/p/608bae02b174</a> </p><p>&nbsp; Debian上搭建svn服务以及使用nginx作代理http访问的实现记录过程：</p><p>&nbsp;&nbsp;<a href="http://www.04007.cn/article/719.html">http://www.04007.cn/article/719.html</a> </p><p><br/></p><h2>SVN linux客户端常用命令操作：</h2><p>1、获取文件：</p><p>svn co svn://192.168.43.42:3911/test ./test2 --username=prod --password=Prod1230</p><p>2、提交修改</p><p>svn commit -m &#39;init&#39; --username=prod --password=Prod1230</p><p>3、查看当前的修改日志<br/></p><p>svn log</p><p>4、与trunck最新版本对比，或者指定版本对比</p><p>svn diff -rhead</p><p>svn diff -c r3</p><p>5、忽略本地某些文件/目录</p><p>svn propedit svn:ignore .</p><p><br/></p>
+{% endraw %}

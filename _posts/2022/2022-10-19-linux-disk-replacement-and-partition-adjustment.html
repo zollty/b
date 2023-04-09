@@ -1,0 +1,108 @@
+---
+layout: ue
+title: Linux更换磁盘调整分区
+category: 运维与基础设施
+tags: [Linux,磁盘分区]
+keywords: "调整分区"
+---
+
+{% raw %}
+<p>背景：<br/></p><p><span style="color: rgb(192, 0, 0);">原有磁盘过小</span>，挂载到/和/home，<span style="color: rgb(192, 0, 0);">新增磁盘200G希望替换掉/home挂载</span><br/></p><p><br/></p><p>基本信息：</p><pre class="brush:bash;toolbar:false">[root@tuxingzu data]# df -h
+文件系统                 容量  已用  可用 已用% 挂载点
+devtmpfs                 3.9G     0  3.9G    0% /dev
+tmpfs                    3.9G     0  3.9G    0% /dev/shm
+tmpfs                    3.9G  8.9M  3.9G    1% /run
+tmpfs                    3.9G     0  3.9G    0% /sys/fs/cgroup
+/dev/mapper/centos-root   50G   39G   12G   78% /
+/dev/sda1               1014M  189M  826M   19% /boot
+/dev/mapper/centos-home   27G   11G   17G   41% /home
+tmpfs                    783M     0  783M    0% /run/user/0
+/dev/sdb                 197G   61M  187G    1% /data</pre><p>fdisk -l&nbsp;<br/></p><pre class="brush:bash;toolbar:false">[root@tuxingzu data]# fdisk -l
+
+磁盘 /dev/sda：85.9 GB, 85899345920 字节，167772160 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+磁盘标签类型：dos
+磁盘标识符：0x000b76e0
+
+   设备 Boot      Start         End      Blocks   Id  System
+/dev/sda1   *        2048     2099199     1048576   83  Linux
+/dev/sda2         2099200   167772159    82836480   8e  Linux LVM
+
+磁盘 /dev/sdb：214.7 GB, 214748364800 字节，419430400 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+
+
+磁盘 /dev/mapper/centos-root：53.7 GB, 53687091200 字节，104857600 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+
+
+磁盘 /dev/mapper/centos-swap：2147 MB, 2147483648 字节，4194304 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节
+
+
+磁盘 /dev/mapper/centos-home：29.0 GB, 28982640640 字节，56606720 个扇区
+Units = 扇区 of 1 * 512 = 512 bytes
+扇区大小(逻辑/物理)：512 字节 / 512 字节
+I/O 大小(最小/最佳)：512 字节 / 512 字节</pre><p>注意到/home目录的磁盘设备（lvs）路径为：/dev/mapper/centos-home</p><p>lsblk -f</p><pre class="brush:bash;toolbar:false">[root@tuxingzu /]# lsblk -f
+NAME            FSTYPE      LABEL UUID                                   MOUNTPOINT
+sda                                                                      
+├─sda1          xfs               6d082565-b66d-4b69-9198-a17b01a2a3c8   /boot
+└─sda2          LVM2_member       UjmgRE-quzX-yBz6-lUbD-9ofr-2mbL-6cXNHz 
+  ├─centos-root xfs               70915e7b-5271-4a5d-a128-00d25ffe0087   /
+  ├─centos-swap swap              52f7726b-94e9-413e-91d7-89e61d8f433c   [SWAP]
+  └─centos-home xfs               80d40683-4839-456b-8bb2-6bea448e43f0   
+sdb             ext4              4318cab7-8ef1-4487-84b0-759dac906d9c   /home
+sr0  </pre><p><br/></p><p>解决方案：</p><p>1、将新增磁盘分区，然后挂载到一个临时目录，例如 /data</p><p><span style="color: rgb(192, 0, 0);">然后将/home整个目录镜像拷贝到/data目录</span></p><pre class="brush:bash;toolbar:false">mkdir /data
+mount /dev/sdb /data
+cp -a /home /data/
+cd /data &amp;&amp; mv home/* .</pre><p>2、<span style="text-decoration: underline;">手动关闭一些占用home目录文件的进程，然后卸载/home目录的挂载磁盘</span></p><p>然后移除逻辑分区：lvremove /dev/mapper/centos-home</p><p>移除之后，pvs可以看到PFree多出来了20多G</p><pre class="brush:bash;toolbar:false" style="line-height: 1.42857;">[root@tuxingzu ~]# pvs
+  PV         VG     Fmt  Attr PSize   PFree
+  /dev/sda2  centos lvm2 a--  &lt;79.00g 4.00m
+[root@tuxingzu data]# umount /dev/mapper/centos-home
+
+[root@tuxingzu ~]# lvremove /dev/mapper/centos-home
+Do you really want to remove active logical volume centos/home? [y/n]: y
+  Logical volume &quot;home&quot; successfully removed
+[root@tuxingzu ~]# pvs
+  PV         VG     Fmt  Attr PSize   PFree  
+  /dev/sda2  centos lvm2 a--  &lt;79.00g &lt;27.00g</pre><p>3、扩展其他逻辑分区</p><p>使用lvextend，然后执行resize2fs或者xfs_growfs（xfs格式）</p><pre class="brush:bash;toolbar:false">[root@tuxingzu ~]# lvextend -l +100%free /dev/mapper/centos-root
+  Size of logical volume centos/root changed from 50.00 GiB (12800 extents) to &lt;77.00 GiB (19711 extents).
+  Logical volume centos/root successfully resized.
+
+  // 报错  
+[root@tuxingzu ~]# resize2fs /dev/mapper/centos-root
+resize2fs 1.42.9 (28-Dec-2013)
+resize2fs: Bad magic number in super-block 当尝试打开 /dev/mapper/centos-root 时
+找不到有效的文件系统超级块.
+
+// 换成xfs_growfs 即可
+[root@tuxingzu ~]# xfs_growfs /dev/mapper/centos-root
+meta-data=/dev/mapper/centos-root isize=512    agcount=4, agsize=3276800 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0 spinodes=0
+data     =                       bsize=4096   blocks=13107200, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal               bsize=4096   blocks=6400, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 13107200 to 20184064
+[root@tuxingzu ~]# df -h
+文件系统                 容量  已用  可用 已用% 挂载点
+devtmpfs                 3.9G     0  3.9G    0% /dev
+tmpfs                    3.9G     0  3.9G    0% /dev/shm
+tmpfs                    3.9G  8.9M  3.9G    1% /run
+tmpfs                    3.9G     0  3.9G    0% /sys/fs/cgroup
+/dev/mapper/centos-root   77G   39G   39G   51% /
+/dev/sdb                 197G   11G  176G    6% /home
+/dev/sda1               1014M  189M  826M   19% /boot
+tmpfs                    783M     0  783M    0% /run/user/0</pre><p><br/></p><p>（完）</p>
+{% endraw %}

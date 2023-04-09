@@ -1,0 +1,150 @@
+---
+layout: ue
+title: 阿里云、华为云keepalived和vip虚IP配置安装部署
+category: 运维与基础设施
+tags: [keepalived,虚ip]
+keywords: "keepalived,虚ip"
+---
+
+{% raw %}
+<h3>架构为： 双服务器，双VIP，关系如下：<br/></h3><p><span style="color: rgb(192, 0, 0);"></span></p><pre class="brush:plain;toolbar:false">外网IP&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;VIP-虚IP&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 内网服务器IP
+219.153.117.65    192.168.43.240    192.168.43.49-slave节点/192.168.43.132-master节点&nbsp;
+219.153.117.103    192.168.43.241    192.168.43.49-master节点/192.168.43.132-slave节点</pre><p>图我就不画了，就是一个“外网IP映射到一个虚IP，然后虚IP映射到两个服务器IP”。</p><p>可以参考链接：<a href="https://support.huaweicloud.com/bestpractice-vpc/bestpractice_0010.html" target="_blank">搭建Keepalived Nginx高可用Web集群</a></p><p><br/></p><p><strong>注意：</strong></p><p>1、VIP是自己随便设定的（只要在相同网段，本文是192.168.43.1/32网段，不和其他已有IP冲突就行）。</p><p><br/></p><p>2、如果是用的阿里云、华为云，则要想让VIP能与网段下的其他IP通信，则需要在控制台申请（免费的），相关操作参见阿里云、华为云的文档，例如：</p><ul class=" list-paddingleft-2" style="list-style-type: disc;"><li><p><a href="https://support.huaweicloud.com/bestpractice-vpc/bestpractice_0010.html" target="_blank">搭建Keepalived Nginx高可用Web集群</a></p></li><li><p><a href="https://support.huaweicloud.com/usermanual-vpc/vpc_vip_0002.html" target="_blank">申请虚拟IP地址</a></p></li><li><p><a href="https://support.huaweicloud.com/usermanual-vpc/vpc_vip_0003.html" target="_blank">为弹性公网IP绑定虚拟IP地址</a></p></li></ul><p><br/></p><p>3、其中虚IP对应的服务器slave和master关系不是固定不变的，默认情况下priority权重大的是master，但是随着服务（这里为nginx）挂掉一次减少weight，会影响到实际的priority值。参见：<a href="https://blog.csdn.net/weixin_42558057/article/details/82722516" style="background-color: rgb(245, 245, 213);">https://blog.csdn.net/weixin_42558057/article/details/82722516</a></p><p><br/></p><h3>整个安装和配置过程如下：</h3><pre class="brush:bash;toolbar:false">yum install keepalived -y
+date（确保两个服务器时间一致）
+cat /etc/keepalived/keepalived.conf
+echo net.ipv4.ip_nonlocal_bind=1 &gt;&gt; /etc/sysctl.conf
+
+cat&nbsp;/usr/bin/check_nginx_alive.sh
+#!/bin/bash
+counter=$(ps -C nginx --no-heading|wc -l)
+if [ &quot;${counter}&quot; = &quot;0&quot;  ]; then
+     systemctl start nginx.service
+     sleep 2
+     counter=$(ps -C nginx  --no-heading|wc -l)
+     if [ &quot;${counter}&quot; =  &quot;0&quot; ]; then
+          systemctl stop keepalived.service
+     fi
+fi
+
+systemctl start keepalived
+systemctl enable keepalived</pre><p>最关键的配置文件，在下面有详细注释：</p><p>其中配置文件server1（192.168.43.49，VIP-192.168.43.240-slave、241-master）为：<br/></p><pre class="brush:plain;toolbar:false">vrrp_script check_nginx_alive {
+    ##脚本路径
+    script &quot;/usr/bin/check_nginx_alive.sh&quot;
+    #script &quot;[[ `ps -ef | grep nginx | grep -v grep | wc -l` -ge 2 ]] &amp;&amp; exit 0 || exit 1&quot;
+    interval 3
+    #宕机一次将自身权重减3，权重改变则master-slave关系也将改变
+    weight -3
+}
+global_defs {
+    ## 设置lvs的id，在一个网络内唯一，可以自定义，保持唯一性
+    # 机器标识，通常可设为hostname。故障发生时，邮件通知会用到。
+    router_id LB_DEVEL49
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface eth0
+    mcast_src_ip 192.168.43.49
+    virtual_router_id 51
+    priority 92
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    unicast_src_ip 192.168.43.49
+    virtual_ipaddress {
+        192.168.43.240
+    }
+    track_script {
+        check_nginx_alive
+    }
+}
+
+##实例名，可修改
+vrrp_instance VI_2 {
+    ## 主机配置，从机为BACKUP
+    state MASTER
+    ## 网卡名称,虚拟机一般都是使用eth0
+    interface eth0
+    mcast_src_ip 192.168.43.49
+    ##虚拟路由ID，两机器保持一致即可
+    virtual_router_id 52
+    ## 权重值。值越大，优先级越高，backup-92设置比master-100小
+    priority 100
+    ## 组播信息发送间隔，两个节点设置必须一样
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    unicast_src_ip 192.168.43.49
+    virtual_ipaddress {
+        ## 同一网段虚拟IP
+        192.168.43.241
+    }
+    ##与检测脚本一起使用
+    track_script {
+        check_nginx_alive
+    }
+}</pre><p>server2（192.168.43.132，VIP-192.168.43.241-slave、240-master）为：<br/></p><pre class="brush:plain;toolbar:false">vrrp_script check_nginx_alive {
+    ##脚本路径
+    script &quot;/usr/bin/check_nginx_alive.sh&quot;
+    #script &quot;[[ `ps -ef | grep nginx | grep -v grep | wc -l` -ge 2 ]] &amp;&amp; exit 0 || exit 1&quot;
+    interval 3
+    #宕机一次将自身权重减3，权重改变则master-slave关系也将改变
+    weight -3
+}
+global_defs {
+    ## 设置lvs的id，在一个网络内唯一，可以自定义，保持唯一性
+    # 机器标识，通常可设为hostname。故障发生时，邮件通知会用到。
+    router_id LB_DEVEL132
+}
+##实例名，可修改
+vrrp_instance VI_1 {
+    ## 主机配置，从机为BACKUP
+    state MASTER
+    ## 网卡名称,虚拟机一般都是使用eth0
+    interface eth0
+    mcast_src_ip 192.168.43.132
+    ##虚拟路由ID，两机器保持一致即可
+    virtual_router_id 51
+    ## 权重值。值越大，优先级越高，backup-92设置比master-100小
+    priority 100
+    ## 组播信息发送间隔，两个节点设置必须一样
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    unicast_src_ip 192.168.43.132
+    virtual_ipaddress {
+        ## 同一网段虚拟IP
+        192.168.43.240
+    }
+    ##与检测脚本一起使用
+    track_script {
+        check_nginx_alive
+    }
+}
+
+vrrp_instance VI_2 {
+    state BACKUP
+    interface eth0
+    mcast_src_ip 192.168.43.132
+    virtual_router_id 52
+    priority 92
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    unicast_src_ip 192.168.43.132
+    virtual_ipaddress {
+        192.168.43.241
+    }
+    track_script {
+        check_nginx_alive
+    }
+}</pre><p>亲测在华为云CentOS 7的服务器上是完全可以用的。</p><p>配置补充说明：</p><p>virtual_router_id 52，是一组VIP共同的标识，两边要一致。</p><p><br/></p><p><br/></p>
+{% endraw %}

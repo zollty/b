@@ -1,0 +1,12 @@
+---
+layout: ue
+title: CSV数据列错位问题（在Excel中打开）
+category: 其他语言和技术
+tags: [问题解决]
+keywords: "CSV"
+---
+
+{% raw %}
+<p>问题描述：<br/></p><p>从数据库中或其他软件中导出的CSV数据，<span style="color: rgb(192, 0, 0);">在Excel或WPS中打开发现，数据错位</span>，数据的内容和标题对应不上</p><p>某些数据列中有逗号，而引号前面有空格。</p><p><br/></p><p>错误示范：</p><pre class="brush:plain;toolbar:false">&#39;aaaaa&#39;, &#39;aaaa,1111&#39;, &#39;aaaa&#39;</pre><p>正确示范：<br/></p><pre class="brush:plain;toolbar:false">&#39;aaaaa&#39;,&#39;aaaa,1111&#39;,&#39;aaaa&#39;
+&quot;aaaaa&quot;,&quot;aaaa,1111&quot;,&quot;aaaa&quot;</pre><p><span style="color: rgb(192, 0, 0);">区别在于，引号前面没有空格。</span>这样才符合规范！！！！！<span style="color: rgb(192, 0, 0);">坑死我了！！！！！</span></p><p><br/></p><p>解决方案：</p><pre class="brush:plain;toolbar:false">将  [, &quot;] 全部替换成 [,&quot;]</pre><p><br/></p><p><br/></p>
+{% endraw %}
