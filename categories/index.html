@@ -13,8 +13,9 @@ layout: base
 <div class="my-tag-wr">
 {% for cat in site.categories reversed %}
   <button type="button" class="btn btn-primary show" data-toggle="collapse" id="{{ cat[0] | cgi_escape | remove: "%" }}" data-target="#modal-{{ cat[0] | cgi_escape | remove: "%" }}">{{ cat[0] }} ({{ cat[1].size }})&nbsp; <span class="caret"></span></button>
-  <ul id="modal-{{ cat[0] | cgi_escape | remove: "%" }}" class="in collapse" style="height: auto;">{% for post in cat[1] %}
+  {% for post in cat[1] %}{% if page.intro %}<div style="color:#0052d9;margin-top:3px;">{{ post.intro }}</div>{% endif %}{% endfor %}
+  <ul id="modal-{{ cat[0] | cgi_escape | remove: "%" }}" class="in collapse" style="height: auto;">{% for post in cat[1] %}{% if page.intro %}{% else %}
   <li class="pagi-list-item"><time datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%Y-%m-%d" }}</time> &raquo; <a href="{{ site.baseurl }}{{ post.url }}" target="_blank">{{ post.title }}</a></li>
-  {% endfor %}</ul>
+  {% endif %}{% endfor %}</ul>
 {% endfor %}
 </div>

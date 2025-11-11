@@ -222,6 +222,7 @@ h4, .h4, h5, .h5 {
     border: 1px solid #7ac194;
     padding: 0 8px;
     margin: 0 -8px;
+	  font-size: 20px;
 }
 .subject-info {
     font-size: 14px;
