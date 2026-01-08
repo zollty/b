@@ -5,4 +5,4 @@ Disallow: /b/tags/
 Disallow: /b/categories/
 Disallow: /b/about/
 Disallow: /b/public/
-Sitemap: http://blog.zollty.com/b/sitemap.xml
+Sitemap: https://blog.zollty.com/b/sitemap.xml

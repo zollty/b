@@ -14,20 +14,20 @@ exclude: ["**/*.bak"]
 # Serving
 baseurl: /b # does not include hostname
 # public_url: ../public/
-public_url: http://s.h230.cn/my/
+public_url: https://s.h230.cn/my/
 # cdn base url
-cdn_base_url:  http://s.h230.cn
-assets_url: http://s.h230.cn/my/
-cdn_lib_url: http://s.h230.cn/lib/
+cdn_base_url:  https://s.h230.cn
+assets_url: https://s.h230.cn/my/
+cdn_lib_url: https://s.h230.cn/lib/
 
 # gavatar头像及Favicon
-gavatar: http://s.h230.cn/my/img/avatar-80-80.jpg
-favicon: http://s.h230.cn/my/img/favicon.ico
+gavatar: https://s.h230.cn/my/img/avatar-80-80.jpg
+favicon: https://s.h230.cn/my/img/favicon.ico
 
 # 站点信息
 title: "Zollty's Blog"
 description: "Zollty's Blog"
-url: http://blog.zollty.com/b
+url: https://blog.zollty.com/b
 page_year: 2020
 
 # 相对于baseurl
