@@ -5,7 +5,7 @@ layout: base
   <div class="at-wrapper">
     {% if page.catalog == true %}<br>{% endif %}
     <div class="aside3-title">{{ page.title }}</div>
-    <div class="aside3-t-date">{{ page.date | date:"%Y年%m月%d日" }}</div>
+    {% include catetags.html %}
   </div>
   <div class="col-md-12">
     <div id="content">
@@ -15,7 +15,6 @@ layout: base
     </div>
     <hr>
 	
-    {% include catetags.html %}
     {% include related-posts.html %}
 {% if site.comments.show == true and page.comments != false %}
     {% include comments.html %}
